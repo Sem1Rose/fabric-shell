@@ -39,6 +39,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fabric" },
+    { name = "loguru" },
     { name = "platformdirs" },
     { name = "toml" },
 ]
@@ -46,6 +47,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fabric", git = "https://github.com/Fabric-Development/fabric.git" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "platformdirs", specifier = ">=4.3.6" },
     { name = "toml", specifier = ">=0.10.2" },
 ]
