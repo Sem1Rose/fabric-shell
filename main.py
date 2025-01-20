@@ -49,15 +49,13 @@ def apply_styles():
     if os.path.exists("style.css"):
         os.remove("style.css")
 
-    exec_shell_command(
+    output = exec_shell_command(
         f"sass {configuration.styles_dir}/style.scss style.css --no-source-map"
     )
 
-    app.set_stylesheet_from_file("style.css")
+    if output == "":
+        app.set_stylesheet_from_file("style.css")
 
-
-css_monitor = monitor_file(get_relative_path(configuration.styles_dir))
-css_monitor.connect("changed", lambda *_: apply_styles())
 
 if __name__ == "__main__":
     global pill_window
@@ -72,6 +70,9 @@ if __name__ == "__main__":
         apply_styles()
     else:
         threading.Thread(target=apply_styles).start()
+
+    css_monitor = monitor_file(get_relative_path(configuration.styles_dir))
+    css_monitor.connect("changed", lambda *_: apply_styles())
 
     # config_monitor = monitor_file(config_file)
     config_monitor = monitor_file(get_relative_path("default_config.toml"))

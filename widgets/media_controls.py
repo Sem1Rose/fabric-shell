@@ -1,6 +1,5 @@
 from config import configuration
 import os.path as path
-# import threading
 
 from loguru import logger
 
@@ -10,52 +9,13 @@ from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.widgets.scale import Scale
+from fabric.widgets.scale import Scale, ScaleMark
 from fabric.utils import exec_shell_command, exec_shell_command_async
-# from fabric.core.service import Service, Signal, Property
-# from gi.repository import GLib
 
 playerctl = "playerctl -p spotify"
 
 
-# class MetadataService(Service):
-#     @Signal
-#     def metadata_changed(self, new_metadata: str): ...
-
-#     @Property(str, flags="read-write")
-#     def metadata(self) -> str:
-#         return self._metadata
-
-#     @metadata.setter
-#     def metadata(self, value: str):
-#         self._metadata = value
-#         self.metadata_changed(value)
-
-#     def update_metadata(self, value):
-#         # [art_url, artist, album, title, length, _] = value.split('|')
-#         self.metadata = value
-
-#     def __init__(self):
-#         super().__init__()
-#         self._name = []
-
-#         Fabricator(
-#             poll_from=f"{playerctl}"
-#             + r" metadata -f '{{ mpris:artUrl }}|{{ artist }}|{{ album }}|{{ title }}|{{ mpris:length }}|'",
-#             interval=0,
-#             stream=True,
-#             on_changed=lambda _, v: self.update_metadata(v),
-#         )
-
-
 class MediaControls(Box):
-    # def progress(self) -> float:
-    #     return self._progress
-
-    # def progress(self, value: float):
-    #     self._progress = value
-    #     # self.progress_changed(value)
-
     def __init__(self, **kwargs):
         super().__init__(
             spacing=configuration.spacing,
@@ -136,6 +96,14 @@ class MediaControls(Box):
 
         def seek():
             self.seeking = True
+            media_progress.draw_value = True
+
+        def seek_playback(scale):
+            if self.length is not None:
+                self.seeking = False
+                exec_shell_command_async(
+                    f"{playerctl} position {scale.value * self.length}"
+                )
 
         media_progress = Scale(
             name="media_progress",
@@ -150,11 +118,11 @@ class MediaControls(Box):
                 on_changed=lambda _, value: change_value(float(value) / self.length),
             )
         )
+        media_progress.connect("button-press-event", lambda *_: seek())
         media_progress.connect(
             "button-release-event",
-            lambda scale, _: self.seek_playback(scale),
+            lambda scale, _: seek_playback(scale),
         )
-        media_progress.connect("button-press-event", lambda *_: seek())
 
         def update_progress_box(box, visible):
             box.children = [media_progress] if visible else []
@@ -196,13 +164,7 @@ class MediaControls(Box):
         )
 
         def download_artwork(button, art_url, file_path):
-            # x = exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
             exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
-            # if exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"') is not False:
-            # if x == "":
-            # time.sleep(1)
-            # while not path.exists(file_path):
-            #     pass
             button.set_image(
                 Image(image_file=file_path, size=configuration.artwork_size)
             )
@@ -279,10 +241,6 @@ class MediaControls(Box):
                 v_expand=True,
                 children=[
                     artwork_box,
-                    # Box(
-                    #     spacing=configuration.spacing,
-                    #     orientation="v",
-                    #     children=[
                     Box(
                         v_expand=True,
                         h_expand=True,
@@ -311,8 +269,6 @@ class MediaControls(Box):
                             ),
                         ],
                     ),
-                    # ],
-                    # ),
                     Box(
                         v_expand=True,
                         h_expand=True,
@@ -331,40 +287,11 @@ class MediaControls(Box):
                 h_expand=True,
                 children=[
                     media_previous,
-                    # media_progress if length != "" else Box(h_expand=True),
                     progress_box,
                     media_next,
                 ],
             ),
         ]
-
-        # self.playing = False
-        # self.poll_progress = False
-        # self.polls = 0
-        # self.seeking = False
-        # self.max_polls = 10
-        # self.progress = 0
-        # self.length = 1000000
-
-        # exec_shell_command_async(r'playerctl metadata -f "{{mpris:length}}"', self.set_length)
-
-        # def set_progress(progress):
-        #     self.progress = float(progress)
-
-        # Fabricator(
-        #     poll_from=r"playerctl position",
-        #     interval=500,
-        #     default_value=0,
-        #     on_changed=lambda _, value: set_progress(value),
-        # )
-
-        # Fabricator(
-        #     poll_from=r"playerctl status -F",
-        #     interval=0,
-        #     stream=True,
-        #     default_value="",
-        #     on_changed=lambda _, value: self.set_playing(value == "Playing"),
-        # )
 
         def show_hide(show):
             if show:
@@ -381,66 +308,3 @@ class MediaControls(Box):
             default_value="",
             on_changed=lambda _, value: show_hide(value != ""),
         )
-
-    # def poll_progress(self, value):
-    #     print(self.progress)
-    #     if self.poll_progress:
-    #         self.poll_progress = False
-    #         self.progress = float(value)
-    #     else:
-    #         self.polls += 1
-    #         self.progress = self.progress + 0.5
-    #         if self.polls == self.max_polls:
-    #             self.polls = 0
-    #             self.poll_progress = True
-
-    # def set_length(self, length):
-    #     self.length = float(length) / 1000000.0
-    #     # self.process_media(" ")
-
-    # def setup_widgets(self):
-
-    # self.metadata_service = MetadataService()
-
-    # self.metadata_service.connect(
-    #     "metadata-changed",
-    #     lambda md, _: self.media_play_pause.set_image(
-    #         Image(
-    #             f"{configuration.icons_dir}/pause.svg"
-    #             if md.metadata.split("|")[0] == "Playing"
-    #             else f"{configuration.icons_dir}/play.svg",
-    #             size=configuration.icon_size,
-    #         )
-    #     ),
-    # )
-
-    # def process_media(self, title):
-
-    #     else:
-    #         self.remove_style_class("empty")
-    # [art_url, artist, album, title, length, _] = exec_shell_command(
-    #     f"{playerctl}"
-    #     + r" metadata -f '{{ mpris:artUrl }}|{{ artist }}|{{ album }}|{{ title }}|{{ mpris:length }}|'"
-    # ).split("|")
-
-    # # print(length)
-    # if length != "":
-    #     self.seeking = False
-    #     self.length = float(length) / 10e5
-    # else:
-    #     self.seeking = True
-
-    # if album != "":
-    #     artist_album.add(Label("·"))
-    #     artist_album.add(Label(album))
-
-    # def clear_children(self):
-    #     self.children = []
-    #     self.add_style_class("empty")
-
-    def seek_playback(self, scale):
-        if self.length is not None:
-            self.seeking = False
-            exec_shell_command_async(
-                f"{playerctl} position {scale.value * self.length}"
-            )
