@@ -1,4 +1,4 @@
-import config
+from config import configuration
 import os.path as path
 import threading
 
@@ -23,7 +23,12 @@ class MediaControls(Box):
     #     # self.progress_changed(value)
 
     def __init__(self, **kwargs):
-        super().__init__(spacing=config.spacing, orientation="v", name="media_player")
+        super().__init__(
+            spacing=configuration.spacing,
+            orientation="v",
+            name="media_player",
+            **kwargs,
+        )
 
         # self.playing = False
         # self.poll_progress = False
@@ -54,7 +59,7 @@ class MediaControls(Box):
         # )
 
         Fabricator(
-            poll_from=f"{playerctl} metadata -F -f '{{ title }}'",
+            poll_from=f"{playerctl}" + r" metadata -F -f '{{ title }}'",
             interval=0,
             stream=True,
             default_value="",
@@ -90,22 +95,24 @@ class MediaControls(Box):
             artwork_box = Button(
                 name="artwork_box",
                 orientation="h",
-                size=config.artwork_size,
+                size=configuration.artwork_size,
             )
 
             artwork_box.set_image(
                 Image(
-                    image_file=f"{config.icons_dir}/image-off.svg",
-                    size=config.no_artwork_icon_size,
+                    image_file=f"{configuration.icons_dir}/image-off.svg",
+                    size=configuration.no_artwork_icon_size,
                 )
             )
 
             if art_url != "":
-                file_path = path.join(config.artwork_cache_dir, art_url.split("/")[-1])
+                file_path = path.join(
+                    configuration.artwork_cache_dir, art_url.split("/")[-1]
+                )
                 # print(file_path)
                 if path.exists(file_path):
                     artwork_box.set_image(
-                        Image(image_file=file_path, size=config.artwork_size)
+                        Image(image_file=file_path, size=configuration.artwork_size)
                     )
                 else:
                     threading.Thread(
@@ -128,10 +135,10 @@ class MediaControls(Box):
                     default_value="",
                     on_changed=lambda _, value: button.set_image(
                         Image(
-                            f"{config.icons_dir}/pause.svg"
+                            f"{configuration.icons_dir}/pause.svg"
                             if value == "Playing"
-                            else f"{config.icons_dir}/play.svg",
-                            size=config.icon_size,
+                            else f"{configuration.icons_dir}/play.svg",
+                            size=configuration.icon_size,
                         )
                     ),
                 )
@@ -140,8 +147,8 @@ class MediaControls(Box):
             media_previous = Button(
                 name="media_previous",
                 image=Image(
-                    image_file=f"{config.icons_dir}/backward.svg",
-                    size=config.icon_size,
+                    image_file=f"{configuration.icons_dir}/backward.svg",
+                    size=configuration.icon_size,
                 ),
                 h_align="end",
             )
@@ -153,8 +160,8 @@ class MediaControls(Box):
             media_next = Button(
                 name="media_next",
                 image=Image(
-                    image_file=f"{config.icons_dir}/forward.svg",
-                    size=config.icon_size,
+                    image_file=f"{configuration.icons_dir}/forward.svg",
+                    size=configuration.icon_size,
                 ),
                 h_align="end",
             )
@@ -205,7 +212,7 @@ class MediaControls(Box):
 
             artist_album = Box(
                 name="media_artist_album",
-                spacing=config.spacing,
+                spacing=configuration.spacing,
                 orientation="h",
                 children=[
                     Label(artist),
@@ -219,21 +226,21 @@ class MediaControls(Box):
 
             self.children = [
                 Box(
-                    spacing=config.spacing,
+                    spacing=configuration.spacing,
                     orientation="h",
                     h_expand=True,
                     v_expand=True,
                     children=[
                         artwork_box,
                         # Box(
-                        #     spacing=config.spacing,
+                        #     spacing=configuration.spacing,
                         #     orientation="v",
                         #     children=[
                         Box(
                             v_expand=True,
                             h_expand=True,
                             orientation="h",
-                            spacing=config.spacing,
+                            spacing=configuration.spacing,
                             children=[
                                 Box(
                                     h_expand=True,
@@ -266,7 +273,7 @@ class MediaControls(Box):
                     ],
                 ),
                 Box(
-                    spacing=config.spacing,
+                    spacing=configuration.spacing,
                     orientation="h",
                     h_expand=True,
                     children=[
@@ -284,7 +291,7 @@ class MediaControls(Box):
     def download_artwork(self, art_url, file_path):
         exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
         exec_shell_command(
-            f"fabric-cli execute {config.app_name} 'bar.pill.media_controls_widget.process_media(\" \")'"
+            f"fabric-cli execute {configuration.app_name} 'bar.pill.media_controls_widget.process_media(\" \")'"
         )
 
     def seek_playback(self, scale, length):

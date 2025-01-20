@@ -1,3 +1,5 @@
+from config import configuration
+
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.datetime import DateTime
 
@@ -5,11 +7,11 @@ from fabric.widgets.datetime import DateTime
 class DateTimeWidget(CenterBox):
     def __init__(self, **kwargs):
         super().__init__(
-            spacing=100,
             orientation="h",
             name="date_time",
             style_classes="widget",
             h_expand=True,
+            **kwargs,
         )
 
         self.date_label = DateTime(formatters=r"%a", name="date")
