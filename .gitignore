@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 style.css
+styles/_colors.scss
+styles/_settings.scss

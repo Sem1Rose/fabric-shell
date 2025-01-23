@@ -39,22 +39,6 @@ class Config:
             with open(get_relative_path("default_config.toml")) as f:
                 self.config = toml.load(f)
 
-        # self.app_name = self.config["app_settings"]["app_name"]
-        # self.reveal_animation_duration = self.config["app_settings"][
-        #     "reveal_animation_duration"
-        # ]
-
-        # self.styles_dir = self.parse_dir(self.config["app_settings"]["styles_dir"])
-        # self.icons_dir = self.parse_dir(self.config["app_settings"]["icons_dir"])
-        # self.artwork_cache_dir = self.parse_dir(
-        #     self.config["app_settings"]["artwork_cache_dir"]
-        # )
-
-        # self.spacing = self.config["app_settings"]["spacing"]
-        # self.artwork_size = self.config["app_settings"]["artwork_size"]
-        # self.no_artwork_icon_size = self.config["app_settings"]["no_artwork_icon_size"]
-        # self.icon_size = self.config["app_settings"]["icon_size"]
-
         self.set_css_settings()
 
     def get_setting(self, name: str):
