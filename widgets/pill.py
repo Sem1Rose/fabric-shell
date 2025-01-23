@@ -14,26 +14,37 @@ from fabric.widgets.eventbox import EventBox
 from fabric.widgets.revealer import Revealer
 # from fabric.core.fabricator import Fabricator
 
-# import gi
+import gi
 
-# gi.require_version("Gtk", "3.0")
-# from gi.repository import Gtk, Gdk  # noqa: E402
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk  # noqa: E402
 
 
 class PillWindow(Window):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
             name="pill_window",
             anchor="top",
-            exclusivity="none",
+            exclusivity="normal",
             layer="top",
             visible=False,
+            *args,
             **kwargs,
         )
 
+        self.pointer = self.get_display().get_default_seat().get_pointer()
+        logger.debug(self.pointer)
+
         def create_spacings(**args):
+            def on_click():
+                if self.pill.dashboard.expanded:
+                    self.pill.dashboard.unpeek()
+                    return True
+                else:
+                    return False
+
             box = Button(v_expand=True, h_expand=True, **args)
-            box.connect("clicked", lambda *_: self.pill.dashboard.unpeek())
+            box.connect("clicked", lambda *_: on_click())
             return box
 
         self.pill = Pill()
@@ -45,35 +56,58 @@ class PillWindow(Window):
         self.b = Button(name="show_hide_pill")
         self.b2 = Button(name="show_hide_pill")
 
-        self.center_box = CenterBox(name="pill_center_box", orientation="h")
+        self.center_box = CenterBox(name="pill_main_container", orientation="h")
         self.center_box.center_children = Box(
             children=[self.hover_listener, create_spacings()],
             spacing=10,
             orientation="v",
         )
         self.center_box.start_children = [
-            create_spacings(style="min-width: 900px;"),
+            create_spacings(),
             Box(children=[self.b, create_spacings()], orientation="v"),
         ]
         self.center_box.end_children = [
             Box(children=[self.b2, create_spacings()], orientation="v"),
-            create_spacings(style="min-width: 900px;"),
+            create_spacings(),
         ]
 
-        self.hover_listener.connect(
-            "enter-notify-event", self.pill.dashboard.cursor_try_peek
-        )
-        self.hover_listener.connect(
-            "leave-notify-event", self.pill.dashboard.cursor_try_unpeek
+        self.hover_listener.connect("enter-notify-event", self.mouse_enter)
+        self.hover_listener.connect("leave-notify-event", self.mouse_leave)
+        self.pill.dashboard.date_time_widget.connect(
+            "clicked", lambda *_: self.toggle_expand(True)
         )
 
         self.add(self.center_box)
         self.show_all()
 
+    def mouse_enter(self, eventbox, event_crossing):
+        self.pill.dashboard.try_peek(eventbox, event_crossing)
+
+    def mouse_leave(self, eventbox, event_crossing):
+        self.pill.dashboard.try_unpeek(eventbox, event_crossing)
+
+    def toggle_expand(self, peak=False):
+        self.pill.dashboard.toggle_expand(peak)
+        # if self.pill.dashboard.toggle_expand(peak):
+        #     for i in self.spacings:
+        #         i.set_style("min-width: 00px;")
+        # else:
+        #     for i in self.spacings:
+        #         i.set_style("")
+
+    def expand(self):
+        self.pill.dashboard.expand()
+
+    def peek(self):
+        self.pill.dashboard.peek()
+
+    def unpeek(self):
+        self.pill.dashboard.unpeek()
+
 
 class Pill(Box):
-    def __init__(self, **kwargs):
-        super().__init__(name="pill_box")
+    def __init__(self, *args, **kwargs):
+        super().__init__(name="pill_box", *args, **kwargs)
 
         # self.idle = Dashboard()
         self.dashboard = Dashboard()
@@ -86,15 +120,10 @@ class Pill(Box):
             transition_duration=200,
             children=[self.dashboard],
             h_expand=True,
-            **kwargs,
         )
         # self.select_pill_widget("idle")
 
         self.add(self.stack)
-
-        self.dashboard.date_time_widget.connect(
-            "clicked", lambda *_: self.dashboard.toggle_expand(True)
-        )
 
         # self.dashboard.date_time_widget.connect(
         #     "clicked", lambda *_: self.select_pill_widget("idle", True)
@@ -115,9 +144,9 @@ class Pill(Box):
 
 
 class Dashboard(Box):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            name="pill_dashboard", orientation="v", h_expand=True, **kwargs
+            name="pill_dashboard", orientation="v", h_expand=True, *args, **kwargs
         )
 
         self.expanded = False
@@ -140,19 +169,19 @@ class Dashboard(Box):
             name="quick_settings_revealer",
             child=self.quick_settings_widget,
             transition_type="slide-down",
-            transition_duration=configuration.get_setting("reveal_animation_duration"),
+            transition_duration=configuration.get_property("reveal_animation_duration"),
         )
         self.media_controls_revealer = Revealer(
             name="media_controls_revealer",
             child=self.media_controls_widget,
             transition_type="slide-down",
-            transition_duration=configuration.get_setting("reveal_animation_duration"),
+            transition_duration=configuration.get_property("reveal_animation_duration"),
         )
         self.calendar_revealer = Revealer(
             name="calendar_revealer",
             child=self.calendar_widget,
             transition_type="slide-down",
-            transition_duration=configuration.get_setting("reveal_animation_duration"),
+            transition_duration=configuration.get_property("reveal_animation_duration"),
         )
 
         self.children = [
@@ -186,11 +215,11 @@ class Dashboard(Box):
     #     else:
     #         print("not_in_range")
 
-    def cursor_try_peek(self, eventbox, event_crossing):
+    def try_peek(self, eventbox, event_crossing):
         if not self.expanded and not self.peaking:
             self.peek()
 
-    def cursor_try_unpeek(self, eventbox, event_crossing):
+    def try_unpeek(self, eventbox, event_crossing):
         if not self.peaking:
             return
 
@@ -210,17 +239,19 @@ class Dashboard(Box):
                 self.peek()
             else:
                 self.unpeek()
+            return False
         else:
             self.expand()
+            return True
 
     def expand(self):
         logger.debug("Expanding")
         self.peaking = False
         self.expanded = True
 
-        self.quick_settings_revealer.child_revealed = True
-        self.media_controls_revealer.child_revealed = True
-        self.calendar_revealer.child_revealed = True
+        self.quick_settings_revealer.reveal()
+        self.media_controls_revealer.reveal()
+        self.calendar_revealer.reveal()
 
         self.quick_settings_widget.add_style_class("revealed")
         self.media_controls_widget.add_style_class("revealed")
@@ -230,9 +261,9 @@ class Dashboard(Box):
         self.peaking = True
         self.expanded = False
 
-        self.quick_settings_revealer.child_revealed = False
-        self.media_controls_revealer.child_revealed = True
-        self.calendar_revealer.child_revealed = False
+        self.quick_settings_revealer.unreveal()
+        self.media_controls_revealer.reveal()
+        self.calendar_revealer.unreveal()
 
         self.quick_settings_widget.remove_style_class("revealed")
         self.media_controls_widget.add_style_class("revealed")
@@ -244,9 +275,9 @@ class Dashboard(Box):
         self.peaking = False
         self.expanded = False
 
-        self.quick_settings_revealer.child_revealed = False
-        self.media_controls_revealer.child_revealed = False
-        self.calendar_revealer.child_revealed = False
+        self.quick_settings_revealer.unreveal()
+        self.media_controls_revealer.unreveal()
+        self.calendar_revealer.unreveal()
 
         self.quick_settings_widget.remove_style_class("revealed")
         self.calendar_widget.remove_style_class("revealed")

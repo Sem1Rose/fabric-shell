@@ -6,28 +6,8 @@ from loguru import logger
 
 from fabric import Application
 from widgets.pill import PillWindow
-from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.widgets.centerbox import CenterBox
+from widgets.bar import BarWindowLeft, BarWindowRight, BarWindow
 from fabric.utils import exec_shell_command, monitor_file, get_relative_path
-
-from fabric.widgets.datetime import DateTime
-
-
-class BarWindow(Window):
-    def __init__(self, **kwargs):
-        super().__init__(
-            name="bar_window",
-            anchor="left top right",
-            exclusivity="auto",
-            layer="top",
-            visible=False,
-            **kwargs,
-        )
-
-        self.date_time = DateTime()
-        self.children = CenterBox(center_children=self.date_time)
-
-        self.show_all()
 
 
 def apply_styles():
@@ -37,7 +17,7 @@ def apply_styles():
 
     logger.info("Compiling sass...")
     output = exec_shell_command(
-        f"sass {configuration.get_setting('styles_dir')}/style.scss style.css --no-source-map"
+        f"sass {configuration.get_property('styles_dir')}/style.scss style.css --no-source-map"
     )
 
     if output == "":
@@ -51,13 +31,21 @@ if __name__ == "__main__":
     global pill_window
     pill_window = PillWindow()
 
+    global bar_window_left
+    bar_window_left = BarWindowLeft()
+
+    global bar_window_right
+    bar_window_right = BarWindowRight()
+
     global bar_window
     bar_window = BarWindow()
 
     app = Application(
-        configuration.get_setting("app_name"),
+        configuration.get_property("app_name"),
         bar_window,
         pill_window,
+        # bar_window_left,
+        # bar_window_right,
         open_inspector=True,
     )
 
@@ -68,7 +56,7 @@ if __name__ == "__main__":
         threading.Thread(target=apply_styles).start()
 
     css_monitor = monitor_file(
-        get_relative_path(configuration.get_setting("styles_dir"))
+        get_relative_path(configuration.get_property("styles_dir"))
     )
     css_monitor.connect("changed", lambda *_: apply_styles())
 

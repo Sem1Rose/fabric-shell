@@ -4,7 +4,7 @@ import os
 from platformdirs import user_cache_dir, user_config_dir
 from loguru import logger
 
-from fabric.utils import get_relative_path
+from fabric.utils import get_relative_path, exec_shell_command
 
 config_file = f"{user_config_dir('fabric-shell')}/config.toml"
 
@@ -41,11 +41,11 @@ class Config:
 
         self.set_css_settings()
 
-    def get_setting(self, name: str):
+    def get_property(self, name: str):
         if name not in self.config["app_settings"]:
             return None
 
-        if name.endswith("_dir"):
+        if name.endswith("_dir") or name.endswith("_file"):
             return self.parse_dir(self.config["app_settings"][name])
         else:
             return self.config["app_settings"][name]

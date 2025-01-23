@@ -6,8 +6,8 @@ class ToggleButton(Button):
     @Signal
     def on_toggled(self): ...
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.toggled = False
 
@@ -29,8 +29,8 @@ class CycleToggleButton(Button):
     @Signal
     def on_cycled(self): ...
 
-    def __init__(self, states, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, states, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.toggled = False
         self.states = states

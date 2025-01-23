@@ -4,8 +4,9 @@ app_name = "fabric-shell"
 styles_dir = "styles"
 icons_dir = "icons"
 artwork_cache_dir = "user_cache_dir-artworks"
+wallpaper_file = "user_config_dir-wallpaper/.current-wallpaper"
 
-spacing = 16
+spacing = 12
 artwork_size = 120
 no_artwork_icon_size = 40
 icon_size = 16
@@ -14,9 +15,9 @@ reveal_animation_duration = 400
 nmcli_wifi_adapter_name = "wlan0"
 
 [css_settings]
-padding = "14px"
-# expanded_radius = "50px"
-window_radius = "30px"
+bar_min_height = "50px"
+padding = "13px"
+window_radius = "25px"
 ui_radius = "16px"
 scale_inner_padding = "8px"
 scale_slider_padding_left = "15px"
@@ -25,3 +26,4 @@ pill_idle_min_width = "375px"
 media_title_font_size = "18px"
 media_artist_album_font_size = "10px"
 media_artwork_size = "120px"
+qs_tiles_height = "55px"

@@ -19,6 +19,8 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
     background-color: colors.$background;
     padding: settings.$padding;
     border-radius: settings.$window_radius;
+    // min-height: (settings.$bar_min_height - settings.$padding * 2);
+    // margin-top: 10px;
     // margin-top: 10px;
 
     // &.dashboard {
@@ -27,22 +29,27 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
     // }
 }
 
+#pill_main_container {
+    // margin-top: 5px;
+}
+
 #show_hide_pill {
     background-color: colors.$background;
-    padding: settings.$padding;
+    // padding: settings.$padding;
     border-radius: 100px;
-    min-width: 30px;
-    min-height: 30px;
-    margin: 0px settings.$padding;
+    min-width: settings.$bar_min_height;
+    min-height: settings.$bar_min_height;
+    margin: 0px (settings.$padding / 2);
 }
 
 #date_time_widget {
     #date, #time, #day {
         background-color: colors.$surface_container;
         color: colors.$secondary;
-        padding: 5px 12px;
         border-radius: settings.$ui_radius;
         min-width: 40px;
+        padding: 0px settings.$padding;
+        min-height: 24px;
 
         label {
             font-size: 15px;
@@ -59,12 +66,14 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
     background-color: $container_background;
     padding: settings.$padding;
     border-radius: settings.$window_radius;
-    margin: -50px;
+    margin: 10px -50px;
 
     &.revealed {
-        transition: all 0.4s cubic-bezier(.05,.25,.2,1.25);
+        transition: all 0.45s cubic-bezier(.2,1.8,.5,.8);
         margin: settings.$padding 0px 0px 0px;
         min-width: settings.$pill_idle_min_width;
+        // margin-left: -500px;
+        // margin-right: -500px;
     }
 
     &.empty {
@@ -207,10 +216,10 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
 }
 
 #calendar_container {
-    transition: all 0.5s ease-out;
+    transition: all 0.4s linear;
     background-color: $container_background;
     border-radius: settings.$window_radius;
-    margin: -100px;
+    margin: 0px -100px;
 
     &.revealed {
         margin: settings.$padding 0px 0px 0px;
@@ -226,12 +235,14 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
 }
 
 #quick_settings_container {
-    transition: all 0.3s ease-out;
+    transition: all 0.7s cubic-bezier(1,0,1,0);
 
     background-color: transparent;
-    margin: -100px;
+    margin: 10px -100px;
 
     &.revealed {
+        transition: all 0 linear;
+
         margin: settings.$padding 0px 0px 0px;
     }
 
@@ -239,7 +250,7 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
         transition: all 0.2s ease-out;
 
         border-radius: settings.$window_radius;
-        min-height: 60px;
+        min-height: settings.$qs_tiles_height;
         background-color: colors.$surface_container_high;
         color: colors.$on_surface;
 
@@ -250,11 +261,20 @@ $container_background: rgba(colors.$surface_container_low, 0.7);
     }
 }
 
-#pill_dashboard {
-    // transition: all 0.3s ease-in-out;
-    // margin: 0px;
+#bar_window {
+    min-height: settings.$bar_min_height - 1;
+}
 
-    // &.hidden {
-    //     margin-top: -500px;
-    // }
+#bar_start_container, #bar_end_container {
+    background-color: colors.$background;
+    min-height: settings.$bar_min_height;
+    padding: 0px settings.$padding;
+}
+
+#wallpaper_container {
+        min-width: 100px;
+    image {
+        min-width: 100px;
+        min-height: 100px;
+    }
 }

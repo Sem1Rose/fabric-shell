@@ -14,8 +14,8 @@ from gi.repository import Gtk  # noqa: E402
 
 
 class DateTimeWidget(Button):
-    def __init__(self, **kwargs):
-        super().__init__(name="date_time_widget", **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(name="date_time_widget", *args, **kwargs)
 
         self.day_label = DateTime(formatter=r"%b %e", name="day", v_expand=True)
         self.time_label = DateTime(formatter=r"%R", name="time", v_expand=True)
@@ -37,8 +37,8 @@ class DateTimeWidget(Button):
 
 
 class Calendar(Gtk.Calendar):
-    def __init__(self, **kwargs):
-        super().__init__(name="calendar_widget", **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(name="calendar_widget", *args, **kwargs)
 
         # self.set_property("show-heading", False)
         # self.set_property("show-day-names", False)
@@ -51,11 +51,10 @@ class DateTime(Label):
         self,
         formatter: str = "%I:%M %p",
         interval: int = 1000,
+        *args,
         **kwargs,
     ):
-        super().__init__(
-            **kwargs,
-        )
+        super().__init__(*args, **kwargs)
 
         self.build(
             lambda label, _: Fabricator(

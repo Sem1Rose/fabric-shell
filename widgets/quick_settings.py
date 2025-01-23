@@ -16,21 +16,22 @@ nmcli = "nmcli -c no -t"
 
 
 class QuickSettings(Box):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
             name="quick_settings_container",
             orientation="v",
+            *args,
             **kwargs,
         )
 
         logger.debug(
-            f"{nmcli} d monitor {configuration.get_setting('nmcli_wifi_adapter_name')}"
+            f"{nmcli} d monitor {configuration.get_property('nmcli_wifi_adapter_name')}"
         )
         self.wifi_tile = ToggleButton(
             name="wifi_qs_toggle", style_classes="qs_tile", h_expand=True
         ).build(
             lambda toggle, _: Fabricator(
-                poll_from=f"{nmcli} d monitor {configuration.get_setting('nmcli_wifi_adapter_name')}",
+                poll_from=f"{nmcli} d monitor {configuration.get_property('nmcli_wifi_adapter_name')}",
                 interval=0,
                 stream=True,
                 on_changed=lambda _, v: self.handle_wifi_update(toggle, v.strip()),
@@ -60,7 +61,7 @@ class QuickSettings(Box):
                     self.wifi_tile,
                     self.bluetooth_tile,
                 ],
-                spacing=configuration.get_setting("spacing"),
+                spacing=configuration.get_property("spacing"),
             )
         )
         for row in self.rows:
@@ -74,7 +75,7 @@ class QuickSettings(Box):
     def handle_wifi_update(self, toggle, v: str):
         [device, operation, *_] = v.split(": ")
         logger.debug(f'handling wifi update "{device}" "{operation}"')
-        if device != configuration.get_setting("nmcli_wifi_adapter_name"):
+        if device != configuration.get_property("nmcli_wifi_adapter_name"):
             return
 
         operations = ["connected", "disconnected", "unavailable", "connecting"]
@@ -98,7 +99,7 @@ class QuickSettings(Box):
         if active:
             active_connections = exec_shell_command(f"{nmcli} c show --active")
             for connection in [c.split(":") for c in active_connections.splitlines()]:
-                if configuration.get_setting("nmcli_wifi_adapter_name") in connection:
+                if configuration.get_property("nmcli_wifi_adapter_name") in connection:
                     toggle.set_label(connection[0])
                     logger.debug(f"Wifi connected {connection[0]}")
                     break

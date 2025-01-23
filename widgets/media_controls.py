@@ -18,11 +18,12 @@ playerctl = "playerctl -p spotify"
 
 
 class MediaControls(Box):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            spacing=configuration.get_setting("spacing"),
+            spacing=configuration.get_property("spacing"),
             orientation="v",
             name="media_controls_widget",
+            *args,
             **kwargs,
         )
 
@@ -90,7 +91,15 @@ class MediaControls(Box):
             lambda *_: exec_shell_command_async(f"{playerctl} play-pause"),
         )
 
-        media_shuffle = ToggleButton(name="media_shuffle", label="")
+        media_shuffle = ToggleButton(name="media_shuffle", label="").build(
+            lambda cycle_toggle, _: Fabricator(
+                poll_from=f"{playerctl} shuffle -F",
+                interval=0,
+                stream=True,
+                default_value="",
+                on_changed=lambda _, value: cycle_toggle.set_state(value == "On"),
+            )
+        )
         media_shuffle.connect(
             "on_toggled",
             lambda *_: exec_shell_command_async(f"{playerctl} shuffle Toggle"),
@@ -200,23 +209,24 @@ class MediaControls(Box):
             exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
             button.set_image(
                 Image(
-                    image_file=file_path, size=configuration.get_setting("artwork_size")
+                    image_file=file_path,
+                    size=configuration.get_property("artwork_size"),
                 )
             )
 
         def update_artwork(image, art_url):
             image.set_from_pixbuf(
                 GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    filename=f"{configuration.get_setting('icons_dir')}/image-off.svg",
-                    width=configuration.get_setting("no_artwork_icon_size"),
-                    height=configuration.get_setting("no_artwork_icon_size"),
+                    filename=f"{configuration.get_property('icons_dir')}/image-off.svg",
+                    width=configuration.get_property("no_artwork_icon_size"),
+                    height=configuration.get_property("no_artwork_icon_size"),
                     preserve_aspect_ratio=True,
                 )
             )
 
             if art_url != "":
                 file_path = path.join(
-                    configuration.get_setting("artwork_cache_dir"),
+                    configuration.get_property("artwork_cache_dir"),
                     art_url.split("/")[-1],
                 )
 
@@ -224,8 +234,8 @@ class MediaControls(Box):
                     image.set_from_pixbuf(
                         GdkPixbuf.Pixbuf.new_from_file_at_scale(
                             filename=file_path,
-                            width=configuration.get_setting("artwork_size"),
-                            height=configuration.get_setting("artwork_size"),
+                            width=configuration.get_property("artwork_size"),
+                            height=configuration.get_property("artwork_size"),
                             preserve_aspect_ratio=True,
                         )
                     )
@@ -261,16 +271,16 @@ class MediaControls(Box):
                         image.set_from_pixbuf(
                             GdkPixbuf.Pixbuf.new_from_file_at_scale(
                                 filename=file_path,
-                                width=configuration.get_setting("artwork_size"),
-                                height=configuration.get_setting("artwork_size"),
+                                width=configuration.get_property("artwork_size"),
+                                height=configuration.get_property("artwork_size"),
                                 preserve_aspect_ratio=True,
                             )
                         )
 
         artwork_image = RoundedImage(
             name="media_artwork",
-            image_file=f"{configuration.get_setting('icons_dir')}/image-off.svg",
-            size=configuration.get_setting("no_artwork_icon_size"),
+            image_file=f"{configuration.get_property('icons_dir')}/image-off.svg",
+            size=configuration.get_property("no_artwork_icon_size"),
             h_expand=True,
         ).build(
             lambda image, _: Fabricator(
@@ -284,7 +294,7 @@ class MediaControls(Box):
         artwork_box = Box(
             name="media_artwork_box",
             orientation="h",
-            size=configuration.get_setting("artwork_size"),
+            size=configuration.get_property("artwork_size"),
             children=[artwork_image],
         )
 
