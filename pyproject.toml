@@ -8,6 +8,8 @@ dependencies = [
     "fabric",
     "loguru>=0.7.3",
     "platformdirs>=4.3.6",
+    "pyautogui>=0.9.54",
+    "pynput>=1.7.7",
     "toml>=0.10.2",
 ]
 

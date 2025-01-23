@@ -2,14 +2,16 @@ from config import configuration
 import os.path as path
 
 from loguru import logger
+from widgets.rounded_image import RoundedImage
+from widgets.toggle_button import ToggleButton, CycleToggleButton
 
-from gi.repository import GLib
+from gi.repository import GdkPixbuf
 from fabric import Fabricator
 from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.widgets.scale import Scale, ScaleMark
+from fabric.widgets.scale import Scale
 from fabric.utils import exec_shell_command, exec_shell_command_async
 
 playerctl = "playerctl -p spotify"
@@ -18,12 +20,13 @@ playerctl = "playerctl -p spotify"
 class MediaControls(Box):
     def __init__(self, **kwargs):
         super().__init__(
-            spacing=configuration.spacing,
+            spacing=configuration.get_setting("spacing"),
             orientation="v",
-            name="media_player",
+            name="media_controls_widget",
             **kwargs,
         )
 
+        self.playing = True
         self.seeking = False
         self.length = 0
 
@@ -34,7 +37,7 @@ class MediaControls(Box):
                 self.length = None
 
         Fabricator(
-            poll_from=f"{playerctl}" + r" metadata -F -f '{{ mpris:length }}'",
+            poll_from=playerctl + r" metadata -F -f '{{ mpris:length }}'",
             interval=0,
             stream=True,
             on_changed=lambda _, v: set_length(v),
@@ -42,28 +45,30 @@ class MediaControls(Box):
 
         media_previous = Button(
             name="media_previous",
-            image=Image(
-                image_file=f"{configuration.icons_dir}/backward.svg",
-                size=configuration.icon_size,
-            ),
+            label="",
+            # image=Image(
+            #     image_file=f"{configuration.icons_dir}/backward.svg",
+            #     size=configuration.icon_size,
+            # ),
             h_align="end",
         )
         media_previous.connect(
-            "button-release-event",
+            "clicked",
             lambda *_: exec_shell_command_async(f"{playerctl} previous"),
         )
 
         media_next = Button(
             name="media_next",
-            image=Image(
-                image_file=f"{configuration.icons_dir}/forward.svg",
-                size=configuration.icon_size,
-            ),
+            label="",
+            # image=Image(
+            #     image_file=f"{configuration.icons_dir}/forward.svg",
+            #     size=configuration.icon_size,
+            # ),
             h_align="end",
         )
         media_next.connect(
-            "button-release-event",
-            lambda _, value: exec_shell_command_async(f"{playerctl} next"),
+            "clicked",
+            lambda *_: exec_shell_command_async(f"{playerctl} next"),
         )
 
         media_play_pause = Button(
@@ -75,19 +80,44 @@ class MediaControls(Box):
                 interval=0,
                 stream=True,
                 default_value="",
-                on_changed=lambda _, value: button.set_image(
-                    Image(
-                        f"{configuration.icons_dir}/pause.svg"
-                        if value == "Playing"
-                        else f"{configuration.icons_dir}/play.svg",
-                        size=configuration.icon_size,
-                    )
+                on_changed=lambda _, value: button.set_label(
+                    "" if value == "Playing" else ""
                 ),
             )
         )
         media_play_pause.connect(
-            "button-release-event",
-            lambda _, value: exec_shell_command_async(f"{playerctl} play-pause"),
+            "clicked",
+            lambda *_: exec_shell_command_async(f"{playerctl} play-pause"),
+        )
+
+        media_shuffle = ToggleButton(name="media_shuffle", label="")
+        media_shuffle.connect(
+            "on_toggled",
+            lambda *_: exec_shell_command_async(f"{playerctl} shuffle Toggle"),
+        )
+
+        media_loop = CycleToggleButton(
+            name="media_loop",
+            states=["None", "Playlist", "Track"],
+        ).build(
+            lambda cycle_toggle, _: Fabricator(
+                poll_from=f"{playerctl} loop -F",
+                interval=0,
+                stream=True,
+                default_value="",
+                on_changed=lambda _, value: (
+                    cycle_toggle.set_label(
+                        "A" if value == "None" else "B" if value == "Playlist" else "C"
+                    ),
+                    cycle_toggle.set_state(state=value),
+                ),
+            )
+        )
+        media_loop.connect(
+            "on_cycled",
+            lambda cycle_toggle: exec_shell_command_async(
+                f"{playerctl} loop {cycle_toggle.get_state()}"
+            ),
         )
 
         def change_value(value):
@@ -121,7 +151,7 @@ class MediaControls(Box):
         media_progress.connect("button-press-event", lambda *_: seek())
         media_progress.connect(
             "button-release-event",
-            lambda scale, _: seek_playback(scale),
+            lambda scale, *_: seek_playback(scale),
         )
 
         def update_progress_box(box, visible):
@@ -129,144 +159,151 @@ class MediaControls(Box):
 
         progress_box = Box(h_expand=True).build(
             lambda box, _: Fabricator(
-                poll_from=f"{playerctl}" + r" -F -f '{{ mpris:length }}'",
+                poll_from=playerctl + r" -F -f '{{ mpris:length }}'",
                 interval=0,
                 stream=True,
                 on_changed=lambda _, value: update_progress_box(box, value == ""),
             )
         )
 
-        title_label = Button(label="", name="media_title_label", h_align="start").build(
-            lambda button, _: Fabricator(
-                poll_from=f"{playerctl}" + r" metadata -F -f '{{ title }}'",
+        title_label = Label(
+            name="media_title_label",
+            h_expand=True,
+            h_align="start",
+            ellipsization="end",
+        ).build(
+            lambda label, _: Fabricator(
+                poll_from=playerctl + r" metadata -F -f '{{ title }}'",
                 interval=0,
                 stream=True,
-                on_changed=lambda _, v: button.set_label(v),
+                on_changed=lambda _, v: label.set_label(v),
             )
         )
 
-        artist_label = Button(label="", name="media_artist_label").build(
-            lambda button, _: Fabricator(
-                poll_from=f"{playerctl}" + r" metadata -F -f '{{ artist }}'",
+        artist_album_label = Label(
+            name="media_artist_album_label",
+            h_expand=False,
+            h_align="start",
+            justification="start",
+            # line_wrap="word",
+            ellipsization="end",
+        ).build(
+            lambda label, _: Fabricator(
+                poll_from=playerctl + r" metadata -F -f '{{ artist }} 🞄 {{ album }}'",
                 interval=0,
                 stream=True,
-                on_changed=lambda _, v: button.set_label(v),
-            )
-        )
-
-        album_label = Button(label="", name="media_album_label").build(
-            lambda button, _: Fabricator(
-                poll_from=f"{playerctl}" + r" metadata -F -f '{{ album }}'",
-                interval=0,
-                stream=True,
-                on_changed=lambda _, v: button.set_label(v),
+                on_changed=lambda _, v: label.set_label(v),
             )
         )
 
         def download_artwork(button, art_url, file_path):
             exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
             button.set_image(
-                Image(image_file=file_path, size=configuration.artwork_size)
+                Image(
+                    image_file=file_path, size=configuration.get_setting("artwork_size")
+                )
             )
 
-        def update_artwork(button, art_url):
-            button.set_image(
-                Image(
-                    image_file=f"{configuration.icons_dir}/image-off.svg",
-                    size=configuration.no_artwork_icon_size,
+        def update_artwork(image, art_url):
+            image.set_from_pixbuf(
+                GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    filename=f"{configuration.get_setting('icons_dir')}/image-off.svg",
+                    width=configuration.get_setting("no_artwork_icon_size"),
+                    height=configuration.get_setting("no_artwork_icon_size"),
+                    preserve_aspect_ratio=True,
                 )
             )
 
             if art_url != "":
                 file_path = path.join(
-                    configuration.artwork_cache_dir, art_url.split("/")[-1]
+                    configuration.get_setting("artwork_cache_dir"),
+                    art_url.split("/")[-1],
                 )
 
-                # print(file_path)
-
                 if path.exists(file_path):
-                    button.set_image(
-                        Image(image_file=file_path, size=configuration.artwork_size)
+                    image.set_from_pixbuf(
+                        GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                            filename=file_path,
+                            width=configuration.get_setting("artwork_size"),
+                            height=configuration.get_setting("artwork_size"),
+                            preserve_aspect_ratio=True,
+                        )
                     )
+                    logger.debug(f"Applying cached artwork {file_path}")
                 else:
                     # TODO: find a way for this multithreading shit to work
                     # thread = GLib.Thread.new(
                     #     "artwork-downloader",
                     #     download_artwork,
-                    #     button,
+                    #     image,
                     #     art_url,
                     #     file_path,
                     # )
+
                     # exec_shell_command_async(
                     #     f'curl -s "{art_url}" -o "{file_path}"',
-                    #     lambda _: self.artwork_box.set_image(
-                    #         Image(
-                    #             image_file=f"{configuration.icons_dir}/image-off.svg",
-                    #             size=configuration.no_artwork_icon_size,
+                    #     lambda _: image.set_from_pixbuf(
+                    #         GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    #             filename=file_path,
+                    #             width=configuration.get_setting("artwork_size"),
+                    #             height=configuration.get_setting("artwork_size"),
+                    #             preserve_aspect_ratio=True,
                     #         )
                     #     ),
                     # )
+
+                    logger.debug(f"Caching artwork {file_path}")
                     if (
                         exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
                         is not False
                     ):
-                        button.set_image(
-                            Image(image_file=file_path, size=configuration.artwork_size)
+                        logger.debug("Applying artwork...")
+                        image.set_from_pixbuf(
+                            GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                                filename=file_path,
+                                width=configuration.get_setting("artwork_size"),
+                                height=configuration.get_setting("artwork_size"),
+                                preserve_aspect_ratio=True,
+                            )
                         )
 
-        artwork_box = Button(
-            name="artwork_box",
-            orientation="h",
-            size=configuration.artwork_size,
+        artwork_image = RoundedImage(
+            name="media_artwork",
+            image_file=f"{configuration.get_setting('icons_dir')}/image-off.svg",
+            size=configuration.get_setting("no_artwork_icon_size"),
+            h_expand=True,
         ).build(
-            lambda button, _: Fabricator(
-                poll_from=f"{playerctl}" + r" metadata -F -f '{{ mpris:artUrl }}'",
+            lambda image, _: Fabricator(
+                poll_from=playerctl + r" metadata -F -f '{{ mpris:artUrl }}'",
                 interval=0,
                 stream=True,
-                on_changed=lambda _, v: update_artwork(button, v),
+                on_changed=lambda _, v: update_artwork(image, v),
             )
         )
-        artwork_box.set_image(
-            Image(
-                image_file=f"{configuration.icons_dir}/image-off.svg",
-                size=configuration.no_artwork_icon_size,
-            )
+
+        artwork_box = Box(
+            name="media_artwork_box",
+            orientation="h",
+            size=configuration.get_setting("artwork_size"),
+            children=[artwork_image],
         )
 
         self.widgets = [
             Box(
-                spacing=configuration.spacing,
+                # spacing=configuration.get_setting("spacing"),
                 orientation="h",
                 h_expand=True,
                 v_expand=True,
                 children=[
                     artwork_box,
                     Box(
-                        v_expand=True,
                         h_expand=True,
-                        orientation="h",
-                        spacing=configuration.spacing,
+                        orientation="v",
                         children=[
-                            Box(
-                                h_expand=True,
-                                orientation="v",
-                                children=[
-                                    Box(v_expand=True),
-                                    title_label,
-                                    Box(v_expand=True),
-                                    Box(
-                                        name="media_artist_album",
-                                        spacing=configuration.spacing,
-                                        orientation="h",
-                                        children=[
-                                            artist_label,
-                                            Label("·"),
-                                            album_label,
-                                        ],
-                                        h_align="start",
-                                    ),
-                                ],
-                            ),
+                            Box(v_expand=True),
+                            title_label,
+                            artist_album_label,
+                            Box(v_expand=True),
                         ],
                     ),
                     Box(
@@ -282,12 +319,14 @@ class MediaControls(Box):
                 ],
             ),
             Box(
-                spacing=configuration.spacing,
+                # spacing=configuration.get_setting("spacing"),
                 orientation="h",
                 h_expand=True,
                 children=[
                     media_previous,
+                    media_shuffle,
                     progress_box,
+                    media_loop,
                     media_next,
                 ],
             ),
@@ -297,12 +336,14 @@ class MediaControls(Box):
             if show:
                 self.children = self.widgets
                 self.remove_style_class("empty")
+                self.playing = True
             else:
                 self.children = []
                 self.add_style_class("empty")
+                self.playing = False
 
         Fabricator(
-            poll_from=f"{playerctl}" + r" metadata -F -f '{{ title }}'",
+            poll_from=playerctl + r" metadata -F -f '{{ title }}'",
             interval=0,
             stream=True,
             default_value="",
