@@ -2,9 +2,11 @@ import time
 
 from fabric.core.fabricator import Fabricator
 from fabric.widgets.box import Box
+
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 
+# from widgets.buttons import MarkupButton as Button
 from config import configuration
 
 import gi
@@ -17,9 +19,9 @@ class DateTimeWidget(Button):
     def __init__(self, *args, **kwargs):
         super().__init__(name="date_time_widget", *args, **kwargs)
 
-        self.day_label = DateTime(formatter=r"%b %e", name="day", v_expand=True)
-        self.time_label = DateTime(formatter=r"%R", name="time", v_expand=True)
-        self.date_label = DateTime(formatter=r"%a", name="date", v_expand=True)
+        self.day_label = DateTime(name="day", formatter=r"%b %e", v_expand=True)
+        self.time_label = DateTime(name="time", formatter=r"%R", v_expand=True)
+        self.date_label = DateTime(name="date", formatter=r"%a", v_expand=True)
 
         self.add(
             Box(

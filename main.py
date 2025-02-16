@@ -5,9 +5,17 @@ from config import configuration, config_file
 from loguru import logger
 
 from fabric import Application
-from widgets.pill import PillWindow
-from widgets.bar import BarWindowLeft, BarWindowRight, BarWindow
-from fabric.utils import exec_shell_command, monitor_file, get_relative_path
+from fabric.utils import monitor_file, get_relative_path, FormattedString, idle_add
+from widgets.helpers.formatted_exec import formatted_exec_shell_command
+
+from windows.pill import PillWindow, PillApplets
+from windows.osd import OSDWindow, UrgentOSDWindow
+from windows.bar import BarWindowLeft, BarWindowRight, BarWindow
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk  # noqa: E402, F401
 
 
 def apply_styles():
@@ -16,20 +24,28 @@ def apply_styles():
         os.remove("style.css")
 
     logger.info("Compiling sass...")
-    output = exec_shell_command(
-        f"sass {configuration.get_property('styles_dir')}/style.scss style.css --no-source-map"
+    output = formatted_exec_shell_command(
+        configuration.get_property("sass_compiler_command"),
+        input=os.path.join(configuration.get_property("styles_dir"), "style.scss"),
+        output="style.css",
     )
 
     if output == "":
+        # idle_add(app.set_stylesheet_from_file, "style.css")
         app.set_stylesheet_from_file("style.css")
         logger.info("Successfully loaded styles!")
     else:
+        # idle_add(app.set_stylesheet_from_string, "")
+        app.set_stylesheet_from_string("")
         logger.error("Failed to compile sass!")
 
 
 if __name__ == "__main__":
-    global pill_window
-    pill_window = PillWindow()
+    global osd_window
+    osd_window = OSDWindow()
+
+    global urgent_osd
+    urgent_osd = UrgentOSDWindow()
 
     global bar_window_left
     bar_window_left = BarWindowLeft()
@@ -37,16 +53,21 @@ if __name__ == "__main__":
     global bar_window_right
     bar_window_right = BarWindowRight()
 
+    global pill_window
+    pill_window = PillWindow()
+
     global bar_window
     bar_window = BarWindow()
 
     app = Application(
         configuration.get_property("app_name"),
-        bar_window,
+        osd_window,
+        urgent_osd,
+        bar_window_left,
+        bar_window_right,
         pill_window,
-        # bar_window_left,
-        # bar_window_right,
-        open_inspector=True,
+        bar_window,
+        open_inspector=configuration.get_property("debug"),
     )
 
     if not os.path.exists("style.css"):
@@ -65,4 +86,5 @@ if __name__ == "__main__":
     config_monitor.connect("changed", lambda *_: configuration.load_config())
 
     logger.info("Starting shell...")
+    logger.info(os.getpid())
     app.run()

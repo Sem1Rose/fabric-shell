@@ -7,11 +7,13 @@ requires-python = ">=3.13"
 dependencies = [
     "fabric",
     "loguru>=0.7.3",
+    "pillow>=11.1.0",
     "platformdirs>=4.3.6",
+    "psutil>=6.1.1",
     "pyautogui>=0.9.54",
     "pynput>=1.7.7",
     "toml>=0.10.2",
 ]
 
 [tool.uv.sources]
-fabric = { git = "https://github.com/Fabric-Development/fabric.git" }
+fabric = { git = "https://github.com/Fabric-Development/fabric.git", rev = "88fccbe46ca98102ab4a25cb36d5c48e6f993dc2" }

@@ -1,33 +1,33 @@
-from config import configuration
 import os.path as path
-
 from loguru import logger
-from widgets.rounded_image import RoundedImage
-from widgets.toggle_button import ToggleButton, CycleToggleButton
+from config import configuration
 
-from gi.repository import GdkPixbuf
+from widgets.rounded_image import RoundedImage
+from widgets.buttons import ToggleButton, CycleToggleButton, MarkupButton
+from widgets.interactable_slider import Slider
+from widgets.helpers.formatted_exec import formatted_exec_shell_command
+
+from gi.repository import GdkPixbuf, GLib
 from fabric import Fabricator
 from fabric.widgets.box import Box
-from fabric.widgets.image import Image
 from fabric.widgets.label import Label
-from fabric.widgets.button import Button
-from fabric.widgets.scale import Scale
-from fabric.utils import exec_shell_command, exec_shell_command_async
-
-playerctl = "playerctl -p spotify"
+from fabric.core.service import Signal
+from fabric.utils import exec_shell_command_async, idle_add
 
 
 class MediaControls(Box):
+    @Signal
+    def on_show_hide(self, shown: bool): ...
+
     def __init__(self, *args, **kwargs):
         super().__init__(
-            spacing=configuration.get_property("spacing"),
-            orientation="v",
             name="media_controls_widget",
+            orientation="v",
             *args,
             **kwargs,
         )
 
-        self.playing = True
+        self.playing = False
         self.seeking = False
         self.length = 0
 
@@ -38,85 +38,102 @@ class MediaControls(Box):
                 self.length = None
 
         Fabricator(
-            poll_from=playerctl + r" metadata -F -f '{{ mpris:length }}'",
+            poll_from=configuration.get_property("playerctl_command")
+            + r" metadata --follow -f '{{ mpris:length }}'",
             interval=0,
             stream=True,
             on_changed=lambda _, v: set_length(v),
         )
 
-        media_previous = Button(
+        media_previous = MarkupButton(
             name="media_previous",
-            label="",
-            # image=Image(
-            #     image_file=f"{configuration.icons_dir}/backward.svg",
-            #     size=configuration.icon_size,
-            # ),
-            h_align="end",
+            markup=configuration.get_property("media_player_previous_icon"),
+            h_align="start",
         )
         media_previous.connect(
             "clicked",
-            lambda *_: exec_shell_command_async(f"{playerctl} previous"),
+            lambda *_: exec_shell_command_async(
+                f"{configuration.get_property('playerctl_command')} previous"
+            ),
         )
 
-        media_next = Button(
+        media_next = MarkupButton(
             name="media_next",
-            label="",
-            # image=Image(
-            #     image_file=f"{configuration.icons_dir}/forward.svg",
-            #     size=configuration.icon_size,
-            # ),
+            markup=configuration.get_property("media_player_next_icon"),
             h_align="end",
         )
         media_next.connect(
             "clicked",
-            lambda *_: exec_shell_command_async(f"{playerctl} next"),
+            lambda *_: exec_shell_command_async(
+                f"{configuration.get_property('playerctl_command')} next"
+            ),
         )
 
-        media_play_pause = Button(
+        media_play_pause = ToggleButton(
             name="media_play_pause",
             h_align="end",
         ).build(
-            lambda button, _: Fabricator(
-                poll_from=f"{playerctl} status -F",
+            lambda button, _: Fabricator(  # process
+                poll_from=f"{configuration.get_property('playerctl_command')} status -F",
                 interval=0,
                 stream=True,
                 default_value="",
-                on_changed=lambda _, value: button.set_label(
-                    "" if value == "Playing" else ""
+                on_changed=lambda _, value: (
+                    button.set_markup(
+                        configuration.get_property("media_player_pause_icon")
+                        if value == "Playing"
+                        else configuration.get_property("media_player_play_icon")
+                    ),
+                    button.set_state(value == "Playing"),
                 ),
             )
         )
         media_play_pause.connect(
-            "clicked",
-            lambda *_: exec_shell_command_async(f"{playerctl} play-pause"),
+            "on_toggled",
+            lambda *_: exec_shell_command_async(
+                f"{configuration.get_property('playerctl_command')} play-pause"
+            ),
         )
 
-        media_shuffle = ToggleButton(name="media_shuffle", label="").build(
-            lambda cycle_toggle, _: Fabricator(
-                poll_from=f"{playerctl} shuffle -F",
+        media_shuffle = ToggleButton(
+            name="media_shuffle",
+            markup=configuration.get_property("media_player_shuffle_icon"),
+        ).build(
+            lambda toggle, _: Fabricator(  # process
+                poll_from=f"{configuration.get_property('playerctl_command')} shuffle -F",
                 interval=0,
                 stream=True,
                 default_value="",
-                on_changed=lambda _, value: cycle_toggle.set_state(value == "On"),
+                on_changed=lambda _, value: toggle.set_state(value == "On"),
             )
         )
         media_shuffle.connect(
             "on_toggled",
-            lambda *_: exec_shell_command_async(f"{playerctl} shuffle Toggle"),
+            lambda *_: exec_shell_command_async(
+                f"{configuration.get_property('playerctl_command')} shuffle Toggle"
+            ),
         )
 
         media_loop = CycleToggleButton(
             name="media_loop",
             states=["None", "Playlist", "Track"],
         ).build(
-            lambda cycle_toggle, _: Fabricator(
-                poll_from=f"{playerctl} loop -F",
+            lambda cycle_toggle, _: Fabricator(  # process
+                poll_from=f"{configuration.get_property('playerctl_command')} loop -F",
                 interval=0,
                 stream=True,
                 default_value="",
                 on_changed=lambda _, value: (
-                    cycle_toggle.set_label(
-                        "A" if value == "None" else "B" if value == "Playlist" else "C"
+                    cycle_toggle.set_markup(
+                        configuration.get_property("media_player_repeat_none_icon")
+                        if value == "None"
+                        else configuration.get_property(
+                            "media_player_repeat_playlist_icon"
+                        )
+                        if value == "Playlist"
+                        else configuration.get_property(
+                            "media_player_repeat_track_icon"
+                        )
                     ),
                     cycle_toggle.set_state(state=value),
                 ),
@@ -124,56 +141,36 @@ class MediaControls(Box):
         )
         media_loop.connect(
             "on_cycled",
-            lambda cycle_toggle: exec_shell_command_async(
-                f"{playerctl} loop {cycle_toggle.get_state()}"
+            lambda cycle_toggle, *_: exec_shell_command_async(
+                f"{configuration.get_property('playerctl_command')} loop {cycle_toggle.get_state()}"
             ),
         )
 
-        def change_value(value):
-            if not self.seeking and value is not None:
-                media_progress.set_value(value)
-
-        def seek():
-            self.seeking = True
-            media_progress.draw_value = True
-
-        def seek_playback(scale):
+        def seek_playback(value):
             if self.length is not None:
-                self.seeking = False
                 exec_shell_command_async(
-                    f"{playerctl} position {scale.value * self.length}"
+                    f"{configuration.get_property('playerctl_command')} position {value * self.length}"
                 )
 
-        media_progress = Scale(
+        media_progress = Slider(
             name="media_progress",
             h_expand=True,
             draw_value=False,
             orientation="h",
-        ).build(
-            lambda scale, _: Fabricator(
-                poll_from=f"{playerctl} position",
-                interval=500,
-                default_value=0,
-                on_changed=lambda _, value: change_value(float(value) / self.length),
-            )
+            poll_command=f"{configuration.get_property('playerctl_command')} position",
+            poll_value_processor=lambda v: (
+                float(v) / self.length if self.length is not None else 0
+            ),
+            poll_interval=500,
+            poll_stream=False,
+            animation_duration=0.5,
         )
-        media_progress.connect("button-press-event", lambda *_: seek())
         media_progress.connect(
-            "button-release-event",
-            lambda scale, *_: seek_playback(scale),
+            "on_interacted",
+            lambda _, value: seek_playback(value),
         )
 
-        def update_progress_box(box, visible):
-            box.children = [media_progress] if visible else []
-
-        progress_box = Box(h_expand=True).build(
-            lambda box, _: Fabricator(
-                poll_from=playerctl + r" -F -f '{{ mpris:length }}'",
-                interval=0,
-                stream=True,
-                on_changed=lambda _, value: update_progress_box(box, value == ""),
-            )
-        )
+        progress_box = Box(h_expand=True, children=[media_progress])
 
         title_label = Label(
             name="media_title_label",
@@ -181,11 +178,12 @@ class MediaControls(Box):
             h_align="start",
             ellipsization="end",
         ).build(
-            lambda label, _: Fabricator(
-                poll_from=playerctl + r" metadata -F -f '{{ title }}'",
+            lambda label, _: Fabricator(  # process
+                poll_from=configuration.get_property("playerctl_command")
+                + r" metadata -F -f '{{ title }}'",
                 interval=0,
                 stream=True,
-                on_changed=lambda _, v: label.set_label(v),
+                on_changed=lambda _, v: (label.set_label(v), label.set_tooltip_text(v)),
             )
         )
 
@@ -197,29 +195,48 @@ class MediaControls(Box):
             # line_wrap="word",
             ellipsization="end",
         ).build(
-            lambda label, _: Fabricator(
-                poll_from=playerctl + r" metadata -F -f '{{ artist }} 🞄 {{ album }}'",
+            lambda label, _: Fabricator(  # process
+                poll_from=configuration.get_property("playerctl_command")
+                + r" metadata -F -f '{{ artist }} 🞄 {{ album }}'",
                 interval=0,
                 stream=True,
-                on_changed=lambda _, v: label.set_label(v),
+                on_changed=lambda _, v: (label.set_label(v), label.set_tooltip_text(v)),
             )
         )
 
-        def download_artwork(button, art_url, file_path):
-            exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
-            button.set_image(
-                Image(
-                    image_file=file_path,
-                    size=configuration.get_property("artwork_size"),
-                )
+        def download_artwork(image, art_url, file_path):
+            logger.debug(f"Caching artwork {file_path}")
+
+            formatted_exec_shell_command(
+                configuration.get_property("media_player_artwork_download_command"),
+                url=art_url,
+                path=file_path,
             )
+            if path.exists(file_path):
+                logger.debug("Applying artwork...")
+
+                idle_add(
+                    image.set_from_pixbuf,
+                    GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                        filename=file_path,
+                        width=configuration.get_property("media_player_artwork_size"),
+                        height=configuration.get_property("media_player_artwork_size"),
+                        preserve_aspect_ratio=True,
+                    ),
+                )
+            else:
+                logger.error("Failed to fetch artwork: {}", file_path)
 
         def update_artwork(image, art_url):
             image.set_from_pixbuf(
                 GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     filename=f"{configuration.get_property('icons_dir')}/image-off.svg",
-                    width=configuration.get_property("no_artwork_icon_size"),
-                    height=configuration.get_property("no_artwork_icon_size"),
+                    width=configuration.get_property(
+                        "media_player_no_artwork_icon_size"
+                    ),
+                    height=configuration.get_property(
+                        "media_player_no_artwork_icon_size"
+                    ),
                     preserve_aspect_ratio=True,
                 )
             )
@@ -234,57 +251,34 @@ class MediaControls(Box):
                     image.set_from_pixbuf(
                         GdkPixbuf.Pixbuf.new_from_file_at_scale(
                             filename=file_path,
-                            width=configuration.get_property("artwork_size"),
-                            height=configuration.get_property("artwork_size"),
+                            width=configuration.get_property(
+                                "media_player_artwork_size"
+                            ),
+                            height=configuration.get_property(
+                                "media_player_artwork_size"
+                            ),
                             preserve_aspect_ratio=True,
                         )
                     )
                     logger.debug(f"Applying cached artwork {file_path}")
                 else:
-                    # TODO: find a way for this multithreading shit to work
-                    # thread = GLib.Thread.new(
-                    #     "artwork-downloader",
-                    #     download_artwork,
-                    #     image,
-                    #     art_url,
-                    #     file_path,
-                    # )
-
-                    # exec_shell_command_async(
-                    #     f'curl -s "{art_url}" -o "{file_path}"',
-                    #     lambda _: image.set_from_pixbuf(
-                    #         GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    #             filename=file_path,
-                    #             width=configuration.get_setting("artwork_size"),
-                    #             height=configuration.get_setting("artwork_size"),
-                    #             preserve_aspect_ratio=True,
-                    #         )
-                    #     ),
-                    # )
-
-                    logger.debug(f"Caching artwork {file_path}")
-                    if (
-                        exec_shell_command(f'curl -s "{art_url}" -o "{file_path}"')
-                        is not False
-                    ):
-                        logger.debug("Applying artwork...")
-                        image.set_from_pixbuf(
-                            GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                                filename=file_path,
-                                width=configuration.get_property("artwork_size"),
-                                height=configuration.get_property("artwork_size"),
-                                preserve_aspect_ratio=True,
-                            )
-                        )
+                    GLib.Thread.new(
+                        "artwork-downloader",
+                        download_artwork,
+                        image,
+                        art_url,
+                        file_path,
+                    )
 
         artwork_image = RoundedImage(
             name="media_artwork",
             image_file=f"{configuration.get_property('icons_dir')}/image-off.svg",
-            size=configuration.get_property("no_artwork_icon_size"),
+            size=configuration.get_property("media_player_no_artwork_icon_size"),
             h_expand=True,
         ).build(
-            lambda image, _: Fabricator(
-                poll_from=playerctl + r" metadata -F -f '{{ mpris:artUrl }}'",
+            lambda image, _: Fabricator(  # process
+                poll_from=configuration.get_property("playerctl_command")
+                + r" metadata -F -f '{{ mpris:artUrl }}'",
                 interval=0,
                 stream=True,
                 on_changed=lambda _, v: update_artwork(image, v),
@@ -294,13 +288,12 @@ class MediaControls(Box):
         artwork_box = Box(
             name="media_artwork_box",
             orientation="h",
-            size=configuration.get_property("artwork_size"),
+            size=configuration.get_property("media_player_artwork_size"),
             children=[artwork_image],
         )
 
-        self.widgets = [
+        self.media_controls = [
             Box(
-                # spacing=configuration.get_setting("spacing"),
                 orientation="h",
                 h_expand=True,
                 v_expand=True,
@@ -329,7 +322,6 @@ class MediaControls(Box):
                 ],
             ),
             Box(
-                # spacing=configuration.get_setting("spacing"),
                 orientation="h",
                 h_expand=True,
                 children=[
@@ -344,18 +336,28 @@ class MediaControls(Box):
 
         def show_hide(show):
             if show:
-                self.children = self.widgets
+                if not self.playing:
+                    logger.debug("Player found!")
+                    self.on_show_hide(True)
+
+                self.children = self.media_controls
                 self.remove_style_class("empty")
                 self.playing = True
             else:
+                if self.playing:
+                    logger.warning("No media is playing!")
+                    self.on_show_hide(False)
+
                 self.children = []
                 self.add_style_class("empty")
                 self.playing = False
 
+        show_hide(False)
+
         Fabricator(
-            poll_from=playerctl + r" metadata -F -f '{{ title }}'",
+            poll_from=configuration.get_property("playerctl_command")
+            + r" metadata --follow -f '{{ title }}'",
             interval=0,
             stream=True,
-            default_value="",
             on_changed=lambda _, value: show_hide(value != ""),
         )

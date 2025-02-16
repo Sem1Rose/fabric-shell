@@ -1,29 +1,188 @@
 [app_settings]
 app_name = "fabric-shell"
+debug = false
 
 styles_dir = "styles"
 icons_dir = "icons"
 artwork_cache_dir = "user_cache_dir-artworks"
-wallpaper_file = "user_config_dir-wallpaper/.current-wallpaper"
+wallpapers_dir = "user_config_dir-wallpaper/wallpapers"
+wallpapers_thumbnails_cache_dir = "user_config_dir-wallpaper/wallpapers/thumbnails"
+
+thumbnails_generator_max_workers = 4
+
+backlight_device = "amdgpu_bl1"
+switchxkblayout_keyboard_name = "at-translated-set-2-keyboard"
 
 spacing = 12
-artwork_size = 120
-no_artwork_icon_size = 40
-icon_size = 16
-reveal_animation_duration = 400
 
+pill_applet_transition_duration = 450
+
+sass_compiler_command = "sass {input} {output} --no-source-map"
+
+confirm_icon = "&#xea5e;"
+cancel_icon = "&#xeb55;"
+
+power_menu_action_lock_icon = "&#xeae2;"
+power_menu_action_suspend_icon = "&#xeaf8;"
+power_menu_action_reboot_icon = "&#xebb4;"
+power_menu_action_shut_down_icon = "&#xeb0d;"
+
+power_menu_lock_commands = ["playerctl pause", "loginctl lock-session"]
+power_menu_suspend_commands = ["playerctl pause", "loginctl lock-session", "systemctl suspend"]
+power_menu_reboot_commands = ["systemctl reboot"]
+power_menu_shutdown_commands = ["systemctl poweroff"]
+
+media_player_artwork_download_command = "curl -s '{url}' -o '{path}'"
+media_player_artwork_size = 120
+media_player_icon_size = 16
+media_player_no_artwork_icon_size = 40
+media_player_reveal_animation_duration = 400
+media_player_previous_icon = "&#xf693;"
+media_player_next_icon = "&#xf694;"
+media_player_pause_icon = "&#xf690;"
+media_player_play_icon = "&#xf691;"
+media_player_shuffle_icon = "&#xf000;"
+media_player_repeat_none_icon = "&#xf18e;"
+media_player_repeat_playlist_icon = "&#xeb72;"
+media_player_repeat_track_icon = "&#xeb71;"
+
+battery_list_devices_command = "upower -e"
+battery_device_info_command = "upower -i {device}"
+battery_widget_headset_icon = "&#xeabd;"
+battery_widget_battery_full_icon = "&#xff19;"
+battery_widget_battery_half_full_icon = "&#xff1b;"
+battery_widget_battery_empty_icon = "&#xff15;"
+# battery_widget_battery_charging_icon = "&#xff17;"
+battery_widget_battery_charging_icon = "&#x10021;"
+battery_widget_battery_unknown_icon = "&#xf671;"
+# battery_widget_item_spacer_icon = "|"
+battery_widget_tooltip_markup = "{icon} {name}: {battery}\n{state}"
+
+tray_icon_size = 16
+tray_revealer_reveal_animation_duration = 300
+
+chevron_left = "&#xea60;"
+chevron_right = "&#xea61;"
+chevron_up = "&#xea62;"
+chevron_down = "&#xea5f;"
+
+brightness_list_devices_command = "brightnessctl -ml"
+get_brightness_command = "brightnessctl -md {device} g"
+set_brightness_command = "brightnessctl -md {device} s {value}"
+brightness_inc_command = "brightnessctl -md {device} s +{delta}"
+brightness_dec_command = "brightnessctl -md {device} s {delta}-"
+
+brightness_high_icon = "&#xfb24;"
+brightness_low_icon = "&#xfb23;"
+
+qs_brightness_high_threshold = 0.4
+
+volume_toggle_mute_command = "pamixer -t"
+volume_unmute_command = "pamixer -u"
+get_volume_mute_command = "pamixer --get-mute"
+get_volume_command = "pamixer --get-volume"
+set_volume_command = "pamixer --set-volume {value}"
+volume_inc_command = "pamixer -i {delta}"
+volume_dec_command = "pamixer -d {delta}"
+
+volume_high_icon = "&#xeb51;"
+volume_low_icon = "&#xeb4f;"
+volume_off_icon = "&#xeb50;"
+volume_muted_icon = "&#xf1c3;"
+
+qs_volume_high_threshold = 50
+
+workspaces_widget_num_workspaces = 6
+
+resource_monitor_poll_interval = 2000
+resource_monitor_overlay_icon = "&#xf692;"
+# resource_monitor_cpu_icon = "&#xef8e;"
+resource_monitor_cpu_icon_ = " "
+# resource_monitor_memory_icon = "&#xf384;"
+resource_monitor_memory_icon_ = " "
+
+wifi_connected_icon = "&#xeb52;"
+ethernet_connected_icon = "&#xf00a;"
+network_connecting_icon = "&#xed28;"
+network_disconnected_icon = "&#xf1ca;"
+
+bluetooth_connected_icon = "&#xecea;"
+bluetooth_connecting_icon = "&#xea37;"
+bluetooth_disconnected_icon = "&#xeceb;"
+
+network_usage_download_icon = "&#x10068;"
+network_usage_upload_icon = "&#x10065;"
+
+nmcli_command = "nmcli -c no -t"
 nmcli_wifi_adapter_name = "wlan0"
 
+playerctl_command = "playerctl -p spotify"
+
+screen_records_dir = "user_videos_dir-Screen_Recordings"
+
+screen_record_command = "wf-recorder -B 60 -r 24"
+screen_record_audio_option = "--audio="
+screen_record_portion_option = "-g"
+screen_record_portion_command = "slurp"
+screen_record_output_option = "-f"
+screen_record_widget_record_icon = "&#xf671;"
+screen_record_widget_stop_icon = "&#xfc40;"
+screen_record_widget_mic_icon = "&#xeaf0;"
+screen_record_widget_speakers_icon = "&#xeb51;"
+screen_record_widget_no_audio_icon = "&#xf1c3;"
+
+osd_timeout = 2
+osd_brightness_delta = "5%"
+osd_volume_delta = 5
+
+change_wallpaper_command = "user_config_dir-wallpaper/scripts/change-wallpaper '{path}' '{scheme}'"
+
+battery_warning_level = 20
+battery_hibernate_level = 10
+
+circular_progress_empty_part = "bottom"
+circular_progress_empty_angle = 100
+
 [css_settings]
-bar_min_height = "50px"
-padding = "13px"
-window_radius = "25px"
-ui_radius = "16px"
-scale_inner_padding = "8px"
-scale_slider_padding_left = "15px"
-scale_slider_margin_right = "8px"
-pill_idle_min_width = "375px"
+text_font_family = "Lexend"
+text_font_size = "14px"
+text_font_weight = "bold"
+icon_font_family = "tabler-icons"
+
+bar_height = "50px"
+bar_padding = "8px"
+bar_ui_radius = "10px"
+bar_radius = "18px"
+
+pill_height = "50px"
+pill_padding = "10px"
+pill_expanded_padding = "18px"
+# pill_window_radius = "20px"
+pill_expanded_window_radius = "32px"
+# pill_ui_radius = "10px"
+# pill_expanded_ui_radius = "14px"
+pill_expanded_width = "430px"
+
+media_player_slider_inner_padding = "8px"
+media_player_slider_padding_left = "15px"
+# media_player_slider_margin_right = "8px"
+
 media_title_font_size = "18px"
 media_artist_album_font_size = "10px"
 media_artwork_size = "120px"
-qs_tiles_height = "55px"
+
+qs_row_height = "55px"
+qs_slider_padding = "6px"
+
+wallpaper_file = "\"user_config_dir-wallpaper/.current-wallpaper\""
+
+power_menu_action_size = "100px"
+
+osd_padding = "10px"
+osd_pos_vertical = "200px"
+osd_slider_min_height = "250px"
+osd_slider_width = "42px"
+osd_slider_padding = "8px"
+
+wallpaper_selector_wallpaper_height = "75px"
+wallpaper_selector_wallpaper_border_radius = "36px"
