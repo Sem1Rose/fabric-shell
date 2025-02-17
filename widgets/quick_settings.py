@@ -1,14 +1,16 @@
 from config import configuration
 from loguru import logger
 
-from widgets.buttons import ToggleButton, QSToggleButton, ChevronButton
+from widgets.buttons import ToggleButton, QSToggleButton, QSTileButton, ChevronButton
 from widgets.interactable_slider import Slider
 from widgets.helpers.formatted_exec import formatted_exec_shell_command_async
 
 from fabric.widgets.box import Box
 from fabric.widgets.stack import Stack
 from fabric.widgets.overlay import Overlay
+from fabric.widgets.revealer import Revealer
 from fabric.widgets.label import Label
+from widgets.popup_window import PopupWindow
 
 from fabric.audio import Audio
 from fabric.core.fabricator import Fabricator
@@ -19,10 +21,10 @@ from fabric.utils.helpers import (
 )
 from fabric.bluetooth import BluetoothClient
 
-# import gi
+import gi
 
-# gi.require_version("Gtk", "3.0")
-# from gi.repository import Gtk  # noqa: E402
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk  # noqa: E402
 
 
 class QuickSettings(Box):
@@ -51,6 +53,24 @@ class QuickSettings(Box):
         self.wifi_toggle.connect("on_toggled", self.toggle_wifi)
         self.update_wifi_tile()
 
+        self.wifi_popup = Gtk.Popover()
+        self.wifi_popup.set_name("wifi_qs_popup")
+        self.wifi_popup_box = Box(name="wifi_qs_popup_container")
+        self.wifi_popup.add(self.wifi_popup_box)
+        self.wifi_popup.set_default_widget(self.wifi_popup_box)
+        self.wifi_popup.set_relative_to(self.wifi_toggle)
+        self.wifi_popup.set_constrain_to(0)
+        self.wifi_popup.set_pointing_to(self.wifi_toggle.get_allocation())
+        self.wifi_popup.set_size_request(0, 0)
+
+        # self.popup_window = PopupWindow(name="ass", parent=self.get_parent())
+        # self.popup_window.children = [self.wifi_popup]
+
+        # self.wifi_toggle_overlay = Overlay(
+        #     child=self.wifi_toggle, overlays=self.wifi_popup
+        # )
+        # self.wifi_toggle_overlay.set_overlay_pass_through(self.wifi_popup, True)
+
         self.bluetooth_toggle = QSToggleButton(
             name="bluetooth_qs_toggle",
             h_expand=True,
@@ -77,16 +97,7 @@ class QuickSettings(Box):
                     self.backlight_device = device.split(",")[0]
                     break
 
-        def update_brightness_icon(value):
-            self.brightness_icon.set_markup(
-                configuration.get_property("brightness_high_icon")
-                if self.brightness_slider.value
-                > configuration.get_property("qs_brightness_high_threshold")
-                else configuration.get_property("brightness_low_icon")
-            )
-
         self.brightness_icon = Label(name="qs_brightness_icon")
-
         self.brightness_slider = Slider(
             name="brightness_slider",
             style_classes="qs_slider",
@@ -100,19 +111,6 @@ class QuickSettings(Box):
             # animation_duration=0.1,
             # animation_curve=(0.3, 0, 0.35, 1),
         )
-        self.brightness_slider.connect(
-            "on_interacted",
-            lambda _, v: formatted_exec_shell_command_async(
-                configuration.get_property("set_brightness_command"),
-                device=self.backlight_device,
-                value=int(v * 255),
-            ),
-        )
-        self.brightness_slider.connect(
-            "on_polled",
-            lambda _, v: update_brightness_icon(int(v * 255)),
-        )
-
         self.volume_slider = Slider(
             name="volume_slider",
             style_classes="qs_slider",
@@ -125,15 +123,60 @@ class QuickSettings(Box):
             # animation_duration=0.1,
             # animation_curve=(0.3, 0, 0.35, 1),
         )
+        self.volume_toggle = ToggleButton(
+            name="qs_volume_toggle",
+            # ).build(
+            #     lambda toggle, _: Fabricator(
+            #         poll_from=configuration.get_property("get_volume_mute_command"),
+            #         interval=200,
+            #         on_changed=lambda _, value: (
+            #             toggle.set_state(value == "true"),
+            #             update_volume_toggle(value),
+            #         ),
+            #     )
+        )
+        self.volume_chevron = ChevronButton(
+            name="qs_volume_chevron", orientation="v", h_align="end", v_align="end"
+        )
+        self.volume_toggle_overlay = Overlay(
+            child=self.volume_toggle, overlays=self.volume_chevron
+        )
+        self.speakers_holder = Box(orientation="v")
+        self.speakers_container = Box(
+            name="qs_speakers_container",
+            h_expand=True,
+            orientation="v",
+            children=[
+                Box(
+                    children=[
+                        Label("Select Default Speaker:", name="header_label"),
+                        Box(h_expand=True),
+                    ]
+                ),
+                self.speakers_holder,
+            ],
+        )
+        self.speakers_container_revealer = Revealer(
+            child=self.speakers_container,
+            transition_type="slide-down",
+            transition_duration=300,
+        )
 
-        # self.audio_controller.speaker.connect(
-        #     "notify::volume",
-        #     self.volume_slider.change_value(int(self.audio_controller.speaker.volume)),
-        # )
+        def update_brightness_icon(value):
+            self.brightness_icon.set_markup(
+                configuration.get_property("brightness_high_icon")
+                if self.brightness_slider.value
+                > configuration.get_property("qs_brightness_high_threshold")
+                else configuration.get_property("brightness_low_icon")
+            )
+
         def update_volume_slider(*_):
             self.volume_slider.change_value(
                 float(self.audio_controller.speaker.volume) / 100.0
             )
+
+        def change_volume(v):
+            self.audio_controller.speaker.volume = int(v * 100)
 
         def connect_volume_slider():
             if self.audio_controller.speaker:
@@ -153,24 +196,6 @@ class QuickSettings(Box):
                 self.volume_slider.change_value(0)
                 self.volume_slider.set_sensitive(False)
 
-        connect_volume_slider()
-        self.audio_controller.connect(
-            "speaker-changed",
-            lambda *_: connect_volume_slider(),
-        )
-
-        def change_volume(v):
-            self.audio_controller.speaker.volume = int(v * 100)
-
-        self.volume_slider.connect(
-            "on_interacted",
-            lambda _, v: change_volume(v),
-            #     formatted_exec_shell_command_async(
-            #     configuration.get_property("set_volume_command"),
-            #     value=int(v * 100),
-            # ),
-        )
-
         def update_volume_toggle(*_):
             muted = self.audio_controller.speaker.muted
             self.volume_toggle.set_state(muted)
@@ -188,26 +213,6 @@ class QuickSettings(Box):
                 )
             )
 
-        self.volume_toggle = ToggleButton(
-            name="qs_volume_toggle",
-            # ).build(
-            #     lambda toggle, _: Fabricator(
-            #         poll_from=configuration.get_property("get_volume_mute_command"),
-            #         interval=200,
-            #         on_changed=lambda _, value: (
-            #             toggle.set_state(value == "true"),
-            #             update_volume_toggle(value),
-            #         ),
-            #     )
-        )
-
-        # self.audio_controller.speaker.connect(
-        #     "notify::is-muted",
-        #     (
-        #         self.volume_toggle.set_state(not self.audio_controller.speaker.muted),
-        #         update_volume_toggle(self.audio_controller.speaker.muted),
-        #     ),
-        # )
         def connect_volume_toggle():
             if self.audio_controller.speaker:
                 # if self.audio_controller.speaker.is_connected(update_volume_toggle):
@@ -231,14 +236,48 @@ class QuickSettings(Box):
                 )
                 self.volume_toggle.set_sensitive(False)
 
-        connect_volume_toggle()
-        self.audio_controller.connect(
-            "speaker-changed",
-            lambda *_: connect_volume_toggle(),
-        )
-
         def toggle_mute_stream(mute):
             self.audio_controller.speaker.muted = mute
+
+        self.volume_chevron.connect(
+            "on-toggled",
+            lambda button, *_: self.populate_speakers()
+            if button.toggled
+            else self.speakers_container_revealer.unreveal(),
+            # lambda button, *_: logger.error(
+            #     [
+            #         [speaker.name, speaker.description, speaker.icon_name]
+            #         for speaker in self.audio_controller.speakers
+            #     ]
+            # ),
+        )
+
+        self.brightness_slider.connect(
+            "on_interacted",
+            lambda _, v: formatted_exec_shell_command_async(
+                configuration.get_property("set_brightness_command"),
+                device=self.backlight_device,
+                value=int(v * 255),
+            ),
+        )
+        self.brightness_slider.connect(
+            "on_polled",
+            lambda _, v: update_brightness_icon(int(v * 255)),
+        )
+
+        self.volume_slider.connect(
+            "on_interacted",
+            lambda _, v: change_volume(v),
+            #     formatted_exec_shell_command_async(
+            #     configuration.get_property("set_volume_command"),
+            #     value=int(v * 100),
+            # ),
+        )
+        connect_volume_slider()
+        self.audio_controller.connect(
+            "speaker-changed",
+            lambda *_: connect_volume_slider(),
+        )
 
         self.volume_toggle.connect(
             "on_toggled",
@@ -247,13 +286,10 @@ class QuickSettings(Box):
             #     configuration.get_property("volume_toggle_mute_command")
             # ),
         )
-
-        self.volume_chevron = ChevronButton(
-            name="qs_volume_chevron", orientation="v", h_align="end", v_align="end"
-        )
-
-        self.volume_toggle_overlay = Overlay(
-            child=self.volume_toggle, overlays=self.volume_chevron
+        connect_volume_toggle()
+        self.audio_controller.connect(
+            "speaker-changed",
+            lambda *_: connect_volume_toggle(),
         )
 
         self.rows = []
@@ -262,7 +298,12 @@ class QuickSettings(Box):
                 style_classes="qs_row",
                 orientation="h",
                 children=[
+                    # Box(
+                    #     children=[
                     self.wifi_toggle,
+                    #         self.wifi_popup,
+                    #     ]
+                    # ),
                     self.bluetooth_toggle,
                 ],
                 spacing=configuration.get_property("spacing"),
@@ -277,7 +318,11 @@ class QuickSettings(Box):
         self.rows.append(
             Box(
                 style_classes="qs_row",
-                children=[self.volume_toggle_overlay, self.volume_slider],
+                orientation="v",
+                children=[
+                    Box(children=[self.volume_toggle_overlay, self.volume_slider]),
+                    self.speakers_container_revealer,
+                ],
             ),
         )
 
@@ -398,6 +443,68 @@ class QuickSettings(Box):
                 configuration.get_property("bluetooth_connecting_icon")
             )
             logger.debug("Bluetooth scanning...")
+
+    def set_default_sink(self, speaker):
+        if speaker._stream:
+            self.audio_controller._control.set_default_sink(speaker._stream)
+
+            self.populate_speakers(speaker)
+            return True
+
+        return False
+
+    def populate_speakers(self, default_sink=None, *_):
+        for child in self.speakers_holder.children:
+            self.speakers_holder.remove(child)
+
+        self.speakers_container_revealer.reveal()
+
+        def speaker_factory(speaker):
+            if not speaker.icon_name:
+                icon = configuration.get_property("speakers_unknown_icon")
+            elif "audio-card" in speaker.icon_name:
+                icon = configuration.get_property("speakers_built_in_icon")
+            elif "headset" in speaker.icon_name:
+                icon = configuration.get_property("speakers_headphones_icon")
+            else:
+                icon = configuration.get_property("speakers_unknown_icon")
+
+            button = QSTileButton(
+                style_classes="speaker_button",
+                centered=False,
+                icon=icon,
+                markup=speaker.description,
+            )
+            button.connect(
+                "clicked",
+                lambda *_: self.set_default_sink(speaker),
+            )
+
+            if default_sink:
+                if speaker == default_sink:
+                    button.add_style_class("active")
+            elif speaker == self.audio_controller.speaker:
+                button.add_style_class("active")
+
+            return button
+
+        for speaker in [
+            speaker_factory(speaker) for speaker in self.audio_controller.speakers
+        ]:
+            self.speakers_holder.add(speaker)
+
+        self.audio_controller.connect(
+            "stream_added",
+            lambda *_: self.populate_speakers,
+        )
+        self.audio_controller.connect(
+            "stream_removed",
+            lambda *_: self.populate_speakers,
+        )
+
+    def unreveal_speakers(self):
+        self.audio_controller.disconnect_by_func(self.populate_speakers)
+        self.speakers_container_revealer.unreveal()
 
     def hide_popups(self):
         for chevron in self.chevrons:

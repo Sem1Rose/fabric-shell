@@ -48,7 +48,7 @@ media_player_repeat_track_icon = "&#xeb71;"
 
 battery_list_devices_command = "upower -e"
 battery_device_info_command = "upower -i {device}"
-battery_widget_headset_icon = "&#xeabd;"
+battery_widget_headset_icon = "&#xfa3c;"
 battery_widget_battery_full_icon = "&#xff19;"
 battery_widget_battery_half_full_icon = "&#xff1b;"
 battery_widget_battery_empty_icon = "&#xff15;"
@@ -142,6 +142,10 @@ battery_hibernate_level = 10
 
 circular_progress_empty_part = "bottom"
 circular_progress_empty_angle = 100
+
+speakers_unknown_icon = "&#xea8b;"
+speakers_built_in_icon = "&#xea8b;"
+speakers_headphones_icon = "&#xfa3c;"
 
 [css_settings]
 text_font_family = "Lexend"

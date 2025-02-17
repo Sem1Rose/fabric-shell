@@ -29,7 +29,7 @@ class OSDWindow(Window):
             name="osd_window",
             anchor="top right",
             exclusivity="normal",
-            layer="top",
+            layer="overlay",
             visible=False,
             *args,
             **kwargs,

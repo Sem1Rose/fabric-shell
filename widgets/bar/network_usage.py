@@ -18,8 +18,11 @@ class NetworkUsage(Box):
             **kwargs,
         )
 
-        self.icon = Label(name="network_usage_icon")
-        self.usage = Label(name="network_usage").build(
+        self.icon = Label(
+            name="network_usage_icon",
+            markup=configuration.get_property("network_usage_download_icon"),
+        )
+        self.usage = Label(name="network_usage", markup="0 KB").build(
             lambda label, _: Fabricator(
                 poll_from=f"vnstat -i {configuration.get_property('nmcli_wifi_adapter_name')} -l --json",
                 interval=0,

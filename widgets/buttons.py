@@ -165,7 +165,7 @@ class QSToggleButton(EventBox):
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         self.chevron_button = None
         self.label = Label(
@@ -176,9 +176,8 @@ class QSToggleButton(EventBox):
         )
         self.icon = Label(name="qs_tile_icon", h_expand=False, h_align="start")
 
-        self.main_container = Box(
-            style_classes="qs_toggle",
-        )
+        self.main_container = Box(*args, **kwargs)
+        self.main_container.add_style_class("qs_toggle")
 
         if add_chevron:
             self.chevron_button = ChevronButton(
@@ -262,12 +261,12 @@ class QSTileButton(Button):
         self,
         markup: str | None = None,
         icon: str | None = None,
+        centered: bool = True,
         *args,
         **kwargs,
     ):
-        super().__init__(style_classes="qs_toggle", *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        self.chevron_button = None
         self.label = Label(
             name="qs_tile_label",
             h_expand=True,
@@ -276,10 +275,20 @@ class QSTileButton(Button):
         )
         self.icon = Label(name="qs_tile_icon", h_expand=False, h_align="start")
 
-        self.add(Box(children=[self.icon, self.label]))
+        if centered:
+            self.add(Box(children=[self.icon, self.label]))
+        else:
+            container = Box()
+            container.pack_start(Box(children=[self.icon, self.label]), False, False, 0)
+            self.add(container)
+
+        self.add_style_class("qs_tile")
 
         self.set_label(markup) if markup else None
         self.set_icon(icon) if icon else None
+
+        self.connect("enter-notify-event", lambda *_: self.cursor_enter())
+        self.connect("leave-notify-event", lambda *_: self.cursor_leave())
 
     def set_label(self, new_markup):
         self.label.set_markup(new_markup)
