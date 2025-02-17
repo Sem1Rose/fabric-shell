@@ -18,38 +18,17 @@ class ResourceMonitor(Box):
             **kwargs,
         )
 
-        match configuration.get_property("circular_progress_empty_part"):
-            case "bottom":
-                circ_progress_empty_base_angle = 90
-            case "right":
-                circ_progress_empty_base_angle = 0
-            case "top":
-                circ_progress_empty_base_angle = 270
-            case "left":
-                circ_progress_empty_base_angle = 180
-            case _:
-                circ_progress_empty_base_angle = 0
-
-        circ_progress_start_angle = circ_progress_empty_base_angle + (
-            float(configuration.get_property("circular_progress_empty_angle")) / 2
-        )
-        circ_progress_end_angle = (
-            360
-            + circ_progress_empty_base_angle
-            - (float(configuration.get_property("circular_progress_empty_angle")) / 2)
-        )
-
         def progress_set_value(progress, value):
             progress.value = value
 
         self.cpu_usage_progress = CircularProgressBar(
             name="cpu_usage_progress",
             style_classes="circular_progress",
-            # line_style="butt",
+            line_style="butt",
             h_expand=True,
             v_expand=True,
-            start_angle=circ_progress_start_angle,
-            end_angle=circ_progress_end_angle,
+            start_angle=90,
+            end_angle=450,
         ).build(
             lambda progress, _: Fabricator(
                 poll_from=lambda *_: psutil.cpu_percent(),
@@ -78,11 +57,11 @@ class ResourceMonitor(Box):
         self.memory_usage_progress = CircularProgressBar(
             name="memory_usage_progress",
             style_classes="circular_progress",
-            # line_style="butt",
+            line_style="butt",
             h_expand=True,
             v_expand=True,
-            start_angle=circ_progress_start_angle,
-            end_angle=circ_progress_end_angle,
+            start_angle=90,
+            end_angle=450,
         ).build(
             lambda progress, _: Fabricator(
                 poll_from=lambda *_: psutil.virtual_memory().percent,

@@ -363,7 +363,8 @@ class CycleToggleButton(MarkupButton):
         if state is None and index is None:
             return
         if state is not None:
-            self.state = self.states.index(state)
+            if state in self.states:
+                self.state = self.states.index(state)
         elif index is not None:
             self.state = index
 

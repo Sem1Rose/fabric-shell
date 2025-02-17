@@ -140,9 +140,11 @@ class BatteryWidget(Box):
             else:
                 first_item = True
                 first_device = None
-        else:
+        elif len(children) != 0:
             first_item = False
             first_device = children[-1]._device
+        else:
+            first_item = False
 
         for device, (name, percentage, icon, state) in processed_devices.items():
             if device in self.blocks:

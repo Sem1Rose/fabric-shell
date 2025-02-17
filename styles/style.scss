@@ -55,40 +55,49 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	&.dashboard {
 		&.peeking {
 			border-radius: settings.$pill_expanded_window_radius;
+			// settings.$pill_expanded_window_radius
+			// calc(
+			// 	settings.$pill_expanded_window_radius +
+			// 		$pill_expanded_ui_radius
+			// )
+			// calc(
+			// 	settings.$pill_expanded_window_radius +
+			// 		$pill_expanded_ui_radius
+			// );
 
 			&.large_widget {
 				border-radius: settings.$pill_expanded_window_radius
 					settings.$pill_expanded_window_radius $pill_large_radius
 					$pill_large_radius;
 
-				#qs_speakers_container {
-					border-radius: $pill_large_ui_radius;
-					padding: settings.$pill_expanded_padding;
-					padding-bottom: calc(
-						settings.$pill_expanded_padding * 3 / 4
-					);
+				// #qs_speakers_container {
+				// 	border-radius: $pill_large_ui_radius;
+				// 	padding: settings.$pill_expanded_padding;
+				// 	padding-bottom: calc(
+				// 		settings.$pill_expanded_padding * 3 / 4
+				// 	);
 
-					#header_label {
-						margin-bottom: calc(
-							settings.$pill_expanded_padding / 2
-						);
-					}
+				// 	#header_label {
+				// 		margin-bottom: calc(
+				// 			settings.$pill_expanded_padding / 2
+				// 		);
+				// 	}
 
-					.qs_tile {
-						border-radius: $pill_window_radius;
-						min-height: calc($pill_window_radius * 2.5);
-						margin: calc(settings.$pill_expanded_padding / 4) 0px;
+				// 	.qs_tile {
+				// 		border-radius: $pill_window_radius;
+				// 		min-height: calc($pill_window_radius * 2.5);
+				// 		margin: calc(settings.$pill_expanded_padding / 4) 0px;
 
-						#qs_tile_label {
-							font-size: 14px;
-							font-weight: bold;
-						}
+				// 		#qs_tile_label {
+				// 			font-size: 14px;
+				// 			font-weight: bold;
+				// 		}
 
-						#qs_tile_icon {
-							font-size: 22px;
-						}
-					}
-				}
+				// 		#qs_tile_icon {
+				// 			font-size: 22px;
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	}
@@ -522,14 +531,14 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #quick_settings_container {
-	transition: margin 0.1s ease-in, min-width 0.3s linear;
+	transition: margin 0.1s ease-in;
 
-	background-color: transparent;
-	margin: 0 -20px;
+	margin: 0 -35px;
 
 	&.revealed {
 		// transition: margin 0.5s ease-in-out;
-		margin: settings.$pill_expanded_padding 0px 0px 0px;
+		margin: settings.$pill_expanded_padding 0px
+			calc(settings.$pill_expanded_padding / -4) 0px;
 		// min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
 	}
 
@@ -659,55 +668,114 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 			margin: 0px 0px 0px 0px;
 		}
 
-		#qs_speakers_container {
+		#qs_speakers_microphones_container {
 			transition: all 0.2s ease-in-out;
 
 			background-color: colors.$surface_container_low;
 			margin-top: calc(settings.$pill_expanded_padding / 2);
 
-			border-radius: settings.$pill_expanded_window_radius;
-			padding: $pill_expanded_ui_radius;
-			padding-bottom: calc($pill_expanded_ui_radius * 3 / 4);
+			border-radius: $pill_large_ui_radius;
+			padding: calc(settings.$pill_expanded_padding / 2);
+			// border-radius: settings.$pill_expanded_window_radius;
+			// padding: $pill_expanded_ui_radius;
+			// padding-bottom: calc($pill_expanded_ui_radius * 3 / 4);
+
+			$p: calc(2 / 3);
+			#qs_microphones_container,
+			#qs_speakers_container {
+				background-color: colors.$surface_container_lowest;
+
+				padding: calc(settings.$pill_expanded_padding * $p * 3 / 4)
+					calc(settings.$pill_expanded_padding * $p);
+
+				border-radius: calc(
+					$pill_large_ui_radius -
+						calc(settings.$pill_expanded_padding / 2)
+				);
+			}
+
+			.tab_button {
+				transition: all 0.1s ease-in;
+
+				margin: calc(settings.$pill_padding / 2);
+				padding: calc(settings.$pill_padding / 2);
+				margin-bottom: settings.$pill_padding;
+
+				background-color: colors.$surface_container_lowest;
+				min-width: 2rem;
+				border-radius: $pill_ui_radius;
+
+				label {
+					font-weight: normal;
+					font-size: large;
+				}
+
+				&:hover {
+					background-color: colors.$surface_dim;
+				}
+
+				&.active {
+					background-color: colors.$on_secondary;
+					color: colors.$secondary;
+
+					&:hover {
+						background-color: colors.$secondary_container;
+						color: colors.$on_secondary_container;
+					}
+				}
+			}
 
 			#header_label {
-				font-size: large;
+				font-size: 18px;
 				// padding-bottom: 5px;
 				// border-bottom: 1px white solid;
-				margin-bottom: calc($pill_expanded_ui_radius / 2);
+				margin-bottom: calc(settings.$pill_expanded_padding / 2);
+				// margin-bottom: calc($pill_expanded_ui_radius / 2);
 				margin-left: calc(settings.$pill_padding / 2);
 			}
 
 			$radius: calc(
-				settings.$pill_expanded_window_radius - $pill_expanded_ui_radius
+				$pill_large_ui_radius -
+					calc($pill_expanded_ui_radius * (1 / 2 + $p))
 			);
-			.qs_tile {
+			#speaker_button,
+			#microphone_button {
 				transition: all 0.1s ease-in;
 
-				background-color: colors.$surface;
-				border-radius: $radius;
+				background-color: colors.$surface_container_low;
 				padding: 0px settings.$pill_padding;
-				min-height: calc($radius * 2.5);
-				margin: calc($pill_expanded_ui_radius / 4) 0px;
+
+				border-radius: $radius;
+				min-height: 50px;
+				margin: calc(settings.$pill_expanded_padding / 4) 0px;
+				// border-radius: $radius;
+				// min-height: calc($radius * 2.5);
+				// margin: calc($pill_expanded_ui_radius / 4) 0px;
 
 				&:hover {
 					background-color: colors.$surface_container;
 				}
 
 				&.active {
-					background-color: colors.$surface_container_high;
+					background-color: colors.$on_tertiary;
+					color: colors.$tertiary;
 
 					&:hover {
-						background-color: colors.$surface_container_highest;
+						background-color: colors.$tertiary_container;
+						color: colors.$on_tertiary_container;
 					}
 				}
 
 				#qs_tile_label {
-					font-size: 15px;
-					font-weight: normal;
+					font-size: 14px;
+					font-weight: bold;
+					// font-size: 15px;
+					// font-weight: normal;
 				}
 
 				#qs_tile_icon {
-					font-size: 20px;
+					font-size: 22px;
+					// font-size: 20px;
 					font-weight: normal;
 					margin-right: calc(settings.$pill_padding);
 				}

@@ -1,7 +1,13 @@
 from config import configuration
 from loguru import logger
 
-from widgets.buttons import ToggleButton, QSToggleButton, QSTileButton, ChevronButton
+from widgets.buttons import (
+    MarkupButton,
+    ToggleButton,
+    QSToggleButton,
+    QSTileButton,
+    ChevronButton,
+)
 from widgets.interactable_slider import Slider
 from widgets.helpers.formatted_exec import formatted_exec_shell_command_async
 
@@ -141,23 +147,69 @@ class QuickSettings(Box):
         self.volume_toggle_overlay = Overlay(
             child=self.volume_toggle, overlays=self.volume_chevron
         )
-        self.speakers_holder = Box(orientation="v")
+
+        self.speakers_holder = Box(name="qs_speakers_container", orientation="v")
         self.speakers_container = Box(
-            name="qs_speakers_container",
             h_expand=True,
             orientation="v",
             children=[
                 Box(
                     children=[
-                        Label("Select Default Speaker:", name="header_label"),
+                        Label(
+                            configuration.get_property("speakers_header_text"),
+                            name="header_label",
+                        ),
                         Box(h_expand=True),
                     ]
                 ),
                 self.speakers_holder,
             ],
         )
-        self.speakers_container_revealer = Revealer(
-            child=self.speakers_container,
+        self.microphones_holder = Box(name="qs_microphones_container", orientation="v")
+        self.microphones_container = Box(
+            h_expand=True,
+            orientation="v",
+            children=[
+                Box(
+                    children=[
+                        Label(
+                            configuration.get_property("microphones_header_text"),
+                            name="header_label",
+                        ),
+                        Box(h_expand=True),
+                    ]
+                ),
+                self.microphones_holder,
+            ],
+        )
+        self.speakers_microphones_stack = Stack(
+            transition_type="slide-left-right",
+            transition_duration=200,
+            children=[self.speakers_container, self.microphones_container],
+        )
+
+        self.speaker_tab_button = MarkupButton(
+            style_classes=["tab_button", "active"],
+            markup=configuration.get_property("speakers_tab_icon"),
+        )
+        self.microphone_tab_button = MarkupButton(
+            style_classes="tab_button",
+            markup=configuration.get_property("microphones_tab_icon"),
+        )
+        self.tabs = Box(
+            children=[
+                Box(h_expand=True),
+                self.speaker_tab_button,
+                self.microphone_tab_button,
+                Box(h_expand=True),
+            ]
+        )
+        self.speakers_microphones_revealer = Revealer(
+            child=Box(
+                name="qs_speakers_microphones_container",
+                orientation="v",
+                children=[self.tabs, self.speakers_microphones_stack],
+            ),
             transition_type="slide-down",
             transition_duration=300,
         )
@@ -241,15 +293,35 @@ class QuickSettings(Box):
 
         self.volume_chevron.connect(
             "on-toggled",
-            lambda button, *_: self.populate_speakers()
+            lambda button, *_: self.populate_sp_mic_containers()
             if button.toggled
-            else self.speakers_container_revealer.unreveal(),
+            else self.unreveal_sp_mic_containers(),
             # lambda button, *_: logger.error(
             #     [
             #         [speaker.name, speaker.description, speaker.icon_name]
             #         for speaker in self.audio_controller.speakers
             #     ]
             # ),
+        )
+        self.speaker_tab_button.connect(
+            "clicked",
+            lambda *_: (
+                self.speakers_microphones_stack.set_visible_child(
+                    self.speakers_container
+                ),
+                self.speaker_tab_button.add_style_class("active"),
+                self.microphone_tab_button.remove_style_class("active"),
+            ),
+        )
+        self.microphone_tab_button.connect(
+            "clicked",
+            lambda *_: (
+                self.speakers_microphones_stack.set_visible_child(
+                    self.microphones_container
+                ),
+                self.microphone_tab_button.add_style_class("active"),
+                self.speaker_tab_button.remove_style_class("active"),
+            ),
         )
 
         self.brightness_slider.connect(
@@ -321,7 +393,7 @@ class QuickSettings(Box):
                 orientation="v",
                 children=[
                     Box(children=[self.volume_toggle_overlay, self.volume_slider]),
-                    self.speakers_container_revealer,
+                    self.speakers_microphones_revealer,
                 ],
             ),
         )
@@ -448,16 +520,27 @@ class QuickSettings(Box):
         if speaker._stream:
             self.audio_controller._control.set_default_sink(speaker._stream)
 
-            self.populate_speakers(speaker)
+            self.populate_sp_mic_containers(default_sink=speaker)
             return True
 
         return False
 
-    def populate_speakers(self, default_sink=None, *_):
+    def set_default_source(self, microphone):
+        if microphone._stream:
+            self.audio_controller._control.set_default_source(microphone._stream)
+
+            self.populate_sp_mic_containers(default_source=microphone)
+            return True
+
+        return False
+
+    def populate_sp_mic_containers(self, default_sink=None, default_source=None, *_):
         for child in self.speakers_holder.children:
             self.speakers_holder.remove(child)
+        for child in self.microphones_holder.children:
+            self.microphones_holder.remove(child)
 
-        self.speakers_container_revealer.reveal()
+        self.speakers_microphones_revealer.reveal()
 
         def speaker_factory(speaker):
             if not speaker.icon_name:
@@ -470,7 +553,7 @@ class QuickSettings(Box):
                 icon = configuration.get_property("speakers_unknown_icon")
 
             button = QSTileButton(
-                style_classes="speaker_button",
+                name="speaker_button",
                 centered=False,
                 icon=icon,
                 markup=speaker.description,
@@ -488,24 +571,64 @@ class QuickSettings(Box):
 
             return button
 
+        def microphone_factory(microphone):
+            icon = configuration.get_property("microphones_icon")
+
+            button = QSTileButton(
+                name="microphone_button",
+                centered=False,
+                icon=icon,
+                markup=microphone.description,
+            )
+            button.connect(
+                "clicked",
+                lambda *_: self.set_default_source(microphone),
+            )
+
+            if default_source:
+                if microphone == default_source:
+                    button.add_style_class("active")
+            elif microphone == self.audio_controller.microphone:
+                button.add_style_class("active")
+
+            return button
+
         for speaker in [
             speaker_factory(speaker) for speaker in self.audio_controller.speakers
         ]:
             self.speakers_holder.add(speaker)
 
-        self.audio_controller.connect(
-            "stream_added",
-            lambda *_: self.populate_speakers,
-        )
-        self.audio_controller.connect(
-            "stream_removed",
-            lambda *_: self.populate_speakers,
-        )
+        for microphone in [
+            microphone_factory(microphone)
+            for microphone in self.audio_controller.microphones
+        ]:
+            self.microphones_holder.add(microphone)
 
-    def unreveal_speakers(self):
-        self.audio_controller.disconnect_by_func(self.populate_speakers)
-        self.speakers_container_revealer.unreveal()
+        # self.audio_controller.connect(
+        #     "stream_added",
+        #     self.populate_sp_mic_containers,
+        # )
+        # self.audio_controller.connect(
+        #     "stream_removed",
+        #     self.populate_sp_mic_containers,
+        # )
+
+    def unreveal_sp_mic_containers(self):
+        try:
+            self.audio_controller.disconnect_by_func(self.populate_sp_mic_containers)
+        except Exception:
+            pass
+        self.speakers_microphones_revealer.unreveal()
+        self.speakers_microphones_stack.set_visible_child(self.speakers_container)
+        self.speaker_tab_button.add_style_class("active")
+        self.microphone_tab_button.remove_style_class("active")
 
     def hide_popups(self):
         for chevron in self.chevrons:
             chevron.toggle() if chevron.toggled else None
+
+    def add_style(self, style):
+        self.add_style_class(style)
+
+    def remove_style(self, style):
+        self.remove_style_class(style)

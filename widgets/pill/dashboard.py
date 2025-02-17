@@ -83,9 +83,9 @@ class Dashboard(Box):
         self.media_controls_revealer.reveal()
         # self.calendar_revealer.reveal()
 
-        self.quick_settings_widget.add_style_class("revealed")
-        self.media_controls_widget.add_style_class("revealed")
-        # self.calendar_widget.add_style_class("revealed")
+        self.quick_settings_widget.add_style("revealed")
+        self.media_controls_widget.add_style("revealed")
+        # self.calendar_widget.add_style("revealed")
 
     def peek(self):
         self.peeking = True
@@ -95,9 +95,9 @@ class Dashboard(Box):
         self.media_controls_revealer.reveal()
         # self.calendar_revealer.unreveal()
 
-        self.quick_settings_widget.remove_style_class("revealed")
-        self.media_controls_widget.add_style_class("revealed")
-        # self.calendar_widget.remove_style_class("revealed")
+        self.quick_settings_widget.remove_style("revealed")
+        self.media_controls_widget.add_style("revealed")
+        # self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()
 
@@ -111,9 +111,9 @@ class Dashboard(Box):
         self.media_controls_revealer.unreveal()
         # self.calendar_revealer.unreveal()
 
-        self.quick_settings_widget.remove_style_class("revealed")
-        self.media_controls_widget.remove_style_class("revealed")
-        # self.calendar_widget.remove_style_class("revealed")
+        self.quick_settings_widget.remove_style("revealed")
+        self.media_controls_widget.remove_style("revealed")
+        # self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()
 

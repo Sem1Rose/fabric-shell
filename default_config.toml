@@ -143,9 +143,15 @@ battery_hibernate_level = 10
 circular_progress_empty_part = "bottom"
 circular_progress_empty_angle = 100
 
+speakers_header_text = "Select Output Device:"
+speakers_tab_icon = "&#xed61;"
 speakers_unknown_icon = "&#xea8b;"
 speakers_built_in_icon = "&#xea8b;"
 speakers_headphones_icon = "&#xfa3c;"
+microphones_header_text = "Select Input Device:"
+microphones_icon = "&#xeaf0;"
+microphones_tab_icon = "&#xef2c;"
+
 
 [css_settings]
 text_font_family = "Lexend"

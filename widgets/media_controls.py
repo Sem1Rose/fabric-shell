@@ -10,21 +10,21 @@ from widgets.helpers.formatted_exec import formatted_exec_shell_command
 from gi.repository import GdkPixbuf, GLib
 from fabric import Fabricator
 from fabric.widgets.box import Box
+from fabric.widgets.revealer import Revealer
 from fabric.widgets.label import Label
 from fabric.core.service import Signal
 from fabric.utils import exec_shell_command_async, idle_add
 
 
-class MediaControls(Box):
+class MediaControls(Revealer):
     @Signal
     def on_show_hide(self, shown: bool): ...
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self, transition_type="slide-down", transition_duration=200, *args, **kwargs
+    ):
         super().__init__(
-            name="media_controls_widget",
-            orientation="v",
-            *args,
-            **kwargs,
+            transition_type=transition_type, transition_duration=transition_duration
         )
 
         self.playing = False
@@ -292,47 +292,54 @@ class MediaControls(Box):
             children=[artwork_image],
         )
 
-        self.media_controls = [
-            Box(
-                orientation="h",
-                h_expand=True,
-                v_expand=True,
-                children=[
-                    artwork_box,
-                    Box(
-                        h_expand=True,
-                        orientation="v",
-                        children=[
-                            Box(v_expand=True),
-                            title_label,
-                            artist_album_label,
-                            Box(v_expand=True),
-                        ],
-                    ),
-                    Box(
-                        v_expand=True,
-                        h_expand=True,
-                        orientation="v",
-                        children=[
-                            Box(v_expand=True),
-                            media_play_pause,
-                            Box(v_expand=True),
-                        ],
-                    ),
-                ],
-            ),
-            Box(
-                orientation="h",
-                h_expand=True,
-                children=[
-                    media_previous,
-                    media_shuffle,
-                    progress_box,
-                    media_loop,
-                    media_next,
-                ],
-            ),
-        ]
+        self.main_container = Box(
+            name="media_controls_widget",
+            orientation="v",
+            children=[
+                Box(
+                    orientation="h",
+                    h_expand=True,
+                    v_expand=True,
+                    children=[
+                        artwork_box,
+                        Box(
+                            h_expand=True,
+                            orientation="v",
+                            children=[
+                                Box(v_expand=True),
+                                title_label,
+                                artist_album_label,
+                                Box(v_expand=True),
+                            ],
+                        ),
+                        Box(
+                            v_expand=True,
+                            h_expand=True,
+                            orientation="v",
+                            children=[
+                                Box(v_expand=True),
+                                media_play_pause,
+                                Box(v_expand=True),
+                            ],
+                        ),
+                    ],
+                ),
+                Box(
+                    orientation="h",
+                    h_expand=True,
+                    children=[
+                        media_previous,
+                        media_shuffle,
+                        progress_box,
+                        media_loop,
+                        media_next,
+                    ],
+                ),
+            ],
+            *args,
+            **kwargs,
+        )
+        self.children = self.main_container
 
         def show_hide(show):
             if show:
@@ -340,16 +347,18 @@ class MediaControls(Box):
                     logger.debug("Player found!")
                     self.on_show_hide(True)
 
-                self.children = self.media_controls
-                self.remove_style_class("empty")
+                # self.children = self.media_controls
+                self.reveal()
+                self.main_container.remove_style_class("empty")
                 self.playing = True
             else:
                 if self.playing:
                     logger.warning("No media is playing!")
                     self.on_show_hide(False)
 
-                self.children = []
-                self.add_style_class("empty")
+                # self.children = []
+                self.unreveal()
+                self.main_container.add_style_class("empty")
                 self.playing = False
 
         show_hide(False)
@@ -361,3 +370,9 @@ class MediaControls(Box):
             stream=True,
             on_changed=lambda _, value: show_hide(value != ""),
         )
+
+    def add_style(self, style):
+        self.main_container.add_style_class(style)
+
+    def remove_style(self, style):
+        self.main_container.remove_style_class(style)

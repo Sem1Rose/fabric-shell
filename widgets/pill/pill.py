@@ -9,7 +9,7 @@ from widgets.pill.wallpaper_selector import WallpaperSelector
 from fabric.widgets.box import Box
 from fabric.widgets.stack import Stack
 from fabric.widgets.eventbox import EventBox
-from fabric.core.service import Signal
+from fabric.core.service import Signal, Property
 
 import gi
 
@@ -26,15 +26,31 @@ class PillApplets(IntEnum):
 class Pill(EventBox):
     @Signal
     def on_peeked(self, applet: int): ...
-
     @Signal
     def on_unpeeked(self, applet: int): ...
-
     @Signal
     def on_expanded(self, applet: int): ...
 
+    @Property(int, "rw")
+    def num_large_widgets(self) -> int:
+        return self._num_large_widgets
+
+    @num_large_widgets.setter
+    def num_large_widgets(self, value):
+        self._num_large_widgets = value
+
+        if self._num_large_widgets < 0:
+            self._num_large_widgets = 0
+
+        if self._num_large_widgets == 0:
+            self.main_container.remove_style_class("large_widget")
+        else:
+            self.main_container.add_style_class("large_widget")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self._num_large_widgets = 0
 
         self.dashboard = Dashboard()
         self.powermenu = PowerMenu()
@@ -58,20 +74,23 @@ class Pill(EventBox):
         )
         self.main_container = Box(name="pill_box", children=[self.stack])
 
-        self.dashboard.media_controls_widget.connect(
-            "on-show-hide",
-            lambda _, v: self.main_container.add_style_class("large_widget")
-            if v
-            else self.main_container.remove_style_class("large_widget"),
-        )
         self.connect("enter-notify-event", self.mouse_enter)
         self.connect("leave-notify-event", self.mouse_leave)
+        self.dashboard.media_controls_widget.connect(
+            "on-show-hide",
+            lambda _, v: self.inc_num_large_widgets()
+            if v
+            else self.dec_num_large_widgets(),
+        )
+        self.dashboard.quick_settings_widget.volume_chevron.connect(
+            "on-toggled",
+            lambda button, *_: self.inc_num_large_widgets()
+            if button.toggled
+            else self.dec_num_large_widgets(),
+        )
         self.dashboard.date_time_widget.connect(
             "clicked", lambda *_: self.toggle_dashboard_expand(True)
         )
-        # self.dashboard.date_time_widget.connect("motion-notify-event", lambda *_: False)
-        # self.dashboard.date_time_widget.connect("enter-notify-event", lambda *_: False)
-        # self.dashboard.date_time_widget.connect("leave-notify-event", lambda *_: False)
         self.powermenu.connect(
             "on_action", lambda *_: self.select_pill_applet(PillApplets.DASHBOARD)
         )
@@ -197,3 +216,9 @@ class Pill(EventBox):
     def applet_remove_style_class(self, applet, style_class):
         if self.active_applet == applet:
             self.applets[applet].remove_style_class(style_class)
+
+    def inc_num_large_widgets(self):
+        self.num_large_widgets += 1
+
+    def dec_num_large_widgets(self):
+        self.num_large_widgets -= 1
