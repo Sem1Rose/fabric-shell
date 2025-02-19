@@ -183,84 +183,6 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		}
 	}
 
-	// #scroll_button {
-	//     transition: all 0.2s ease-out;
-
-	//     background-color: colors.$surface_container;
-	//     color: colors.$primary;
-	//     margin-top: $wallpaper_padding;
-	//     border-radius: settings.$wallpaper_selector_wallpaper_border_radius;
-	//     // min-width: settings.$wallpaper_selector_wallpaper_border_radius + $wallpaper_scroll_button_small_radius;
-
-	//     &:disabled {
-	//         background-color: colors.$surface_container_lowest;
-	//         color: colors.$surface_container_high;
-
-	//         // & + #corners_parent {
-	//         //     #corner {
-	//         //         background-color: colors.$surface_container_lowest;
-	//         //     }
-	//         // }
-	//     }
-
-	//     &:hover {
-	//         background-color: colors.$surface_container_high;
-	//         // & + #corners_parent {
-	//         //     #corner {
-	//         //         background-color: colors.$surface_container_high;
-	//         //     }
-	//         // }
-	//     }
-
-	//     &.left {
-	//         border-top-right-radius: 0;
-	//         border-bottom-right-radius: 0;
-	//     }
-
-	//     &.right {
-	//         border-top-left-radius: 0;
-	//         border-bottom-left-radius: 0;
-	//     }
-	// }
-
-	// $corner_margin: 5px;
-	// #corners_parent {
-	//     margin-top: $wallpaper_padding;
-
-	//     &.left {
-	//         margin-right: calc($corner_margin - settings.$wallpaper_selector_wallpaper_border_radius);
-	//     }
-	//     &.right {
-	//         margin-left: calc($corner_margin - settings.$wallpaper_selector_wallpaper_border_radius);
-	//     }
-
-	//     &.disabled {
-	//         #corner_container {
-	//             #corner {
-	//                 background-color: colors.$surface_container_lowest;
-	//             }
-	//         }
-	//     }
-
-	//     &.hovered {
-	//         #corner_container {
-	//             #corner {
-	//                 background-color: colors.$surface_container_high;
-	//             }
-	//         }
-	//     }
-
-	//     #corner_container {
-	//         min-width: settings.$wallpaper_selector_wallpaper_border_radius;
-	//         min-height: settings.$wallpaper_selector_wallpaper_border_radius;
-
-	//         #corner {
-	//             transition: all 0.2s ease-out;
-	//             background-color: colors.$surface_container;
-	//         }
-	//     }
-	// }
-
 	#wallpaper_view {
 		transition: all 0.1s linear;
 
@@ -329,7 +251,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 	&.hidden {
 		// transition: all 0.3s linear;
-		margin: -10px;
+		margin: -20px;
 	}
 
 	&.peeking {
@@ -531,9 +453,9 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #quick_settings_container {
-	transition: margin 0.1s ease-in;
+	transition: margin 0.1s ease-out;
 
-	margin: 0 -35px;
+	margin: 0 -50px;
 
 	&.revealed {
 		// transition: margin 0.5s ease-in-out;
@@ -821,7 +743,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 	&.empty {
 		min-width: 0px;
-		margin: 0px;
+		margin: 0px -50px;
 		padding: 0;
 		background-color: transparent;
 

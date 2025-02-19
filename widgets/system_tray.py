@@ -1,13 +1,18 @@
 import gi
-
 from widgets.buttons import MarkupButton as Button
+from loguru import logger
 
 gi.require_version("Gray", "0.1")
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gray, Gtk, Gdk, GdkPixbuf, GLib  # noqa: E402
 
+replace_item_names = {
+    "spotify-linux-32": "spotify",
+    "/opt/localsend/data/flutter_assets/assets/img/logo-32-white.png": "localsend",
+}
 
-# Special thanks to Axenide (https://github.com/Axenide) 🙏🙏🙏
+
+# Special thanks to [Axenide](https://github.com/Axenide) 🙏🙏🙏
 class SystemTray(Gtk.Box):
     def __init__(self, icon_size: int = 20, **kwargs) -> None:
         super().__init__(orientation=Gtk.Orientation.HORIZONTAL, **kwargs)
@@ -37,7 +42,7 @@ class SystemTray(Gtk.Box):
                 pixbuf = pixmap.as_pixbuf(self.icon_size, GdkPixbuf.InterpType.HYPER)
             elif item.get_icon_name():
                 pixbuf = Gtk.IconTheme().load_icon(
-                    item.get_icon_name(),
+                    replace_item_names.get(item.get_icon_name(), item.get_icon_name()),
                     self.icon_size,
                     Gtk.IconLookupFlags.FORCE_SIZE,
                 )

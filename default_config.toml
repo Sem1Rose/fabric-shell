@@ -117,6 +117,7 @@ nmcli_command = "nmcli -c no -t"
 nmcli_wifi_adapter_name = "wlan0"
 
 playerctl_command = "playerctl -p spotify"
+playerctl_player_name = "spotify"
 
 screen_records_dir = "user_videos_dir-Screen_Recordings"
 
@@ -151,7 +152,6 @@ speakers_headphones_icon = "&#xfa3c;"
 microphones_header_text = "Select Input Device:"
 microphones_icon = "&#xeaf0;"
 microphones_tab_icon = "&#xef2c;"
-
 
 [css_settings]
 text_font_family = "Lexend"
