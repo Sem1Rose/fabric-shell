@@ -8,6 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
-./style.css
-styles/_colors.scss
+style.css
+styles/*
+^styles/style.scss
 styles/_settings.scss
+styles/_colors.scss
+style.css
