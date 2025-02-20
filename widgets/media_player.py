@@ -129,6 +129,8 @@ class MediaPlayer(Revealer):
                 return
 
             if name in configuration.get_property("media_player_allowed_players"):
+                logger.debug(f'Adding "{name}" to media players')
+
                 player_controller = Playerctl.Player.new_from_name(player_name)
                 self.player_manager.manage_player(player_controller)
                 # self.player_manager.move_player_to_top(player_controller)
@@ -142,6 +144,8 @@ class MediaPlayer(Revealer):
             else:
                 logger.warning(f"Player {name} is available but won't be managed")
         elif player:
+            logger.debug(f'Removing "{player.props.player_name}" from media players')
+
             self.remove_player(player)
             self.show_hide()
         else:
@@ -186,9 +190,8 @@ class MediaPlayer(Revealer):
         self.media_controls_stack.add(media_controls)
         self.player_controllers[name] = (player, media_controls)
 
-        logger.debug(self.selected_player)
         mid = math.floor(self.max_num_tabs / 2.0)
-        if len(self.player_controllers) - self.selected_player < mid:
+        if len(self.player_controllers) - self.selected_player <= mid:
             id = len(self.player_controllers) - 1 - self.selected_player + mid
 
             if id != 0 and id != self.max_num_tabs - 1:
@@ -213,16 +216,17 @@ class MediaPlayer(Revealer):
         _, media_controls = self.player_controllers.pop(name)
 
         if len(self.player_controllers) > 0:
-            new_index = (
-                index
-                if index + 1 < len(self.player_controllers)
-                else index - 1
-                if index > 0
-                else 0
-            )
-            self.media_controls_stack.set_visible_child(
-                list(self.player_controllers.values())[new_index][1],
-            )
+            if index == self.selected_player:
+                new_index = (
+                    index
+                    if index + 1 <= len(self.player_controllers)
+                    else index - 1
+                    if index > 0
+                    else 0
+                )
+                self.media_controls_stack.set_visible_child(
+                    list(self.player_controllers.values())[new_index][1],
+                )
             self.media_controls_stack.remove(media_controls)
 
         if (
@@ -278,11 +282,12 @@ class MediaPlayer(Revealer):
             for _ in range(abs(amount)):
                 idle_add(self.cycle, forward)
 
-                GLib.usleep(50 * 1000)
+                GLib.usleep(100 * 1000)
 
         GLib.Thread.new("goto_thread", goto_thread)
 
     def cycle(self, forward=True):
+        mid = math.floor(self.max_num_tabs / 2.0)
         if forward:
             self.selected_player += 1
             self.tab_holder.reorder_child(self.tabs[0], self.max_num_tabs - 1)
@@ -301,8 +306,8 @@ class MediaPlayer(Revealer):
                 )
                 self.tabs[-2].set_tooltip_markup(list(self.player_controllers)[new])
                 self.tabs[-2].set_sensitive(True)
+                self.tabs[-2].remove_style_class("empty")
 
-            mid = math.floor(self.max_num_tabs / 2.0)
             self.tabs[mid].add_style_class("active")
             self.tabs[mid - 1].remove_style_class("active")
         else:
@@ -315,16 +320,16 @@ class MediaPlayer(Revealer):
             self.tabs[0] = last
 
             new = self.selected_player - math.floor(self.max_num_tabs / 2.0) + 1
-            if new > 0:
-                self.tabs[2].set_markup(
+            if new >= 0:
+                self.tabs[1].set_markup(
                     configuration.get_property("media_player_allowed_players")[
                         list(self.player_controllers)[new]
                     ]
                 )
-                self.tabs[2].set_tooltip_markup(list(self.player_controllers)[new])
-                self.tabs[2].set_sensitive(True)
+                self.tabs[1].set_tooltip_markup(list(self.player_controllers)[new])
+                self.tabs[1].set_sensitive(True)
+                self.tabs[1].remove_style_class("empty")
 
-            mid = math.floor(self.max_num_tabs / 2.0)
             self.tabs[mid].add_style_class("active")
             self.tabs[mid + 1].remove_style_class("active")
 
@@ -334,6 +339,12 @@ class MediaPlayer(Revealer):
             self.tabs[i].add_style_class("empty")
         for i in [1, self.max_num_tabs - 2]:
             self.tabs[i].remove_style_class("hidden")
+
+        # if self.selected_player + 1 - mid >= 0:
+        # if self.selected_player + (self.max_num_tabs - 2) - mid < len(
+        #     self.player_controllers
+        # ):
+        #     self.tabs[-2].remove_style_class("empty")
 
         self.media_controls_stack.set_visible_child(
             list(self.player_controllers.values())[self.selected_player][1]

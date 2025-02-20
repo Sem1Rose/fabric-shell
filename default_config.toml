@@ -45,7 +45,7 @@ media_player_shuffle_icon = "&#xf000;"
 media_player_repeat_none_icon = "&#xf18e;"
 media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
-media_player_allowed_players = { "spotify" = "󰓇", "elisa" = "󰧔", "firefox" = "󰈹" }
+media_player_allowed_players = { "spotify" = "󰓇", "elisa" = "󰧔", "firefox" = "󰈹", "haruna"= "󰐌" }
 
 
 battery_list_devices_command = "upower -e"
