@@ -2,7 +2,7 @@ from loguru import logger
 
 from config import configuration
 from widgets.date_time import DateTimeWidget
-from widgets.media_controls import MediaControls
+from widgets.media_player import MediaPlayer
 from widgets.quick_settings import QuickSettings
 
 from fabric.widgets.box import Box
@@ -20,7 +20,7 @@ class Dashboard(Box):
 
         self.date_time_widget = DateTimeWidget()
         self.quick_settings_widget = QuickSettings()
-        self.media_controls_widget = MediaControls()
+        self.media_player_widget = MediaPlayer()
         # self.calendar_widget = Box(
         #     name="calendar_container",
         #     orientation="h",
@@ -41,9 +41,9 @@ class Dashboard(Box):
                 "media_player_reveal_animation_duration"
             ),
         )
-        self.media_controls_revealer = Revealer(
-            name="media_controls_revealer",
-            child=self.media_controls_widget,
+        self.media_player_revealer = Revealer(
+            name="media_player_revealer",
+            child=self.media_player_widget,
             transition_type="slide-down",
             transition_duration=configuration.get_property(
                 "media_player_reveal_animation_duration"
@@ -61,7 +61,7 @@ class Dashboard(Box):
         self.children = [
             self.date_time_widget,
             self.quick_settings_revealer,
-            self.media_controls_revealer,
+            self.media_player_revealer,
             # self.calendar_revealer,
         ]
 
@@ -80,11 +80,11 @@ class Dashboard(Box):
         self.expanded = True
 
         self.quick_settings_revealer.reveal()
-        self.media_controls_revealer.reveal()
+        self.media_player_revealer.reveal()
         # self.calendar_revealer.reveal()
 
         self.quick_settings_widget.add_style("revealed")
-        self.media_controls_widget.add_style("revealed")
+        self.media_player_widget.add_style("revealed")
         # self.calendar_widget.add_style("revealed")
 
     def peek(self):
@@ -92,11 +92,11 @@ class Dashboard(Box):
         self.expanded = False
 
         self.quick_settings_revealer.unreveal()
-        self.media_controls_revealer.reveal()
+        self.media_player_revealer.reveal()
         # self.calendar_revealer.unreveal()
 
         self.quick_settings_widget.remove_style("revealed")
-        self.media_controls_widget.add_style("revealed")
+        self.media_player_widget.add_style("revealed")
         # self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()
@@ -108,11 +108,11 @@ class Dashboard(Box):
         self.expanded = False
 
         self.quick_settings_revealer.unreveal()
-        self.media_controls_revealer.unreveal()
+        self.media_player_revealer.unreveal()
         # self.calendar_revealer.unreveal()
 
         self.quick_settings_widget.remove_style("revealed")
-        self.media_controls_widget.remove_style("revealed")
+        self.media_player_widget.remove_style("revealed")
         # self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()

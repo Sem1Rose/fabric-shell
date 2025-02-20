@@ -70,13 +70,7 @@ class WallpaperSelector(Box):
         self.matugen_scheme_combo.connect("changed", lambda *_: update_matugen_scheme())
         self.matugen_scheme_combo.set_can_focus(False)
 
-        self.Images = [
-            MarkupButton(name="wallpaper_item"),
-            MarkupButton(name="wallpaper_item"),
-            MarkupButton(name="wallpaper_item"),
-            MarkupButton(name="wallpaper_item"),
-            MarkupButton(name="wallpaper_item"),
-        ]
+        self.Images = [MarkupButton(name="wallpaper_item") for _ in range(5)]
         self.wallpapers_container = Box(children=self.Images)
 
         for image in self.Images:

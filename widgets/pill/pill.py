@@ -74,12 +74,12 @@ class Pill(EventBox):
         )
         self.main_container = Box(name="pill_box", children=[self.stack])
 
-        if self.dashboard.media_controls_widget.playing:
+        if self.dashboard.media_player_widget.shown:
             self.inc_num_large_widgets()
 
         self.connect("enter-notify-event", self.mouse_enter)
         self.connect("leave-notify-event", self.mouse_leave)
-        self.dashboard.media_controls_widget.connect(
+        self.dashboard.media_player_widget.connect(
             "on-show-hide",
             lambda _, v: self.inc_num_large_widgets()
             if v

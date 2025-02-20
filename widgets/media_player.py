@@ -1,4 +1,5 @@
 import gi
+import math
 import os.path as path
 from loguru import logger
 from config import configuration
@@ -9,8 +10,9 @@ from widgets.interactable_slider import Slider
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 from widgets.helpers.str import UpperToPascal
 
-from fabric import Fabricator
+# from fabric import Fabricator
 from fabric.widgets.box import Box
+from fabric.widgets.stack import Stack
 from fabric.widgets.revealer import Revealer
 from fabric.widgets.label import Label
 from fabric.core.service import Signal
@@ -25,7 +27,7 @@ gi.require_version("Playerctl", "2.0")
 from gi.repository import GdkPixbuf, GLib, Playerctl  # noqa: E402
 
 
-class MediaControls(Revealer):
+class MediaPlayer(Revealer):
     @Signal
     def on_show_hide(self, shown: bool): ...
 
@@ -37,16 +39,10 @@ class MediaControls(Revealer):
         )
 
         self.player_manager = Playerctl.PlayerManager.new()
-        self.player_controller = None
-        self.playing = False
-        self.seeking = False
-        self.length = 0
-
-        def set_length(value):
-            if value != "":
-                self.length = value
-            else:
-                self.length = None
+        self.shown = False
+        self.player_controllers = {}
+        self.selected_player = 0
+        self.max_num_tabs = 7
 
         # Fabricator(
         #     poll_from=configuration.get_property("playerctl_command")
@@ -55,6 +51,310 @@ class MediaControls(Revealer):
         #     stream=True,
         #     on_changed=lambda _, v: set_length(v),
         # )
+
+        # def set_length(value):
+        #     if value != "":
+        #         self.length = value
+        #     else:
+        #         self.length = None
+
+        self.media_controls_stack = Stack(
+            transition_type="slide-left-right", transition_duration=200
+        )
+        self.tabs = [
+            MarkupButton(style_classes="tab_button") for _ in range(self.max_num_tabs)
+        ]
+        self.tab_holder = Box(name="tabs_holder", children=self.tabs)
+        self.main_container = Box(
+            name="media_player_widget",
+            orientation="v",
+            children=[
+                self.media_controls_stack,
+                Box(
+                    children=[
+                        Box(h_expand=True),
+                        self.tab_holder,
+                        Box(h_expand=True),
+                    ]
+                ),
+            ],
+            *args,
+            **kwargs,
+        )
+
+        for tab in self.tabs:
+            tab.set_sensitive(False)
+            tab.add_style_class("empty")
+
+            tab.connect("clicked", lambda tab: self.handle_tab_press(tab))
+        for tab in [0, self.max_num_tabs - 1]:
+            self.tabs[tab].add_style_class("hidden")
+
+        self.add(self.main_container)
+
+        self.player_manager.connect(
+            "name-appeared",
+            lambda _, name: self.handle_manager_events(player_name=name),
+        )
+
+        for player_name in [
+            name
+            for name in self.player_manager.props.player_names
+            if name.name in configuration.get_property("media_player_allowed_players")
+        ]:
+            self.handle_manager_events(player_name=player_name)
+
+        # Fabricator(
+        #     poll_from=configuration.get_property("playerctl_command")
+        #     + r" metadata --follow -f '{{ title }}'",
+        #     interval=0,
+        #     stream=True,
+        #     on_changed=lambda _, value: show_hide(value != ""),
+        # )
+
+    def handle_manager_events(self, player=None, player_name=None):
+        # player_name != None -> adding a player
+        # player != None -> removing a player
+        if player is None and player_name is None:
+            logger.error("Either player or name must not be none")
+            return
+        elif player is not None and player_name is not None:
+            logger.error("Either player or name must be none")
+            return
+
+        if player_name:
+            name = player_name.name
+            if name in self.player_controllers:
+                logger.warning("Already added")
+                return
+
+            if name in configuration.get_property("media_player_allowed_players"):
+                player_controller = Playerctl.Player.new_from_name(player_name)
+                self.player_manager.manage_player(player_controller)
+                # self.player_manager.move_player_to_top(player_controller)
+
+                player_controller.connect(
+                    "exit", lambda player: self.handle_manager_events(player=player)
+                )
+
+                self.add_player(player_controller)
+                self.show_hide()
+            else:
+                logger.warning(f"Player {name} is available but won't be managed")
+        elif player:
+            self.remove_player(player)
+            self.show_hide()
+        else:
+            logger.error("THIS SHALL NOT BE REACHED")
+
+        # logger.error(
+        #     f"{self.player_manager.props.players}, {self.player_manager.props.player_names} \n {self.player_controller}: {'added' if player_name else 'removed'} {player.props.player_name if player else player_name.name}"
+        # )
+
+    def show_hide(self):
+        # show = self.player_controller is not None
+        show = len(self.player_controllers) != 0
+
+        if show:
+            if not self.shown:
+                logger.debug("Player found!")
+                self.on_show_hide(True)
+                self.shown = True
+
+            self.reveal()
+            self.main_container.remove_style_class("empty")
+
+            # self.update_metadata()
+        else:
+            if self.shown:
+                logger.warning("No media is playing!")
+                self.on_show_hide(False)
+                self.shown = False
+
+            self.unreveal()
+            self.main_container.add_style_class("empty")
+
+    def add_player(self, player):
+        name = player.props.player_name
+
+        media_controls = MediaControls(player)
+        media_controls.update_metadata()
+
+        if len(self.player_controllers) == 0:
+            self.media_controls_stack.children = []
+
+        self.media_controls_stack.add(media_controls)
+        self.player_controllers[name] = (player, media_controls)
+
+        logger.debug(self.selected_player)
+        mid = math.floor(self.max_num_tabs / 2.0)
+        if len(self.player_controllers) - self.selected_player < mid:
+            id = len(self.player_controllers) - 1 - self.selected_player + mid
+
+            if id != 0 and id != self.max_num_tabs - 1:
+                self.tabs[id].set_sensitive(True)
+                self.tabs[id].remove_style_class("hidden")
+
+            if id == mid:
+                self.tabs[id].add_style_class("active")
+
+            self.tabs[id].remove_style_class("empty")
+            self.tabs[id].set_markup(
+                configuration.get_property("media_player_allowed_players")[name]
+            )
+            self.tabs[id].set_tooltip_markup(name)
+
+    def remove_player(self, player):
+        name = player.props.player_name
+        if name not in self.player_controllers:
+            return
+
+        index = list(self.player_controllers).index(name)
+        _, media_controls = self.player_controllers.pop(name)
+
+        if len(self.player_controllers) > 0:
+            new_index = (
+                index
+                if index + 1 < len(self.player_controllers)
+                else index - 1
+                if index > 0
+                else 0
+            )
+            self.media_controls_stack.set_visible_child(
+                list(self.player_controllers.values())[new_index][1],
+            )
+            self.media_controls_stack.remove(media_controls)
+
+        if (
+            length := len(self.player_controllers)
+        ) > 0 and self.selected_player >= length:
+            self.selected_player = len(self.player_controllers) - 1
+
+        for i in range(1, self.max_num_tabs - 1):
+            pos = i - math.floor(self.max_num_tabs / 2.0)
+
+            if self.selected_player + pos < 0 or self.selected_player + pos >= len(
+                self.player_controllers
+            ):
+                self.tabs[i].set_sensitive(False)
+                self.tabs[i].set_markup("")
+                self.tabs[i].set_tooltip_markup("")
+                self.tabs[i].add_style_class("empty")
+            else:
+                self.tabs[i].set_sensitive(True)
+                self.tabs[i].set_markup(
+                    configuration.get_property("media_player_allowed_players")[
+                        list(self.player_controllers)[self.selected_player + pos]
+                    ]
+                )
+                self.tabs[i].set_tooltip_markup(
+                    list(self.player_controllers)[self.selected_player + pos]
+                )
+                self.tabs[i].remove_style_class("empty")
+
+    def handle_tab_press(self, tab):
+        index = self.tabs.index(tab)
+        mid = math.floor(self.max_num_tabs / 2.0)
+
+        if index in [0, self.max_num_tabs - 1, mid]:
+            return
+        else:
+            self.cycle_active_player(index - mid)
+
+    def cycle_active_player(self, amount=1):
+        if amount == 0:
+            return
+
+        forward = amount > 0
+        if forward:
+            if self.selected_player + amount >= len(self.player_controllers):
+                amount = len(self.player_controllers) - self.selected_player - 1
+        else:
+            if self.selected_player - amount < 0:
+                amount = self.selected_player
+        forward = amount > 0
+
+        def goto_thread():
+            for _ in range(abs(amount)):
+                idle_add(self.cycle, forward)
+
+                GLib.usleep(50 * 1000)
+
+        GLib.Thread.new("goto_thread", goto_thread)
+
+    def cycle(self, forward=True):
+        if forward:
+            self.selected_player += 1
+            self.tab_holder.reorder_child(self.tabs[0], self.max_num_tabs - 1)
+
+            first = self.tabs[0]
+            for i in range(self.max_num_tabs - 1):
+                self.tabs[i] = self.tabs[i + 1]
+            self.tabs[-1] = first
+
+            new = self.selected_player + math.floor(self.max_num_tabs / 2.0) - 1
+            if new < len(self.player_controllers):
+                self.tabs[-2].set_markup(
+                    configuration.get_property("media_player_allowed_players")[
+                        list(self.player_controllers)[new]
+                    ]
+                )
+                self.tabs[-2].set_tooltip_markup(list(self.player_controllers)[new])
+                self.tabs[-2].set_sensitive(True)
+
+            mid = math.floor(self.max_num_tabs / 2.0)
+            self.tabs[mid].add_style_class("active")
+            self.tabs[mid - 1].remove_style_class("active")
+        else:
+            self.selected_player -= 1
+            self.tab_holder.reorder_child(self.tabs[-1], 0)
+
+            last = self.tabs[-1]
+            for i in range(self.max_num_tabs - 1, 0, -1):
+                self.tabs[i] = self.tabs[i - 1]
+            self.tabs[0] = last
+
+            new = self.selected_player - math.floor(self.max_num_tabs / 2.0) + 1
+            if new > 0:
+                self.tabs[2].set_markup(
+                    configuration.get_property("media_player_allowed_players")[
+                        list(self.player_controllers)[new]
+                    ]
+                )
+                self.tabs[2].set_tooltip_markup(list(self.player_controllers)[new])
+                self.tabs[2].set_sensitive(True)
+
+            mid = math.floor(self.max_num_tabs / 2.0)
+            self.tabs[mid].add_style_class("active")
+            self.tabs[mid + 1].remove_style_class("active")
+
+        for i in [0, self.max_num_tabs - 1]:
+            self.tabs[i].set_sensitive(False)
+            self.tabs[i].add_style_class("hidden")
+            self.tabs[i].add_style_class("empty")
+        for i in [1, self.max_num_tabs - 2]:
+            self.tabs[i].remove_style_class("hidden")
+
+        self.media_controls_stack.set_visible_child(
+            list(self.player_controllers.values())[self.selected_player][1]
+        )
+
+    def add_style(self, style):
+        self.main_container.add_style_class(style)
+
+    def remove_style(self, style):
+        self.main_container.remove_style_class(style)
+
+
+class MediaControls(Box):
+    def __init__(self, player_controller, *args, **kwargs):
+        super().__init__(orientation="v", *args, **kwargs)
+        self.add_style_class("media_controls")
+
+        self.player_controller = player_controller
+        self.playing = False
+        self.length = 0
+
         self.media_previous = MarkupButton(
             name="media_previous",
             markup=configuration.get_property("media_player_previous_icon"),
@@ -63,9 +363,6 @@ class MediaControls(Revealer):
         self.media_previous.connect(
             "clicked",
             lambda *_: self.player_controller.previous(),
-            # lambda *_: exec_shell_command_async(
-            #     f"{configuration.get_property('playerctl_command')} previous"
-            # ),
         )
 
         self.media_next = MarkupButton(
@@ -76,9 +373,6 @@ class MediaControls(Revealer):
         self.media_next.connect(
             "clicked",
             lambda *_: self.player_controller.next(),
-            # lambda *_: exec_shell_command_async(
-            #     f"{configuration.get_property('playerctl_command')} next"
-            # ),
         )
 
         self.media_play_pause = ToggleButton(
@@ -103,9 +397,6 @@ class MediaControls(Revealer):
         self.media_play_pause.connect(
             "on_toggled",
             lambda *_: self.player_controller.play_pause(),
-            # lambda *_: exec_shell_command_async(
-            #     f"{configuration.get_property('playerctl_command')} play-pause"
-            # ),
         )
 
         self.media_shuffle = ToggleButton(
@@ -123,9 +414,6 @@ class MediaControls(Revealer):
         self.media_shuffle.connect(
             "on_toggled",
             lambda toggle, *_: self.player_controller.set_shuffle(toggle.toggled),
-            # lambda *_: exec_shell_command_async(
-            #     f"{configuration.get_property('playerctl_command')} shuffle Toggle"
-            # ),
         )
 
         self.media_loop = CycleToggleButton(
@@ -166,9 +454,6 @@ class MediaControls(Revealer):
         def seek_playback(value):
             if self.player_controller and self.length:
                 self.player_controller.set_position(int(value * self.length))
-                # exec_shell_command_async(
-                #     f"{configuration.get_property('playerctl_command')} position {value * self.length}"
-                # )
 
         def try_get_position(*_):
             if not self.player_controller:
@@ -190,7 +475,7 @@ class MediaControls(Revealer):
             poll_value_processor=lambda v: (
                 (v / self.length)
                 # (float(v) / self.length)
-                if self.length is not None and self.length != 0
+                if self.length != 0
                 else 0
             ),
             poll_interval=500,
@@ -201,20 +486,6 @@ class MediaControls(Revealer):
             "on_interacted",
             lambda _, value: seek_playback(value),
         )
-        # Fabricator(
-        #     poll_from=lambda *_: self.player_controller.get_position(),
-        #     interval=500,
-        #     on_changed=lambda _, v: logger.error(
-        #         f"ass is: {(float(v / 1e6) / self.length)}, {self.length}"
-        #     ),
-        #     # on_changed=lambda _, v: self.media_progress.change_value(
-        #     #     (float(v / 1e6) / self.length)
-        #     #     if self.length is not None and self.length != 0
-        #     #     else 0
-        #     # ),
-        # )
-
-        # progress_box = Box(h_expand=True, children=[self.media_progress])
 
         self.title_label = Label(
             name="media_title_label",
@@ -270,154 +541,6 @@ class MediaControls(Revealer):
             children=[self.artwork_image],
         )
 
-        self.main_container = Box(
-            name="media_controls_widget",
-            orientation="v",
-            children=[
-                Box(
-                    orientation="h",
-                    h_expand=True,
-                    v_expand=True,
-                    children=[
-                        self.artwork_box,
-                        Box(
-                            h_expand=True,
-                            orientation="v",
-                            children=[
-                                Box(v_expand=True),
-                                self.title_label,
-                                self.artist_album_label,
-                                Box(v_expand=True),
-                            ],
-                        ),
-                        Box(
-                            v_expand=True,
-                            h_expand=True,
-                            orientation="v",
-                            children=[
-                                Box(v_expand=True),
-                                self.media_play_pause,
-                                Box(v_expand=True),
-                            ],
-                        ),
-                    ],
-                ),
-                Box(
-                    orientation="h",
-                    h_expand=True,
-                    children=[
-                        self.media_previous,
-                        self.media_shuffle,
-                        self.media_progress,
-                        # progress_box,
-                        self.media_loop,
-                        self.media_next,
-                    ],
-                ),
-            ],
-            *args,
-            **kwargs,
-        )
-        self.children = self.main_container
-
-        # self.update_metadata()
-
-        self.player_manager.connect(
-            "name-appeared",
-            # lambda _, name: self.handle_manager_events(name, True),
-            lambda _, name: self.handle_manager_events(player_name=name),
-        )
-        # self.player_manager.connect(
-        #     "player-vanished",
-        #     # "name-vanished",
-        #     # lambda _, name: self.handle_manager_events(name, False),
-        #     lambda _, player: self.handle_manager_events(player=player),
-        # )
-
-        # self.player_controller = Playerctl.Player.new(
-        #     configuration.get_property("playerctl_player_name")
-        # )
-        # self.connect_player_controller()
-
-        # self.show_hide()
-        player_names = [
-            player
-            for player in self.player_manager.props.player_names
-            if player.name == configuration.get_property("playerctl_player_name")
-        ]
-        if len(player_names) > 0:
-            self.handle_manager_events(player_name=player_names[0])
-
-        # Fabricator(
-        #     poll_from=configuration.get_property("playerctl_command")
-        #     + r" metadata --follow -f '{{ title }}'",
-        #     interval=0,
-        #     stream=True,
-        #     on_changed=lambda _, value: show_hide(value != ""),
-        # )
-
-    def handle_manager_events(self, player=None, player_name=None):
-        # logger.error("benis")
-
-        if player is None and player_name is None:
-            logger.error("Either player or name must not be none")
-            return
-        elif player is not None and player_name is not None:
-            logger.error("Either player or name must be none")
-            return
-
-        # logger.warning(
-        #     f"{self.player_controller}: {'added' if player_name else 'removed'} {player.props.player_name if player else player_name.name}"
-        # )
-
-        if player_name and self.player_controller:
-            logger.warning("Already added")
-            return
-        elif player and not self.player_controller:
-            logger.warning("Nothing to remove")
-            return
-
-        # if added and self.player_controller:
-        #     return
-        # elif not added and not self.player_controller:
-        #     return
-
-        # name = player.name
-        # logger.error("caulk")
-        if player_name:
-            name = player_name.name
-            # logger.error(f"bewbs {name}")
-            if configuration.get_property("playerctl_player_name") == name:
-                # logger.error("bussy")
-                self.player_controller = Playerctl.Player.new_from_name(player_name)
-                self.player_manager.manage_player(self.player_controller)
-                # self.player_controller = Playerctl.Player.new(
-                #     configuration.get_property("playerctl_player_name")
-                # )
-                self.connect_player_controller()
-
-                self.player_controller.connect(
-                    "exit", lambda player: self.handle_manager_events(player=player)
-                )
-
-                self.show_hide()
-        # else:
-        elif player:
-            name = player.props.player_name
-            # logger.error(f"logos {name}")
-            if configuration.get_property("playerctl_player_name") == name:
-                # logger.error("vachina")
-
-                self.player_controller = None
-                self.show_hide()
-        else:
-            logger.error("THIS SHALL NOT BE REACHED")
-
-        # logger.error(
-        #     f"{self.player_manager.props.players}, {self.player_manager.props.player_names} \n {self.player_controller}: {'added' if player_name else 'removed'} {player.props.player_name if player else player_name.name}"
-        # )
-
-    def connect_player_controller(self):
         self.player_controller.connect(
             "metadata", lambda _, metadata: self.update_metadata(metadata)
         )
@@ -454,38 +577,48 @@ class MediaControls(Revealer):
             ),
         )
 
-    def show_hide(self):
-        # logger.error("showhide")
-        # if self.player_controller:
-        #     # show = self.player_controller.props.can_play
-        #     show = True
-        #     # logger.error(f"anas {show}")
-        # else:
-        #     show = False
-        #     # logger.warning(f"dicktionary {show}")
-        show = self.player_controller is not None
-
-        if show:
-            # logger.warning("niggativity")
-            if not self.playing:
-                logger.debug("Player found!")
-                self.on_show_hide(True)
-
-            # self.children = self.media_controls
-            self.reveal()
-            self.main_container.remove_style_class("empty")
-            self.playing = True
-
-            self.update_metadata()
-        else:
-            if self.playing:
-                logger.warning("No media is playing!")
-                self.on_show_hide(False)
-
-            # self.children = []
-            self.unreveal()
-            self.main_container.add_style_class("empty")
-            self.playing = False
+        self.children = [
+            Box(
+                orientation="h",
+                h_expand=True,
+                v_expand=True,
+                children=[
+                    self.artwork_box,
+                    Box(
+                        h_expand=True,
+                        orientation="v",
+                        children=[
+                            Box(v_expand=True),
+                            self.title_label,
+                            self.artist_album_label,
+                            Box(v_expand=True),
+                        ],
+                    ),
+                    Box(
+                        v_expand=True,
+                        h_expand=True,
+                        orientation="v",
+                        children=[
+                            Box(v_expand=True),
+                            self.media_play_pause,
+                            Box(v_expand=True),
+                        ],
+                    ),
+                ],
+            ),
+            Box(
+                orientation="h",
+                h_expand=True,
+                children=[
+                    self.media_previous,
+                    self.media_shuffle,
+                    self.media_progress,
+                    # progress_box,
+                    self.media_loop,
+                    self.media_next,
+                ],
+            ),
+        ]
 
     def download_artwork(self, art_url, file_path):
         logger.debug(f"Caching artwork {file_path}")
@@ -510,7 +643,7 @@ class MediaControls(Revealer):
         else:
             logger.error("Failed to fetch artwork: {}", file_path)
 
-    def update_artwork(self, art_url):
+    def update_artwork(self, data):
         self.artwork_image.set_from_pixbuf(
             GdkPixbuf.Pixbuf.new_from_file_at_scale(
                 filename=f"{configuration.get_property('icons_dir')}/image-off.svg",
@@ -520,10 +653,10 @@ class MediaControls(Revealer):
             )
         )
 
-        if art_url != "":
+        if data != "":
             file_path = path.join(
                 configuration.get_property("artwork_cache_dir"),
-                art_url.split("/")[-1],
+                data.split("/")[-1],
             )
 
             if path.exists(file_path):
@@ -540,7 +673,7 @@ class MediaControls(Revealer):
                 GLib.Thread.new(
                     "artwork-downloader",
                     self.download_artwork,
-                    art_url,
+                    data,
                     file_path,
                 )
 
@@ -551,9 +684,7 @@ class MediaControls(Revealer):
             return default
 
     def update_metadata(self, metadata=None):
-        if not self.player_controller:
-            return
-        elif not metadata:
+        if not metadata:
             metadata = self.player_controller.props.metadata
 
         # for i in metadata.keys():
@@ -562,7 +693,7 @@ class MediaControls(Revealer):
         if length := self.metadata_get(metadata, "mpris:length", None):
             self.length = length
         else:
-            self.length = None
+            self.length = 0
 
         if self.player_controller.props.can_go_next:
             self.media_next.set_sensitive(True)
@@ -617,9 +748,3 @@ class MediaControls(Revealer):
         )
 
         self.update_artwork(self.metadata_get(metadata, "mpris:artUrl", ""))
-
-    def add_style(self, style):
-        self.main_container.add_style_class(style)
-
-    def remove_style(self, style):
-        self.main_container.remove_style_class(style)

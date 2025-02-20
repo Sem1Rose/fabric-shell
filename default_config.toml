@@ -45,6 +45,8 @@ media_player_shuffle_icon = "&#xf000;"
 media_player_repeat_none_icon = "&#xf18e;"
 media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
+media_player_allowed_players = { "spotify" = "󰓇", "elisa" = "󰧔", "firefox" = "󰈹" }
+
 
 battery_list_devices_command = "upower -e"
 battery_device_info_command = "upower -i {device}"
@@ -117,7 +119,6 @@ nmcli_command = "nmcli -c no -t"
 nmcli_wifi_adapter_name = "wlan0"
 
 playerctl_command = "playerctl -p spotify"
-playerctl_player_name = "spotify"
 
 screen_records_dir = "user_videos_dir-Screen_Recordings"
 
@@ -171,7 +172,7 @@ pill_expanded_padding = "18px"
 pill_expanded_window_radius = "32px"
 # pill_ui_radius = "10px"
 # pill_expanded_ui_radius = "14px"
-pill_expanded_width = "430px"
+pill_expanded_width = "475px"
 
 media_player_slider_inner_padding = "8px"
 media_player_slider_padding_left = "15px"
