@@ -50,10 +50,10 @@ class WallpaperSelector(Box):
 
         self.schemes = {
             "scheme-tonal-spot": "Tonal Spot",
+            "scheme-fruit-salad": "Fruit Salad",
             "scheme-content": "Content",
             "scheme-expressive": "Expressive",
             "scheme-fidelity": "Fidelity",
-            "scheme-fruit-salad": "Fruit Salad",
             "scheme-monochrome": "Monochrome",
             "scheme-neutral": "Neutral",
             "scheme-rainbow": "Rainbow",

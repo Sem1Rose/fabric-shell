@@ -15,7 +15,6 @@ class ScreenRecorder(Box):
     def __init__(self, *args, **kwargs):
         super().__init__(
             name="screen_recorder_container",
-            style_classes="bar_widget",
             *args,
             **kwargs,
         )

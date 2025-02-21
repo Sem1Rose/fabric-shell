@@ -76,8 +76,6 @@ class BarWindowLeft(Window):
                 else None
             )
 
-        self.wallpaper_widget = Box(name="wallpaper_widget")
-
         self.workspaces_widget = Workspaces(
             name="workspaces_widget",
             style_classes="bar_widget",
@@ -116,7 +114,11 @@ class BarWindowLeft(Window):
             ),
         )
 
-        self.screen_recorder_widget = ScreenRecorder()
+        self.wallpaper_widget = Box(name="wallpaper_widget", style_classes="bar_widget")
+
+        self.screen_recorder_widget = ScreenRecorder(
+            style_classes="bar_widget",
+        )
 
         self.widgets = Box(
             name="bar_start_container",

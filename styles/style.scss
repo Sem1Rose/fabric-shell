@@ -699,9 +699,15 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 				#qs_tile_icon {
 					font-size: 22px;
-					// font-size: 20px;
 					font-weight: normal;
+
+					margin: 0.6rem 0px;
+					min-height: 2rem;
 					margin-right: calc(settings.$pill_padding);
+
+					background-color: colors.$surface_container_lowest;
+					min-width: 2rem;
+					border-radius: calc($radius - settings.$pill_padding);
 				}
 			}
 		}
@@ -955,14 +961,13 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		}
 	}
 
-	$transition: all 0.2s ease-out;
 	#tabs_holder {
 		margin-top: calc(-1 * settings.$pill_expanded_padding / 1.1);
 		padding-bottom: calc(settings.$pill_expanded_padding / 3);
 
 		.tab_button {
 			// transition: all 0.2s ease-out;
-			transition: $transition;
+			transition: all 0.2s ease-out;
 
 			min-width: 1.1rem;
 			margin: 0px calc(settings.$pill_padding / 4);
@@ -1005,7 +1010,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 				box-shadow: 0px 0px 10px -2px colors.$primary_container;
 
 				label {
-					transition: font-size 0s linear;
+					// transition: font-size 0s linear;
 
 					font-size: 24px;
 					// text-shadow: 0px 0px 10px colors.$primary;
@@ -1022,7 +1027,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 			}
 
 			label {
-				transition: $transition;
+				// transition: all 0s ease-out;
 				// transition: all 0.1s linear;
 
 				font-size: 20px;
@@ -1234,13 +1239,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
-$bar_container_background: colors.$primary_container;
-$bar_container_foreground: colors.$on_primary_container;
-#bar_window {
-	// min-width: 10px;
-	// min-height: settings.$bar_height - 1;
-	// background-color: red;
-}
+// #bar_window {
+// 	// min-width: 10px;
+// 	// min-height: settings.$bar_height - 1;
+// 	// background-color: red;
+// }
 
 #bar_window_left,
 #bar_window_right {
@@ -1258,8 +1261,9 @@ $bar_container_foreground: colors.$on_primary_container;
 #bar_start_container,
 #bar_end_container {
 	background-color: colors.$background;
+	color: colors.$on_primary_container;
 	min-height: (settings.$bar_height - settings.$bar_padding * 2);
-	padding: settings.$bar_padding;
+	padding: settings.$bar_padding calc(settings.$bar_padding / 2);
 }
 
 #bar_start_container {
@@ -1303,18 +1307,17 @@ $bar_container_foreground: colors.$on_primary_container;
 	margin: settings.$bar_padding;
 	min-width: 4px;
 	border-radius: 100px;
-	background-color: $bar_container_foreground;
+	background-color: colors.$on_primary_container;
 }
 
 .bar_widget {
 	border-radius: settings.$bar_ui_radius;
-	background-color: $bar_container_background;
+	background-color: colors.$primary_container;
 	padding: 0px settings.$bar_padding;
-	margin: 0px settings.$bar_padding;
+	margin: 0px calc(settings.$bar_padding / 2);
 }
 
 #workspaces_widget {
-	margin-left: 0px;
 	min-width: calc(6 * 2 * 3px + 5 * 10px + 30px + 2px);
 	// $center_margin: calc((settings.$bar_height - settings.$bar_padding * 2 - 14px) / 2);
 
@@ -1424,14 +1427,13 @@ $bar_container_foreground: colors.$on_primary_container;
 }
 
 #keyboard_layout_widget {
-	margin: 3px 0px;
-	margin-right: settings.$bar_padding;
-	padding: calc(settings.$bar_padding / 2);
+	margin-top: 3px;
+	margin-bottom: 3px;
+	// padding: calc(settings.$bar_padding / 2);
+	padding: 0;
 	border-radius: (settings.$bar_ui_radius - 2);
-	min-width: 1.15rem;
-	// min-width: (settings.$bar_height - 2 * settings.$bar_padding);
-	// min-width: 20px;
-	// min-width: 0rem;
+	min-width: 1.7rem;
+	min-height: 1.7rem;
 
 	label {
 		font-size: smaller;
@@ -1439,12 +1441,10 @@ $bar_container_foreground: colors.$on_primary_container;
 }
 
 #wallpaper_widget {
-	// min-height: calc(settings.$bar_height - settings.$bar_padding * 2);
-	margin-right: settings.$bar_padding;
 	min-width: calc(
 		(settings.$bar_height - 2 * settings.$bar_padding) * 16 / 9
 	);
-	border-radius: settings.$bar_ui_radius;
+	padding: 0px;
 
 	background-color: transparent;
 	background-image: url(settings.$wallpaper_file);
@@ -1454,19 +1454,22 @@ $bar_container_foreground: colors.$on_primary_container;
 
 #screen_recorder_container {
 	transition: all 0.1s ease-out;
-	margin: 0px;
-	padding: 0px;
 	background-color: transparent;
-	border-radius: 50% settings.$bar_ui_radius settings.$bar_ui_radius 50%;
+	border-radius: calc(settings.$bar_height / 2 - settings.$bar_padding)
+		settings.$bar_ui_radius settings.$bar_ui_radius
+		calc(settings.$bar_height / 2 - settings.$bar_padding);
+
+	padding: 3px;
+	margin-left: calc(settings.$bar_padding / 2 - 3px);
 
 	&.toggle_revealed {
 		background-color: colors.$surface_container_high;
+		margin-left: 0px;
 	}
 
 	#record_toggle {
 		transition: all 0.1s ease-out;
 
-		margin: 3px;
 		min-width: (settings.$bar_height - 2 * settings.$bar_padding - 6px);
 		background-color: colors.$on_secondary_container;
 		color: color.scale(colors.$error_container, $lightness: +30%);
@@ -1490,7 +1493,6 @@ $bar_container_foreground: colors.$on_primary_container;
 				colors.$error_container,
 				$lightness: +15%
 			);
-			// background-color: colors.$error_container;
 			color: colors.$on_primary_container;
 			margin: 0px;
 			border-radius: settings.$bar_ui_radius;
@@ -1508,12 +1510,10 @@ $bar_container_foreground: colors.$on_primary_container;
 	#audio_toggle {
 		transition: all 0.1s ease-out;
 
-		margin: (settings.$bar_padding - 5px);
+		min-width: calc(settings.$bar_height - 2 * settings.$bar_padding - 6px);
+		border-radius: (settings.$bar_ui_radius - settings.$bar_padding + 6px);
 		margin-left: calc(settings.$bar_padding / 2);
-		// padding: 0px 10px;
-		// min-width: 30px;
-		min-width: calc(settings.$bar_height - 2 * settings.$bar_padding - 8px);
-		border-radius: (settings.$bar_ui_radius - settings.$bar_padding + 5px);
+
 		background-color: colors.$surface_container_lowest;
 		color: colors.$surface_container_highest;
 
@@ -1528,18 +1528,17 @@ $bar_container_foreground: colors.$on_primary_container;
 		}
 
 		&.toggled {
-			background-color: colors.$primary;
-			color: colors.$on_primary;
+			background-color: colors.$tertiary;
+			color: colors.$on_tertiary;
 
 			&:hover {
-				background-color: colors.$on_primary_container;
+				background-color: colors.$on_tertiary_container;
 			}
 		}
 	}
 }
 
 #network_usage_widget {
-	margin: 0px;
 	padding: 0px settings.$bar_padding 0px calc(settings.$bar_padding / 2);
 	min-width: 5.5rem;
 
@@ -1560,8 +1559,6 @@ $bar_container_foreground: colors.$on_primary_container;
 }
 
 #resource_monitor_widget {
-	margin-right: 0px;
-
 	.circular_progress_block {
 		.circular_progress_container,
 		.circular_progress_overlay_icon {
@@ -1585,8 +1582,6 @@ $bar_container_foreground: colors.$on_primary_container;
 }
 
 #battery_widget {
-	margin-right: 0px;
-
 	.circular_progress_overlay_icon label {
 		font-weight: lighter;
 
@@ -1598,7 +1593,6 @@ $bar_container_foreground: colors.$on_primary_container;
 
 #tray_container {
 	background-color: transparent;
-	margin-right: 0px;
 	padding: 5px 0px;
 
 	#tray_container_expander {

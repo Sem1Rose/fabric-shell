@@ -17,6 +17,10 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # noqa: E402, F401
 
+logger.disable("fabric.audio")
+logger.disable("fabric.widgets.wayland")
+logger.disable("fabric.hyprland.widgets")
+
 
 def apply_styles():
     if os.path.exists("style.css"):

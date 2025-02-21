@@ -30,7 +30,8 @@ from fabric.bluetooth import BluetoothClient
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk  # noqa: E402
+# gi.require_version("NM", "1.0")
+from gi.repository import Gtk  # , NM  # noqa: E402
 
 
 class QuickSettings(Box):
@@ -42,22 +43,45 @@ class QuickSettings(Box):
             **kwargs,
         )
 
+        # self.network_client = NM.Client.new(None)
+
+        # devices = self.network_client.get_all_devices()
+        # print("Real devices")
+        # print("------------")
+        # for d in devices:
+        #     if d.is_real():
+        #         print(
+        #             "%s (%s): %s"
+        #             % (
+        #                 d.get_iface(),
+        #                 d.get_type_description(),
+        #                 d.get_state(),
+        #             )
+        #         )
+        # acons = self.network_client.get_active_connections()
+
+        # for ac in acons:
+        #     print(
+        #         "%s (%s) - %s" % (ac.get_id(), ac.get_uuid(), ac.get_connection_type())
+        #     )
+        # if len(acons) == 0:
+        #     print("No active connections")
+
         self.audio_controller = Audio()
 
         self.wifi_toggle = QSToggleButton(
             name="wifi_qs_toggle",
             h_expand=True,
             add_chevron=True,
-        ).build(
-            lambda toggle, _: Fabricator(
-                poll_from=f"{configuration.get_property('nmcli_command')} d monitor {configuration.get_property('nmcli_wifi_adapter_name')}",
-                interval=0,
-                stream=True,
-                on_changed=lambda _, v: self.handle_wifi_update(v.strip()),
-            )
         )
         self.wifi_toggle.connect("on_toggled", self.toggle_wifi)
         self.update_wifi_tile()
+        Fabricator(
+            poll_from=f"{configuration.get_property('nmcli_command')} d monitor {configuration.get_property('nmcli_wifi_adapter_name')}",
+            interval=0,
+            stream=True,
+            on_changed=lambda _, v: self.handle_wifi_update(v.strip()),
+        )
 
         self.wifi_popup = Gtk.Popover()
         self.wifi_popup.set_name("wifi_qs_popup")
