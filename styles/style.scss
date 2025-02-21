@@ -1427,13 +1427,13 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #keyboard_layout_widget {
-	margin-top: 3px;
-	margin-bottom: 3px;
+	margin-top: 5px;
+	margin-bottom: 5px;
 	// padding: calc(settings.$bar_padding / 2);
 	padding: 0;
 	border-radius: (settings.$bar_ui_radius - 2);
-	min-width: 1.7rem;
-	min-height: 1.7rem;
+	min-width: 1.5rem;
+	min-height: 1.5rem;
 
 	label {
 		font-size: smaller;
