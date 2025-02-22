@@ -38,7 +38,7 @@ class NetworkUsage(Box):
         )
         self.usage = Label(name="network_usage", markup="0 KB").build(
             lambda label, _: Fabricator(
-                poll_from=f"vnstat -i {configuration.try_get_property('nmcli_wifi_adapter_name')} -l --json",
+                poll_from=f"vnstat -i {self.adapter_name} -l --json",
                 interval=0,
                 stream=True,
                 on_changed=lambda _, value: self.update_usage(value),
@@ -58,7 +58,7 @@ class NetworkUsage(Box):
             return
 
         device_stats = exec_shell_command(
-            f"{configuration.try_get_property('nmcli_command')} d show {configuration.try_get_property('nmcli_wifi_adapter_name')}"
+            f"{configuration.try_get_property('nmcli_command')} d show {self.adapter_name}"
         )
 
         connection_state = None

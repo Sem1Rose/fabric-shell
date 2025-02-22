@@ -69,6 +69,20 @@ class QuickSettings(Box):
 
         self.audio_controller = Audio()
 
+        self.adapter_name = ""
+        if adapter_name := configuration.try_get_property("nmcli_wifi_adapter_name"):
+            self.adapter_name = adapter_name
+        else:
+            devices = exec_shell_command(
+                f"{configuration.try_get_property('nmcli_command')} d"
+            )
+            for device in devices.splitlines():
+                if ":wifi:" in device:
+                    self.adapter_name = device.split(":")[0]
+                    1
+            else:
+                logger.error("Counldn't find a wifi device.")
+
         self.wifi_toggle = QSToggleButton(
             name="wifi_qs_toggle",
             h_expand=True,
@@ -77,7 +91,7 @@ class QuickSettings(Box):
         self.wifi_toggle.connect("on_toggled", self.toggle_wifi)
         self.update_wifi_tile()
         Fabricator(
-            poll_from=f"{configuration.try_get_property('nmcli_command')} d monitor {configuration.try_get_property('nmcli_wifi_adapter_name')}",
+            poll_from=f"{configuration.try_get_property('nmcli_command')} d monitor {self.adapter_name}",
             interval=0,
             stream=True,
             on_changed=lambda _, v: self.handle_wifi_update(v.strip()),
@@ -404,7 +418,7 @@ class QuickSettings(Box):
     def handle_wifi_update(self, v: str):
         [device, operation, *_] = v.split(": ")
         logger.debug(f'handling wifi update "{device}" "{operation}"')
-        if device != configuration.try_get_property("nmcli_wifi_adapter_name"):
+        if device != self.adapter_name:
             return
 
         operations = ["connected", "disconnected", "unavailable", "connecting"]
@@ -436,10 +450,7 @@ class QuickSettings(Box):
                 f"{configuration.try_get_property('nmcli_command')} c show --active"
             )
             for connection in [c.split(":") for c in active_connections.splitlines()]:
-                if (
-                    configuration.try_get_property("nmcli_wifi_adapter_name")
-                    in connection
-                ):
+                if self.adapter_name in connection:
                     self.wifi_toggle.set_label(connection[0])
                     self.wifi_toggle.set_icon(
                         configuration.try_get_property("wifi_connected_icon")

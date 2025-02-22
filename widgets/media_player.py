@@ -88,14 +88,6 @@ class MediaPlayer(Revealer):
 
         self.show_hide()
 
-        # Fabricator(
-        #     poll_from=configuration.get_property("playerctl_command")
-        #     + r" metadata --follow -f '{{ title }}'",
-        #     interval=0,
-        #     stream=True,
-        #     on_changed=lambda _, value: show_hide(value != ""),
-        # )
-
     def handle_manager_events(self, player=None, player_name=None):
         # player_name != None -> adding a player
         # player != None -> removing a player
@@ -373,21 +365,6 @@ class MediaControls(Box):
         self.media_play_pause = ToggleButton(
             name="media_play_pause",
             h_align="end",
-            # ).build(
-            #     lambda button, _: Fabricator(  # process
-            #         poll_from=f"{configuration.get_property('playerctl_command')} status -F",
-            #         interval=0,
-            #         stream=True,
-            #         default_value="",
-            #         on_changed=lambda _, value: (
-            #             button.set_markup(
-            #                 configuration.get_property("media_player_pause_icon")
-            #                 if value == "Playing"
-            #                 else configuration.get_property("media_player_play_icon")
-            #             ),
-            #             button.set_state(value == "Playing"),
-            #         ),
-            #     )
         )
         self.media_play_pause.connect(
             "on_toggled",
@@ -397,14 +374,6 @@ class MediaControls(Box):
         self.media_shuffle = ToggleButton(
             name="media_shuffle",
             markup=configuration.try_get_property("media_player_shuffle_icon"),
-            # ).build(
-            #     lambda toggle, _: Fabricator(  # process
-            #         poll_from=f"{configuration.get_property('playerctl_command')} shuffle -F",
-            #         interval=0,
-            #         stream=True,
-            #         default_value="",
-            #         on_changed=lambda _, value: toggle.set_state(value == "On"),
-            #     )
         )
         self.media_shuffle.connect(
             "on_toggled",
@@ -414,36 +383,12 @@ class MediaControls(Box):
         self.media_loop = CycleToggleButton(
             name="media_loop",
             states=["None", "Playlist", "Track"],
-            # ).build(
-            #     lambda cycle_toggle, _: Fabricator(  # process
-            #         poll_from=f"{configuration.get_property('playerctl_command')} loop -F",
-            #         interval=0,
-            #         stream=True,
-            #         default_value="",
-            #         on_changed=lambda _, value: (
-            #             cycle_toggle.set_markup(
-            #                 configuration.get_property("media_player_repeat_none_icon")
-            #                 if value == "None"
-            #                 else configuration.get_property(
-            #                     "media_player_repeat_playlist_icon"
-            #                 )
-            #                 if value == "Playlist"
-            #                 else configuration.get_property(
-            #                     "media_player_repeat_track_icon"
-            #                 )
-            #             ),
-            #             cycle_toggle.set_state(state=value),
-            #         ),
-            #     )
         )
         self.media_loop.connect(
             "on_cycled",
             lambda cycle_toggle, *_: self.player_controller.set_loop_status(
                 get_enum_member(Playerctl.LoopStatus, cycle_toggle.get_state())
             ),
-            # lambda cycle_toggle, *_: exec_shell_command_async(
-            #     f"{configuration.get_property('playerctl_command')} loop {cycle_toggle.get_state()}"
-            # ),
         )
 
         def seek_playback(value):
@@ -464,14 +409,9 @@ class MediaControls(Box):
             h_expand=True,
             draw_value=False,
             orientation="h",
-            # poll=False,
             poll_command=try_get_position,
-            # poll_command=f"{configuration.get_property('playerctl_command')} position",
             poll_value_processor=lambda v: (
-                (v / self.length)
-                # (float(v) / self.length)
-                if self.length != 0
-                else 0
+                (v / self.length) if self.length != 0 else 0
             ),
             poll_interval=500,
             poll_stream=False,
@@ -487,14 +427,6 @@ class MediaControls(Box):
             h_expand=True,
             h_align="start",
             ellipsization="end",
-            # ).build(
-            #     lambda label, _: Fabricator(  # process
-            #         poll_from=configuration.get_property("playerctl_command")
-            #         + r" metadata -F -f '{{ title }}'",
-            #         interval=0,
-            #         stream=True,
-            #         on_changed=lambda _, v: (label.set_label(v), label.set_tooltip_text(v)),
-            #     )
         )
 
         self.artist_album_label = Label(
@@ -504,14 +436,6 @@ class MediaControls(Box):
             justification="start",
             # line_wrap="word",
             ellipsization="end",
-            # ).build(
-            #     lambda label, _: Fabricator(  # process
-            #         poll_from=configuration.get_property("playerctl_command")
-            #         + r" metadata -F -f '{{ artist }} 🞄 {{ album }}'",
-            #         interval=0,
-            #         stream=True,
-            #         on_changed=lambda _, v: (label.set_label(v), label.set_tooltip_text(v)),
-            #     )
         )
 
         self.artwork_image = RoundedImage(
@@ -519,14 +443,6 @@ class MediaControls(Box):
             image_file=f"{configuration.try_get_property('icons_dir')}/image-off.svg",
             size=configuration.try_get_property("media_player_no_artwork_icon_size"),
             h_expand=True,
-            # ).build(
-            #     lambda image, _: Fabricator(  # process
-            #         poll_from=configuration.get_property("playerctl_command")
-            #         + r" metadata -F -f '{{ mpris:artUrl }}'",
-            #         interval=0,
-            #         stream=True,
-            #         on_changed=lambda _, v: update_artwork(image, v),
-            #     )
         )
 
         self.artwork_box = Box(
@@ -612,7 +528,6 @@ class MediaControls(Box):
                     self.media_previous,
                     self.media_shuffle,
                     self.media_progress,
-                    # progress_box,
                     self.media_loop,
                     self.media_next,
                 ],
@@ -694,7 +609,6 @@ class MediaControls(Box):
         if not metadata:
             metadata = self.player_controller.props.metadata
 
-        # for i in metadata.keys():
         #     logger.error(f"{i}: {metadata[i]}")
 
         if length := self.metadata_get(metadata, "mpris:length", None):
