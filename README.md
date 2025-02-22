@@ -37,8 +37,9 @@ My new bar project, written in python with [fabric](https://github.com/Fabric-De
 -   brightnessctl
 -   pamixer
 -   upower
+-   vnstat
 
-`yay -S fabric-cli-git sass wf-recorder slurp ttf-tabler-icons brightnessctl pamixer upower` on arch should install all the dependencies(replace `yay` with your preffered AUR helper)
+`yay -S fabric-cli-git sass wf-recorder slurp ttf-tabler-icons brightnessctl pamixer upower vnstat` on arch should install all the dependencies(replace `yay` with your preffered AUR helper)
 
 ### Python dependencies:
 
