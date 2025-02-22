@@ -22,7 +22,7 @@ To change the currently open Applet, run `fabric-cli execute fabric-shell 'pill_
 
 You can also toggle the Dashboard expand, or change back to the Dashboard from any other Applet using `fabric-cli execute fabric-shell 'pill_window.toggle_dashboard_expand()'`.
 
-You can bind any of these commands to a keybind in your Hyprland config, ex:
+You can bind any of these commands to a keybind in your Hyprland config, eg:
 ```
 bind = SUPER, W, exec, fabric-cli execute fabric-shell 'pill_window.change_applet("wallpaper")'
 bind = SUPER SHIFT, L, exec, fabric-cli execute fabric-shell 'pill_window.change_applet("powermenu")'
@@ -63,7 +63,7 @@ swww img "$static_path"
 matugen -m dark image "$static_path" -t "$2"
 ```
 
-and then you could update the `wallpaper_file` variable with the following path: `user_config_dir-../.current-wallpaper`.
+and then you could update the `wallpaper_file` variable with the following path: `\"user_config_dir-../.current-wallpaper\"`. **IMPORTANT: Do not forget the `\"` around the path, refer to [Path Parsing](#path-parsing) for more info.
 
 ### Configure the Powermenu Applet:
 
@@ -87,7 +87,7 @@ The media player widget actively monitors `playerctl` for new players, and if th
 
 ## Path parsing
 
-Paths could be expressed in the config file in two different ways: either explicitly by using the absolute path, or by using `platformdirs` as a shortcut. The syntax is: `PLATFORMDIRS_FOLDER-PATH`. So for example, if i wanted to reference the `~/.config/some_file.ext` in the config, it should be written as `user_config_dir-some_file.ext`, which when parsed will give the absolute path of `some_file.ext`. Having hyphens `-` in the `PATH` is not an issue, i.e. `user_config_dir-file-name-with-hyphens.ext` will be parsed to `/home/USERNAME/.config/file-name-with-hyphens.ext`.
+Paths could be expressed in the config file in two different ways: either explicitly by using the absolute path, or by using `platformdirs` as a shortcut. The syntax is: `PLATFORMDIRS_FOLDER-PATH`. So for example, if i wanted to reference the `~/.config/some_file.ext` in the config, it should be written as `user_config_dir-some_file.ext`, which when parsed will give the absolute path of `some_file.ext`. Having hyphens `-` in the `PATH` is not an issue, i.e. `user_config_dir-file-name-with-hyphens.ext` will be parsed to `/home/USERNAME/.config/file-name-with-hyphens.ext`. Adding '\"' around the path will be preserved in the parsed path, eg: `\"user_config_dir-some_file.ext\"` will be parsed to `"/home/USERNAME/.config/some_file.ext"`.
 
 All `platformdirs` functions are supported, including but not limited to:
 - `user_config_dir`
