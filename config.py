@@ -31,7 +31,13 @@ class Config:
 
         try:
             d = getattr(platformdirs, user_dir)
-            return f"{quotes}{d()}{f'/{folder}' if folder else ''}{quotes}"
+
+            if folder:
+                path = os.path.normpath(os.path.join(d(), folder))
+            else:
+                path = d()
+
+            return f"{quotes}{path}{quotes}"
         except Exception:
             return f"{quotes}{dir}{quotes}"
 

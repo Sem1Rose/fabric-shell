@@ -84,8 +84,8 @@ if __name__ == "__main__":
     )
     css_monitor.connect("changed", lambda *_: apply_styles())
 
-    # config_monitor = monitor_file(config_file)
-    config_monitor = monitor_file(get_relative_path("default_config.toml"))
+    config_monitor = monitor_file(config_file)
+    # config_monitor = monitor_file(get_relative_path("default_config.toml"))
     config_monitor.connect("changed", lambda *_: configuration.load_config())
 
     logger.info(f"Starting shell... pid:{os.getpid()}")

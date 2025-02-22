@@ -401,9 +401,10 @@ class WallpaperSelector(Box):
             logger.error(f"unknown index: {index}")
 
     def start_thumbnails_thread(self):
-        self.wallpaper_processor_thread = GLib.Thread.new(
-            "wallpaper_processor", self.process_images
-        )
+        if not self.wallpaper_processor_thread:
+            self.wallpaper_processor_thread = GLib.Thread.new(
+                "wallpaper_processor", self.process_images
+            )
 
     def process_images(self):
         files = [
@@ -414,6 +415,8 @@ class WallpaperSelector(Box):
         random.shuffle(files)
 
         self.thread_pool.map(self.generate_thumbnail, files)
+
+        self.wallpaper_processor_thread = None
 
     def generate_thumbnail(self, image):
         thumbnail_path = os.path.join(
