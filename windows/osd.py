@@ -42,23 +42,26 @@ class OSDWindow(Window):
 
         self.audio_controller = Audio()
 
-        if backlight_device := configuration.get_property("backlight_device"):
+        self.backlight_device = ""
+        if backlight_device := configuration.try_get_property("backlight_device"):
             self.backlight_device = backlight_device
         else:
             devices = exec_shell_command(
-                configuration.get_property("brightness_list_devices_command")
+                configuration.try_get_property("brightness_list_devices_command")
             )
             for device in devices.splitlines():
                 if "backlight" in device:
                     self.backlight_device = device.split(",")[0]
                     break
+            else:
+                logger.error("Counldn't find a controllable brightness device.")
 
         def update_brightness_icon(value):
             self.brightness_icon.set_markup(
-                configuration.get_property("brightness_high_icon")
+                configuration.try_get_property("brightness_high_icon")
                 if self.brightness_slider.value
-                > configuration.get_property("qs_brightness_high_threshold")
-                else configuration.get_property("brightness_low_icon")
+                > configuration.try_get_property("qs_brightness_high_threshold")
+                else configuration.try_get_property("brightness_low_icon")
             )
 
         self.brightness_icon = Label(
@@ -72,7 +75,7 @@ class OSDWindow(Window):
             v_expand=True,
             inverted=True,
             poll_command=FormattedString(
-                configuration.get_property("get_brightness_command")
+                configuration.try_get_property("get_brightness_command")
             ).format(device=self.backlight_device),
             poll_interval=200,
             poll_stream=False,
@@ -83,7 +86,7 @@ class OSDWindow(Window):
         self.brightness_slider.connect(
             "on_interacted",
             lambda _, v: formatted_exec_shell_command_async(
-                configuration.get_property("set_brightness_command"),
+                configuration.try_get_property("set_brightness_command"),
                 device=self.backlight_device,
                 value=int(v * 255),
             ),
@@ -93,60 +96,6 @@ class OSDWindow(Window):
             lambda _, v: update_brightness_icon(int(v * 255)),
         )
 
-        # def update_volume_icon(value):
-        #     self.volume_toggle.set_markup(
-        #         configuration.get_property("volume_muted_icon")
-        #         if value == "true"
-        #         else (
-        #             configuration.get_property("volume_high_icon")
-        #             if self.volume_slider.value
-        #             > configuration.get_property("qs_volume_high_threshold")
-        #             else configuration.get_property("volume_low_icon")
-        #             if self.volume_slider.value > 0.0
-        #             else configuration.get_property("volume_off_icon")
-        #         )
-        #     )
-
-        # self.volume_toggle = ToggleButton(
-        #     name="osd_volume_toggle", h_expand=True, v_expand=True
-        # ).build(
-        #     lambda toggle, _: Fabricator(
-        #         poll_from=configuration.get_property("get_volume_mute_command"),
-        #         interval=200,
-        #         on_changed=lambda _, value: (
-        #             toggle.set_state(value == "true"),
-        #             update_volume_icon(value),
-        #         ),
-        #     )
-        # )
-        # self.volume_toggle.connect(
-        #     "on_toggled",
-        #     lambda *_: exec_shell_command_async(
-        #         configuration.get_property("volume_toggle_mute_command")
-        #     ),
-        # )
-
-        # self.volume_slider = Slider(
-        #     name="osd_volume_slider",
-        #     style_classes="osd_slider",
-        #     orientation="v",
-        #     v_expand=True,
-        #     inverted=True,
-        #     poll_command=configuration.get_property("get_volume_command"),
-        #     poll_interval=200,
-        #     poll_stream=False,
-        #     poll_value_processor=lambda v: float(v) / 100,
-        #     animation_duration=0.1,
-        #     animation_curve=(0.3, 0, 0.35, 1),
-        # )
-        # self.volume_slider.connect(
-        #     "on_interacted",
-        #     lambda _, v: formatted_exec_shell_command_async(
-        #         configuration.get_property("set_volume_command"),
-        #         value=int(v * 100),
-        #     ),
-        # )
-
         self.volume_slider = Slider(
             name="osd_volume_slider",
             style_classes="osd_slider",
@@ -154,18 +103,8 @@ class OSDWindow(Window):
             v_expand=True,
             poll=False,
             inverted=True,
-            # poll_command=configuration.get_property("get_volume_command"),
-            # poll_interval=200,
-            # poll_stream=False,
-            # poll_value_processor=lambda v: float(v) / 100,
-            # animation_duration=0.1,
-            # animation_curve=(0.3, 0, 0.35, 1),
         )
 
-        # self.audio_controller.speaker.connect(
-        #     "notify::volume",
-        #     self.volume_slider.change_value(int(self.audio_controller.speaker.volume)),
-        # )
         def update_volume_slider(*_):
             self.volume_slider.change_value(
                 float(self.audio_controller.speaker.volume) / 100.0
@@ -173,11 +112,6 @@ class OSDWindow(Window):
 
         def connect_volume_slider():
             if self.audio_controller.speaker:
-                # if self.audio_controller.speaker.is_connected(update_volume_slider):
-                #     self.audio_controller.speaker.disconnect_by_func(
-                #         update_volume_slider
-                #     )
-
                 update_volume_slider()
                 self.audio_controller.speaker.connect(
                     "notify::volume",
@@ -201,10 +135,6 @@ class OSDWindow(Window):
         self.volume_slider.connect(
             "on_interacted",
             lambda _, v: change_volume(v),
-            #     formatted_exec_shell_command_async(
-            #     configuration.get_property("set_volume_command"),
-            #     value=int(v * 100),
-            # ),
         )
 
         def update_volume_toggle(*_):
@@ -212,15 +142,15 @@ class OSDWindow(Window):
             self.volume_toggle.set_state(muted)
 
             self.volume_toggle.set_markup(
-                configuration.get_property("volume_muted_icon")
+                configuration.try_get_property("volume_muted_icon")
                 if muted
                 else (
-                    configuration.get_property("volume_high_icon")
+                    configuration.try_get_property("volume_high_icon")
                     if self.audio_controller.speaker.volume
-                    > configuration.get_property("qs_volume_high_threshold")
-                    else configuration.get_property("volume_low_icon")
+                    > configuration.try_get_property("qs_volume_high_threshold")
+                    else configuration.try_get_property("volume_low_icon")
                     if self.audio_controller.speaker.volume > 0
-                    else configuration.get_property("volume_off_icon")
+                    else configuration.try_get_property("volume_off_icon")
                 )
             )
 
@@ -228,31 +158,10 @@ class OSDWindow(Window):
             name="osd_volume_toggle",
             h_expand=True,
             v_expand=True,
-            # ).build(
-            #     lambda toggle, _: Fabricator(
-            #         poll_from=configuration.get_property("get_volume_mute_command"),
-            #         interval=200,
-            #         on_changed=lambda _, value: (
-            #             toggle.set_state(value == "true"),
-            #             update_volume_toggle(value),
-            #         ),
-            #     )
         )
 
-        # self.audio_controller.speaker.connect(
-        #     "notify::is-muted",
-        #     (
-        #         self.volume_toggle.set_state(not self.audio_controller.speaker.muted),
-        #         update_volume_toggle(self.audio_controller.speaker.muted),
-        #     ),
-        # )
         def connect_volume_toggle():
             if self.audio_controller.speaker:
-                # if self.audio_controller.speaker.is_connected(update_volume_toggle):
-                #     self.audio_controller.speaker.disconnect_by_func(
-                #         update_volume_toggle,
-                #     )
-
                 update_volume_toggle()
                 self.audio_controller.speaker.connect(
                     "notify::muted", update_volume_toggle
@@ -265,7 +174,7 @@ class OSDWindow(Window):
             else:
                 self.volume_toggle.set_state(False)
                 self.volume_toggle.set_markup(
-                    configuration.get_property("volume_muted_icon")
+                    configuration.try_get_property("volume_muted_icon")
                 )
                 self.volume_toggle.set_sensitive(False)
 
@@ -281,9 +190,6 @@ class OSDWindow(Window):
         self.volume_toggle.connect(
             "on_toggled",
             lambda toggle, *_: toggle_mute_stream(toggle.toggled),
-            # lambda *_: exec_shell_command_async(
-            #     configuration.get_property("volume_toggle_mute_command")
-            # ),
         )
 
         self.brightness_revealer = Revealer(
@@ -395,8 +301,6 @@ class OSDWindow(Window):
         self.add(self.main_container)
         self.show_all()
 
-        # self.show_brightness_slider()
-        # self.show_volume_slider()
         self.hide_brightness_slider()
         self.hide_volume_slider()
 
@@ -409,12 +313,12 @@ class OSDWindow(Window):
     def on_mouse_leave(self):
         if self.brightness_revealer.child_revealed:
             (self.brightness_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
+                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
             )
 
         if self.volume_revealer.child_revealed:
             (self.volume_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
+                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
             )
 
     def show_brightness_slider(self):
@@ -427,7 +331,7 @@ class OSDWindow(Window):
 
         if not self.hovered:
             (self.brightness_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
+                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
             )
 
     def show_volume_slider(self):
@@ -440,7 +344,7 @@ class OSDWindow(Window):
 
         if not self.hovered:
             (self.volume_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
+                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
             )
 
     def hide_brightness_slider(self):
@@ -472,55 +376,38 @@ class OSDWindow(Window):
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def inc_volume(self):
-        # inc_command = FormattedString(
-        #     configuration.get_property("volume_inc_command")
-        # ).format(delta=configuration.get_property("osd_volume_delta"))
-
-        # exec_shell_command_async(
-        #     f"sh -c '{configuration.get_property('volume_unmute_command')}; {inc_command}'"
-        # )
-        self.audio_controller.speaker.volume += configuration.get_property(
+        self.audio_controller.speaker.volume += configuration.try_get_property(
             "osd_volume_delta"
         )
         self.show_volume_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def dec_volume(self):
-        # dec_command = FormattedString(
-        #     configuration.get_property("volume_dec_command")
-        # ).format(delta=configuration.get_property("osd_volume_delta"))
-
-        # exec_shell_command_async(
-        #     f"sh -c '{configuration.get_property('volume_unmute_command')}; {dec_command}'"
-        # )
-        self.audio_controller.speaker.volume -= configuration.get_property(
+        self.audio_controller.speaker.volume -= configuration.try_get_property(
             "osd_volume_delta"
         )
         self.show_volume_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def volume_mute_toggle(self):
-        # exec_shell_command_async(
-        #     configuration.get_property("volume_toggle_mute_command")
-        # )
         self.audio_controller.speaker.muted = not self.audio_controller.speaker.muted
         self.show_volume_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def inc_brightness(self):
         formatted_exec_shell_command_async(
-            configuration.get_property("brightness_inc_command"),
+            configuration.try_get_property("brightness_inc_command"),
             device=self.backlight_device,
-            delta=configuration.get_property("osd_brightness_delta"),
+            delta=f"{configuration.try_get_property('osd_brightness_delta')}%",
         )
         self.show_brightness_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def dec_brightness(self):
         formatted_exec_shell_command_async(
-            configuration.get_property("brightness_dec_command"),
+            configuration.try_get_property("brightness_dec_command"),
             device=self.backlight_device,
-            delta=configuration.get_property("osd_brightness_delta"),
+            delta=f"{configuration.try_get_property('osd_brightness_delta')}%",
         )
         self.show_brightness_slider()
 
@@ -538,7 +425,6 @@ class UrgentOSDWindow(Window):
             layer="overlay",
             visible=False,
             margin="-100px 0px 0px 0px",
-            # pass_through=True,
             *args,
             **kwargs,
         )
@@ -676,13 +562,13 @@ class UrgentBatteryOSD(Box):
         )
         self.description = Label(
             name="battery_osd_description",
-            label=f"Battery level is below {configuration.get_property('battery_warning_level')}%",
+            label=f"Battery level is below {configuration.try_get_property('battery_warning_level')}%",
             h_align="start",
             h_expand=True,
         )
         self.confirm_button = MarkupButton(
             name="battery_osd_confirm",
-            markup=configuration.get_property("confirm_icon"),
+            markup=configuration.try_get_property("confirm_icon"),
         )
         self.confirm_button.set_can_focus(False)
 

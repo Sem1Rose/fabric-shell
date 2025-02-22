@@ -9,5 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
+config.toml
 style.css
 styles/_settings.scss

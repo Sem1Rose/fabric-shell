@@ -37,7 +37,7 @@ class Dashboard(Box):
             name="quick_settings_revealer",
             child=self.quick_settings_widget,
             transition_type="slide-down",
-            transition_duration=configuration.get_property(
+            transition_duration=configuration.try_get_property(
                 "media_player_reveal_animation_duration"
             ),
         )
@@ -45,7 +45,7 @@ class Dashboard(Box):
             name="media_player_revealer",
             child=self.media_player_widget,
             transition_type="slide-down",
-            transition_duration=configuration.get_property(
+            transition_duration=configuration.try_get_property(
                 "media_player_reveal_animation_duration"
             ),
         )

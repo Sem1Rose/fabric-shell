@@ -66,7 +66,7 @@ class Pill(EventBox):
         self.stack = Stack(
             name="pill_stack",
             transition_type="slide-down",
-            transition_duration=configuration.get_property(
+            transition_duration=configuration.try_get_property(
                 "pill_applet_transition_duration"
             ),
             children=[self.dashboard, self.powermenu, self.wallpaper_selector],
@@ -213,12 +213,12 @@ class Pill(EventBox):
         self.applet_remove_style_class(self.active_applet, style_class)
 
     def applet_add_style_class(self, applet, style_class):
-        if self.active_applet == applet:
-            self.applets[applet].add_style_class(style_class)
+        # if self.active_applet == applet:
+        self.applets[applet].add_style_class(style_class)
 
     def applet_remove_style_class(self, applet, style_class):
-        if self.active_applet == applet:
-            self.applets[applet].remove_style_class(style_class)
+        # if self.active_applet == applet:
+        self.applets[applet].remove_style_class(style_class)
 
     def inc_num_large_widgets(self):
         self.num_large_widgets += 1

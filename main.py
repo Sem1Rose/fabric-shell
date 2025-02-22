@@ -1,11 +1,10 @@
 import os
-import threading
 
 from config import configuration, config_file
 from loguru import logger
 
 from fabric import Application
-from fabric.utils import monitor_file, get_relative_path, FormattedString, idle_add
+from fabric.utils import monitor_file, get_relative_path
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 
 from windows.pill import PillWindow, PillApplets
@@ -15,7 +14,7 @@ from windows.bar import BarWindowLeft, BarWindowRight, BarWindow
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk  # noqa: E402, F401
+from gi.repository import Gtk, GLib  # noqa: E402, F401
 
 logger.disable("fabric.audio")
 logger.disable("fabric.widgets.wayland")
@@ -29,8 +28,8 @@ def apply_styles():
 
     logger.info("Compiling sass...")
     output = formatted_exec_shell_command(
-        configuration.get_property("sass_compiler_command"),
-        input=os.path.join(configuration.get_property("styles_dir"), "style.scss"),
+        configuration.try_get_property("sass_compiler_command"),
+        input=os.path.join(configuration.try_get_property("styles_dir"), "style.scss"),
         output="style.css",
     )
 
@@ -64,24 +63,24 @@ if __name__ == "__main__":
     bar_window = BarWindow()
 
     app = Application(
-        configuration.get_property("app_name"),
+        configuration.try_get_property("app_name"),
         osd_window,
         urgent_osd,
         bar_window_left,
         bar_window_right,
         pill_window,
         bar_window,
-        open_inspector=configuration.get_property("debug"),
+        open_inspector=configuration.try_get_property("debug"),
     )
 
     if not os.path.exists("style.css"):
         apply_styles()
     else:
         logger.info("Applying styles in the background...")
-        threading.Thread(target=apply_styles).start()
+        GLib.Thread.new("apply-styles", apply_styles)
 
     css_monitor = monitor_file(
-        get_relative_path(configuration.get_property("styles_dir"))
+        get_relative_path(configuration.try_get_property("styles_dir"))
     )
     css_monitor.connect("changed", lambda *_: apply_styles())
 

@@ -14,11 +14,6 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.core.service import Signal
 from fabric.utils.helpers import idle_add
-# from fabric.widgets.eventbox import EventBox
-# from widgets.corner import Corner
-# from fabric.widgets.shapes.corner import Corner
-
-# from fabric.utils.helpers import idle_add
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib  # noqa: E402
@@ -40,7 +35,9 @@ class WallpaperSelector(Box):
         self.stop_goto = False
         self.goto_started = False
         self.thread_pool = ThreadPoolExecutor(
-            max_workers=configuration.get_property("thumbnails_generator_max_workers")
+            max_workers=configuration.try_get_property(
+                "thumbnails_generator_max_workers"
+            )
         )
         self.wallpaper_processor_thread = None
 
@@ -69,6 +66,7 @@ class WallpaperSelector(Box):
         self.matugen_scheme_combo.set_active_id(self.matugen_scheme)
         self.matugen_scheme_combo.connect("changed", lambda *_: update_matugen_scheme())
         self.matugen_scheme_combo.set_can_focus(False)
+        self.matugen_scheme_combo.set_focus_on_click(False)
 
         self.Images = [MarkupButton(name="wallpaper_item") for _ in range(5)]
         self.wallpapers_container = Box(children=self.Images)
@@ -381,7 +379,7 @@ class WallpaperSelector(Box):
             # )
 
             formatted_exec_shell_command_async(
-                f'sh -c "sleep 0.5; {configuration.get_property("change_wallpaper_command")}"',
+                f'sh -c "sleep 0.5; {configuration.try_get_property("change_wallpaper_command")}"',
                 path=wallpaper_path,
                 scheme=self.matugen_scheme_combo.get_active_id(),
             )
@@ -410,7 +408,7 @@ class WallpaperSelector(Box):
     def process_images(self):
         files = [
             file
-            for file in os.listdir(configuration.get_property("wallpapers_dir"))
+            for file in os.listdir(configuration.try_get_property("wallpapers_dir"))
             if file.lower().endswith(".png")
         ]
         random.shuffle(files)
@@ -419,9 +417,11 @@ class WallpaperSelector(Box):
 
     def generate_thumbnail(self, image):
         thumbnail_path = os.path.join(
-            configuration.get_property("wallpapers_thumbnails_cache_dir"), image
+            configuration.try_get_property("wallpapers_thumbnails_cache_dir"), image
         )
-        file_path = os.path.join(configuration.get_property("wallpapers_dir"), image)
+        file_path = os.path.join(
+            configuration.try_get_property("wallpapers_dir"), image
+        )
         if os.path.exists(thumbnail_path):
             idle_add(self.append_wallpaper, thumbnail_path, file_path)
         else:

@@ -92,7 +92,11 @@ class BarWindowLeft(Window):
                     ),
                 )
                 for i in range(
-                    int(configuration.get_property("workspaces_widget_num_workspaces"))
+                    int(
+                        configuration.try_get_property(
+                            "workspaces_widget_num_workspaces"
+                        )
+                    )
                 )
             ],
             buttons_factory=factory,
@@ -102,7 +106,7 @@ class BarWindowLeft(Window):
             name="keyboard_layout_widget",
             style_classes="bar_widget",
             keyboard=name
-            if (name := configuration.get_property("switchxkblayout_keyboard_name"))
+            if (name := configuration.try_get_property("switchxkblayout_keyboard_name"))
             else ".*",
             formatter=FormattedString("{language}"),
             language_formatter=lambda x: x[:2].upper(),
@@ -110,7 +114,7 @@ class BarWindowLeft(Window):
         self.keyboard_layout_widget.connect(
             "clicked",
             lambda *_: get_hyprland_connection().send_command(
-                f"switchxkblayout {configuration.get_property('switchxkblayout_keyboard_name')} next"
+                f"switchxkblayout {configuration.try_get_property('switchxkblayout_keyboard_name')} next"
             ),
         )
 
@@ -177,12 +181,12 @@ class BarWindowRight(Window):
 
         self.tray = SystemTray(
             name="tray_widget",
-            icon_size=configuration.get_property("tray_icon_size"),
+            icon_size=configuration.try_get_property("tray_icon_size"),
         )
         self.tray_revealer = Revealer(
             child=self.tray,
             transition_type="slide_left",
-            transition_duration=configuration.get_property(
+            transition_duration=configuration.try_get_property(
                 "tray_revealer_reveal_animation_duration"
             ),
         )
@@ -192,18 +196,18 @@ class BarWindowRight(Window):
                 self.tray_revealer.unreveal()
                 self.tray_expander.remove_style_class("revealed")
                 self.tray_expander.set_markup(
-                    configuration.get_property("chevron_left")
+                    configuration.try_get_property("chevron_left")
                 )
             else:
                 self.tray_revealer.reveal()
                 self.tray_expander.add_style_class("revealed")
                 self.tray_expander.set_markup(
-                    configuration.get_property("chevron_right")
+                    configuration.try_get_property("chevron_right")
                 )
 
         self.tray_expander = MarkupButton(
             name="tray_container_expander",
-            markup=configuration.get_property("chevron_left"),
+            markup=configuration.try_get_property("chevron_left"),
         )
         self.tray_expander.connect(
             "clicked",

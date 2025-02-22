@@ -5,15 +5,10 @@ debug = false
 styles_dir = "styles"
 icons_dir = "icons"
 artwork_cache_dir = "user_cache_dir-artworks"
-wallpapers_dir = "user_config_dir-wallpaper/wallpapers"
-wallpapers_thumbnails_cache_dir = "user_config_dir-wallpaper/wallpapers/thumbnails"
+wallpapers_dir = ""
+wallpapers_thumbnails_cache_dir = ""
 
 thumbnails_generator_max_workers = 4
-
-backlight_device = "amdgpu_bl1"
-switchxkblayout_keyboard_name = "at-translated-set-2-keyboard"
-
-spacing = 12
 
 pill_applet_transition_duration = 450
 
@@ -45,7 +40,7 @@ media_player_shuffle_icon = "&#xf000;"
 media_player_repeat_none_icon = "&#xf18e;"
 media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
-media_player_allowed_players = { "spotify" = "󰓇", "elisa" = "󰧔", "firefox" = "󰈹", "haruna"= "󰐌" }
+media_player_allowed_players = { "spotify" = "󰓇" }
 
 battery_list_devices_command = "upower -e"
 battery_device_info_command = "upower -i {device}"
@@ -53,10 +48,8 @@ battery_widget_headset_icon = "&#xfa3c;"
 battery_widget_battery_full_icon = "&#xff19;"
 battery_widget_battery_half_full_icon = "&#xff1b;"
 battery_widget_battery_empty_icon = "&#xff15;"
-# battery_widget_battery_charging_icon = "&#xff17;"
 battery_widget_battery_charging_icon = "&#x10021;"
 battery_widget_battery_unknown_icon = "&#xf671;"
-# battery_widget_item_spacer_icon = "|"
 battery_widget_tooltip_markup = "{icon} {name}: {battery}\n{state}"
 
 tray_icon_size = 16
@@ -78,14 +71,6 @@ brightness_low_icon = "&#xfb23;"
 
 qs_brightness_high_threshold = 0.4
 
-volume_toggle_mute_command = "pamixer -t"
-volume_unmute_command = "pamixer -u"
-get_volume_mute_command = "pamixer --get-mute"
-get_volume_command = "pamixer --get-volume"
-set_volume_command = "pamixer --set-volume {value}"
-volume_inc_command = "pamixer -i {delta}"
-volume_dec_command = "pamixer -d {delta}"
-
 volume_high_icon = "&#xeb51;"
 volume_low_icon = "&#xeb4f;"
 volume_off_icon = "&#xeb50;"
@@ -97,9 +82,7 @@ workspaces_widget_num_workspaces = 6
 
 resource_monitor_poll_interval = 2000
 resource_monitor_overlay_icon = "&#xf692;"
-# resource_monitor_cpu_icon = "&#xef8e;"
 resource_monitor_cpu_icon_ = " "
-# resource_monitor_memory_icon = "&#xf384;"
 resource_monitor_memory_icon_ = " "
 
 wifi_connected_icon = "&#xeb52;"
@@ -115,9 +98,6 @@ network_usage_download_icon = "&#x10068;"
 network_usage_upload_icon = "&#x10065;"
 
 nmcli_command = "nmcli -c no -t"
-nmcli_wifi_adapter_name = "wlan0"
-
-playerctl_command = "playerctl -p spotify"
 
 screen_records_dir = "user_videos_dir-Screen_Recordings"
 
@@ -133,10 +113,10 @@ screen_record_widget_speakers_icon = "&#xeb51;"
 screen_record_widget_no_audio_icon = "&#xf1c3;"
 
 osd_timeout = 2
-osd_brightness_delta = "5%"
+osd_brightness_delta = 5
 osd_volume_delta = 5
 
-change_wallpaper_command = "user_config_dir-wallpaper/scripts/change-wallpaper '{path}' '{scheme}'"
+change_wallpaper_command = ""
 
 battery_warning_level = 20
 battery_hibernate_level = 10
@@ -167,15 +147,11 @@ bar_radius = "18px"
 pill_height = "50px"
 pill_padding = "10px"
 pill_expanded_padding = "18px"
-# pill_window_radius = "20px"
 pill_expanded_window_radius = "32px"
-# pill_ui_radius = "10px"
-# pill_expanded_ui_radius = "14px"
 pill_expanded_width = "475px"
 
 media_player_slider_inner_padding = "8px"
 media_player_slider_padding_left = "15px"
-# media_player_slider_margin_right = "8px"
 
 media_title_font_size = "18px"
 media_artist_album_font_size = "10px"
@@ -184,7 +160,7 @@ media_artwork_size = "120px"
 qs_row_height = "55px"
 qs_slider_padding = "6px"
 
-wallpaper_file = "\"user_config_dir-wallpaper/.current-wallpaper\""
+wallpaper_file = "\"\""
 
 power_menu_action_size = "100px"
 

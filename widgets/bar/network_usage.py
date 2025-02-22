@@ -18,13 +18,27 @@ class NetworkUsage(Box):
             **kwargs,
         )
 
+        self.adapter_name = ""
+        if adapter_name := configuration.try_get_property("nmcli_wifi_adapter_name"):
+            self.adapter_name = adapter_name
+        else:
+            devices = exec_shell_command(
+                f"{configuration.try_get_property('nmcli_command')} d"
+            )
+            for device in devices.splitlines():
+                if ":wifi:" in device:
+                    self.adapter_name = device.split(":")[0]
+                    break
+            else:
+                logger.error("Counldn't find a wifi device.")
+
         self.icon = Label(
             name="network_usage_icon",
-            markup=configuration.get_property("network_usage_download_icon"),
+            markup=configuration.try_get_property("network_usage_download_icon"),
         )
         self.usage = Label(name="network_usage", markup="0 KB").build(
             lambda label, _: Fabricator(
-                poll_from=f"vnstat -i {configuration.get_property('nmcli_wifi_adapter_name')} -l --json",
+                poll_from=f"vnstat -i {configuration.try_get_property('nmcli_wifi_adapter_name')} -l --json",
                 interval=0,
                 stream=True,
                 on_changed=lambda _, value: self.update_usage(value),
@@ -44,7 +58,7 @@ class NetworkUsage(Box):
             return
 
         device_stats = exec_shell_command(
-            f"{configuration.get_property('nmcli_command')} d show {configuration.get_property('nmcli_wifi_adapter_name')}"
+            f"{configuration.try_get_property('nmcli_command')} d show {configuration.try_get_property('nmcli_wifi_adapter_name')}"
         )
 
         connection_state = None
@@ -66,7 +80,7 @@ class NetworkUsage(Box):
 
         if connection_state != "connected":
             self.icon.set_markup(
-                configuration.get_property("network_disconnected_icon")
+                configuration.try_get_property("network_disconnected_icon")
             )
             self.usage.set_label("Disconnected")
 
@@ -86,12 +100,12 @@ class NetworkUsage(Box):
 
         if tx_rate >= rx_rate:
             self.icon.set_markup(
-                configuration.get_property("network_usage_upload_icon")
+                configuration.try_get_property("network_usage_upload_icon")
             )
             self.usage.set_label(get_size(tx_rate))
         else:
             self.icon.set_markup(
-                configuration.get_property("network_usage_download_icon")
+                configuration.try_get_property("network_usage_download_icon")
             )
             self.usage.set_label(get_size(rx_rate))
 

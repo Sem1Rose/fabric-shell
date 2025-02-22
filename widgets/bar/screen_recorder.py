@@ -26,12 +26,12 @@ class ScreenRecorder(Box):
 
         self.record_toggle = ToggleButton(
             name="record_toggle",
-            markup=configuration.get_property("screen_record_widget_record_icon"),
+            markup=configuration.try_get_property("screen_record_widget_record_icon"),
         )
         self.audio_toggle = CycleToggleButton(
             name="audio_toggle",
             states=["none", "speakers", "microphone"],
-            markup=configuration.get_property("screen_record_widget_no_audio_icon"),
+            markup=configuration.try_get_property("screen_record_widget_no_audio_icon"),
         )
 
         self.audio_toggle_revealer = Revealer(
@@ -74,14 +74,12 @@ class ScreenRecorder(Box):
         self.enable_audio = self.audio_toggle.toggled
         self.use_mic = self.audio_toggle.get_state() == "microphone"
 
-        self.audio_toggle.build(
-            lambda toggle, _: toggle.set_markup(
-                configuration.get_property("screen_record_widget_mic_icon")
-                if self.enable_audio and self.use_mic
-                else configuration.get_property("screen_record_widget_speakers_icon")
-                if self.enable_audio
-                else configuration.get_property("screen_record_widget_no_audio_icon")
-            )
+        self.audio_toggle.set_markup(
+            configuration.try_get_property("screen_record_widget_mic_icon")
+            if self.enable_audio and self.use_mic
+            else configuration.try_get_property("screen_record_widget_speakers_icon")
+            if self.enable_audio
+            else configuration.try_get_property("screen_record_widget_no_audio_icon")
         )
 
     def toggle_recording(self, modifiers=0, portion=False):
@@ -106,14 +104,14 @@ class ScreenRecorder(Box):
             geometry = None
             if portion:
                 geometry = exec_shell_command(
-                    configuration.get_property("screen_record_portion_command")
+                    configuration.try_get_property("screen_record_portion_command")
                 )
                 logger.error(geometry)
                 if not geometry or "selection cancelled" in geometry:
                     return
 
-            self.recording_path = f"{configuration.get_property('screen_records_dir')}/{time.strftime(r'%y%m%d.%s', time.localtime())}.mp4"
-            self.command = f"{configuration.get_property('screen_record_command')}"
+            self.recording_path = f"{configuration.try_get_property('screen_records_dir')}/{time.strftime(r'%y%m%d.%s', time.localtime())}.mp4"
+            self.command = f"{configuration.try_get_property('screen_record_command')}"
 
             input_device = None
             output_device = None
@@ -128,7 +126,7 @@ class ScreenRecorder(Box):
                 self.command = " ".join(
                     [
                         self.command,
-                        configuration.get_property("screen_record_audio_option"),
+                        configuration.try_get_property("screen_record_audio_option"),
                     ]
                 )
 
@@ -164,7 +162,7 @@ class ScreenRecorder(Box):
                 self.command = " ".join(
                     [
                         self.command,
-                        configuration.get_property("screen_record_portion_option"),
+                        configuration.try_get_property("screen_record_portion_option"),
                         f'"{geometry}"',
                     ]
                 )
@@ -172,7 +170,7 @@ class ScreenRecorder(Box):
             self.command = " ".join(
                 [
                     self.command,
-                    configuration.get_property("screen_record_output_option"),
+                    configuration.try_get_property("screen_record_output_option"),
                     self.recording_path,
                 ]
             )
@@ -183,10 +181,8 @@ class ScreenRecorder(Box):
             self.record_toggle.set_state(self.recording)
             (self.command_handle, _) = exec_shell_command_async(self.command)
 
-        self.record_toggle.build(
-            lambda toggle, _: toggle.set_markup(
-                configuration.get_property("screen_record_widget_stop_icon")
-                if self.recording
-                else configuration.get_property("screen_record_widget_record_icon")
-            )
+        self.record_toggle.set_markup(
+            configuration.try_get_property("screen_record_widget_stop_icon")
+            if self.recording
+            else configuration.try_get_property("screen_record_widget_record_icon")
         )
