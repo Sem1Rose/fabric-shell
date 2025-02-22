@@ -63,7 +63,7 @@ swww img "$static_path"
 matugen -m dark image "$static_path" -t "$2"
 ```
 
-and then you could update the `wallpaper_file` variable with the following path: `\"user_config_dir-../.current-wallpaper\"`. **IMPORTANT: Do not forget the `\"` around the path, refer to [Path Parsing](#path-parsing) for more info.
+and then you could update the `wallpaper_file` variable with the following path: `\"user_config_dir-../.current-wallpaper\"`. **IMPORTANT: Do not forget the `\"` around the path, refer to [Path Parsing](#path-parsing) for more info.**
 
 ### Configure the Powermenu Applet:
 
