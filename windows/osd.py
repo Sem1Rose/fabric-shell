@@ -52,6 +52,7 @@ class OSDWindow(Window):
             for device in devices.splitlines():
                 if "backlight" in device:
                     self.backlight_device = device.split(",")[0]
+                    logger.info(f"Found brightness device {self.backlight_device}")
                     break
             else:
                 logger.error("Counldn't find a controllable brightness device.")

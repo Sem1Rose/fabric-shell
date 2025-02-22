@@ -88,6 +88,5 @@ if __name__ == "__main__":
     config_monitor = monitor_file(get_relative_path("default_config.toml"))
     config_monitor.connect("changed", lambda *_: configuration.load_config())
 
-    logger.info("Starting shell...")
-    logger.info(os.getpid())
+    logger.info(f"Starting shell... pid:{os.getpid()}")
     app.run()

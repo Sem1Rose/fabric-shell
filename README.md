@@ -59,7 +59,14 @@ cd fabric-shell
 uv run main.py
 ```
 
-## Performance
+### Configuration
+
+Refer to the configuration guide [here](./config.md).
+
+> [!CAUTION]
+> Avoid editing anything in `default_config.toml`, only edit `config.toml`.
+
+### Performance
 
 -   ram usage is somwhere around 200MB.
 -   cpu usage is usually below 1%, spikes to ~8% with heavy animations, a lot more while caching wallpapers.

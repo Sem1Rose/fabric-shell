@@ -609,6 +609,7 @@ class MediaControls(Box):
         if not metadata:
             metadata = self.player_controller.props.metadata
 
+        # for i in metadata.keys():
         #     logger.error(f"{i}: {metadata[i]}")
 
         if length := self.metadata_get(metadata, "mpris:length", None):

@@ -79,7 +79,8 @@ class QuickSettings(Box):
             for device in devices.splitlines():
                 if ":wifi:" in device:
                     self.adapter_name = device.split(":")[0]
-                    1
+                    logger.info(f"Found wifi adapter {self.adapter_name}")
+                    break
             else:
                 logger.error("Counldn't find a wifi device.")
 
@@ -140,6 +141,7 @@ class QuickSettings(Box):
             for device in devices.splitlines():
                 if "backlight" in device:
                     self.backlight_device = device.split(",")[0]
+                    logger.info(f"Found brightness device {self.backlight_device}")
                     break
             else:
                 logger.error("Counldn't find a controllable brightness device.")
