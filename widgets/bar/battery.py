@@ -35,7 +35,7 @@ class BatteryWidget(Box):
 
     def update_battery_levels(self):
         output = exec_shell_command(
-            configuration.try_get_property("battery_list_devices_command")
+            configuration.get_property("battery_list_devices_command")
         )
         devices = list(
             filter(lambda x: "battery" in x or "headset" in x, output.splitlines())
@@ -44,7 +44,7 @@ class BatteryWidget(Box):
         processed_devices = {}
         for device in devices:
             info = formatted_exec_shell_command(
-                configuration.try_get_property("battery_device_info_command"),
+                configuration.get_property("battery_device_info_command"),
                 device=device,
             ).splitlines()
 
@@ -71,14 +71,14 @@ class BatteryWidget(Box):
                 if (
                     state == "discharging" or state == "unknown"
                 ) and not self.warned_low_battery:
-                    if percentage_float * 100 < configuration.try_get_property(
+                    if percentage_float * 100 < configuration.get_property(
                         "battery_warning_level"
                     ):
                         self.warned_low_battery = True
                         exec_shell_command_async(
-                            f"fabric-cli execute {configuration.try_get_property('app_name')} \"urgent_osd.show_urgent_osd('battery')\""
+                            f"fabric-cli execute {configuration.get_property('app_name')} \"urgent_osd.show_urgent_osd('battery')\""
                         )
-                    elif percentage_float * 100 < configuration.try_get_property(
+                    elif percentage_float * 100 < configuration.get_property(
                         "battery_hibernate_level"
                     ):
                         # TODO
@@ -86,37 +86,31 @@ class BatteryWidget(Box):
                 elif state != "discharging" and state != "unknown":
                     self.warned_low_battery = False
                     exec_shell_command_async(
-                        f'fabric-cli execute {configuration.try_get_property("app_name")} "urgent_osd.hide_urgent_osd()"'
+                        f'fabric-cli execute {configuration.get_property("app_name")} "urgent_osd.hide_urgent_osd()"'
                     )
 
                 self.primary_previous_state = state
 
             if "headset" in device:
-                icon = configuration.try_get_property("battery_widget_headset_icon")
+                icon = configuration.get_property("battery_widget_headset_icon")
             elif "battery" in device:
                 icon = (
-                    configuration.try_get_property(
-                        "battery_widget_battery_charging_icon"
-                    )
+                    configuration.get_property("battery_widget_battery_charging_icon")
                     if state in ("charging", "fully-charged")
                     else (
-                        configuration.try_get_property(
-                            "battery_widget_battery_full_icon"
-                        )
+                        configuration.get_property("battery_widget_battery_full_icon")
                         if percentage_float >= 0.7
-                        else configuration.try_get_property(
+                        else configuration.get_property(
                             "battery_widget_battery_half_full_icon"
                         )
                         if percentage_float >= 0.3
-                        else configuration.try_get_property(
+                        else configuration.get_property(
                             "battery_widget_battery_empty_icon"
                         )
                     )
                 )
             else:
-                icon = configuration.try_get_property(
-                    "battery_widget_battery_unknown_icon"
-                )
+                icon = configuration.get_property("battery_widget_battery_unknown_icon")
 
             processed_devices[device] = (name, percentage_float, icon, state)
         # logger.warning([device[0] for device in processed_devices.values()])
@@ -238,7 +232,7 @@ class BatteryBlock(Box):
         self._percentage = ""
         self.percentage_display_processor = percentage_display_processor
 
-        match configuration.try_get_property("circular_progress_empty_part"):
+        match configuration.get_property("circular_progress_empty_part"):
             case "bottom":
                 circ_progress_empty_base_angle = 90
             case "right":
@@ -251,15 +245,12 @@ class BatteryBlock(Box):
                 circ_progress_empty_base_angle = 0
 
         circ_progress_start_angle = circ_progress_empty_base_angle + (
-            float(configuration.try_get_property("circular_progress_empty_angle")) / 2
+            float(configuration.get_property("circular_progress_empty_angle")) / 2
         )
         circ_progress_end_angle = (
             360
             + circ_progress_empty_base_angle
-            - (
-                float(configuration.try_get_property("circular_progress_empty_angle"))
-                / 2
-            )
+            - (float(configuration.get_property("circular_progress_empty_angle")) / 2)
         )
 
         self.circ_progress = CircularProgressBar(
@@ -272,7 +263,7 @@ class BatteryBlock(Box):
             end_angle=circ_progress_end_angle,
         )
         self.icon = Label()
-        self.label = Label()
+        self.label = Label(name="battery_percentage_label")
 
         self.children = [
             Overlay(
@@ -291,8 +282,10 @@ class BatteryBlock(Box):
                     )
                 ],
             ),
-            self.label,
         ]
+
+        if not configuration.get_property("battery_widget_compact"):
+            self.add(self.label)
 
     def bulk_set(self, device, name, percentage, icon, state):
         self.set_percentage(percentage)
@@ -330,7 +323,7 @@ class BatteryBlock(Box):
     def update_tooltip(self):
         self.set_tooltip_markup(
             FormattedString(
-                configuration.try_get_property("battery_widget_tooltip_markup")
+                configuration.get_property("battery_widget_tooltip_markup")
             ).format(
                 icon=self._icon,
                 name=self._device_name,

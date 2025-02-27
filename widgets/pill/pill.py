@@ -3,6 +3,7 @@ from enum import IntEnum
 
 from config import configuration
 from widgets.pill.dashboard import Dashboard
+from widgets.pill.app_launcher import AppLauncher
 from widgets.pill.powermenu import PowerMenu
 from widgets.pill.wallpaper_selector import WallpaperSelector
 
@@ -21,6 +22,7 @@ class PillApplets(IntEnum):
     DASHBOARD = 0
     POWERMENU = 1
     WALLPAPER = 2
+    LAUNCHER = 3
 
 
 class Pill(EventBox):
@@ -55,31 +57,38 @@ class Pill(EventBox):
         self.dashboard = Dashboard()
         self.powermenu = PowerMenu()
         self.wallpaper_selector = WallpaperSelector()
+        self.app_launcher = AppLauncher()
 
         self.applets = {
             PillApplets.DASHBOARD: self.dashboard,
             PillApplets.POWERMENU: self.powermenu,
             PillApplets.WALLPAPER: self.wallpaper_selector,
+            PillApplets.LAUNCHER: self.app_launcher,
         }
         self.active_applet = PillApplets.DASHBOARD
 
         self.stack = Stack(
             name="pill_stack",
             transition_type="slide-down",
-            transition_duration=configuration.try_get_property(
-                "pill_applet_transition_duration"
+            transition_duration=configuration.get_property(
+                "pill_stack_transition_duration"
             ),
-            children=[self.dashboard, self.powermenu, self.wallpaper_selector],
+            children=[
+                self.dashboard,
+                self.powermenu,
+                self.wallpaper_selector,
+                self.app_launcher,
+            ],
             h_expand=True,
         )
         self.main_container = Box(name="pill_box", children=[self.stack])
 
-        if self.dashboard.media_player_widget.shown:
+        if self.dashboard.media_player.shown:
             self.inc_num_large_widgets()
 
         self.connect("enter-notify-event", self.mouse_enter)
         self.connect("leave-notify-event", self.mouse_leave)
-        self.dashboard.media_player_widget.connect(
+        self.dashboard.media_player.connect(
             "on-show-hide",
             lambda _, v: self.inc_num_large_widgets()
             if v
@@ -99,6 +108,9 @@ class Pill(EventBox):
         )
         self.wallpaper_selector.connect(
             "on_selected", lambda *_: self.select_pill_applet(PillApplets.DASHBOARD)
+        )
+        self.app_launcher.connect(
+            "on_launched", lambda *_: self.select_pill_applet(PillApplets.DASHBOARD)
         )
 
         self.select_pill_applet(self.active_applet)

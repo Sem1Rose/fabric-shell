@@ -20,7 +20,11 @@ class Dashboard(Box):
 
         self.date_time_widget = DateTimeWidget()
         self.quick_settings_widget = QuickSettings()
-        self.media_player_widget = MediaPlayer()
+        self.media_player = MediaPlayer(
+            transition_duration=configuration.get_property(
+                "pill_revealer_animation_duration"
+            )
+        )
         # self.calendar_widget = Box(
         #     name="calendar_container",
         #     orientation="h",
@@ -37,31 +41,32 @@ class Dashboard(Box):
             name="quick_settings_revealer",
             child=self.quick_settings_widget,
             transition_type="slide-down",
-            transition_duration=configuration.try_get_property(
-                "media_player_reveal_animation_duration"
+            transition_duration=configuration.get_property(
+                "pill_revealer_animation_duration"
             ),
         )
-        self.media_player_revealer = Revealer(
-            name="media_player_revealer",
-            child=self.media_player_widget,
-            transition_type="slide-down",
-            transition_duration=configuration.try_get_property(
-                "media_player_reveal_animation_duration"
-            ),
-        )
+        # self.media_player_revealer = Revealer(
+        #     name="media_player_revealer",
+        #     child=self.media_player_widget,
+        #     transition_type="slide-down",
+        #     transition_duration=configuration.get_property(
+        #         "pill_revealer_animation_duration"
+        #     ),
+        # )
         # self.calendar_revealer = Revealer(
         #     name="calendar_revealer",
         #     child=self.calendar_widget,
         #     transition_type="slide-down",
         #     transition_duration=configuration.get_property(
-        #         "media_player_reveal_animation_duration"
+        #         "pill_revealer_animation_duration"
         #     ),
         # )
 
         self.children = [
             self.date_time_widget,
             self.quick_settings_revealer,
-            self.media_player_revealer,
+            self.media_player,
+            # self.media_player_revealer,
             # self.calendar_revealer,
         ]
 
@@ -80,11 +85,12 @@ class Dashboard(Box):
         self.expanded = True
 
         self.quick_settings_revealer.reveal()
-        self.media_player_revealer.reveal()
+        if self.media_player.shown:
+            self.media_player.reveal()
         # self.calendar_revealer.reveal()
 
         self.quick_settings_widget.add_style("revealed")
-        self.media_player_widget.add_style("revealed")
+        self.media_player.add_style("revealed")
         # self.calendar_widget.add_style("revealed")
 
     def peek(self):
@@ -92,11 +98,12 @@ class Dashboard(Box):
         self.expanded = False
 
         self.quick_settings_revealer.unreveal()
-        self.media_player_revealer.reveal()
+        if self.media_player.shown:
+            self.media_player.reveal()
         # self.calendar_revealer.unreveal()
 
         self.quick_settings_widget.remove_style("revealed")
-        self.media_player_widget.add_style("revealed")
+        self.media_player.add_style("revealed")
         # self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()
@@ -108,11 +115,11 @@ class Dashboard(Box):
         self.expanded = False
 
         self.quick_settings_revealer.unreveal()
-        self.media_player_revealer.unreveal()
+        self.media_player.unreveal()
         # self.calendar_revealer.unreveal()
 
         self.quick_settings_widget.remove_style("revealed")
-        self.media_player_widget.remove_style("revealed")
+        self.media_player.remove_style("revealed")
         # self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()

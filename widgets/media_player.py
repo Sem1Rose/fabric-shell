@@ -81,8 +81,7 @@ class MediaPlayer(Revealer):
         for player_name in [
             name
             for name in self.player_manager.props.player_names
-            if name.name
-            in configuration.try_get_property("media_player_allowed_players")
+            if name.name in configuration.get_property("media_player_allowed_players")
         ]:
             self.handle_manager_events(player_name=player_name)
 
@@ -104,7 +103,7 @@ class MediaPlayer(Revealer):
                 logger.warning("Already added")
                 return
 
-            if name in configuration.try_get_property("media_player_allowed_players"):
+            if name in configuration.get_property("media_player_allowed_players"):
                 logger.debug(f'Adding "{name}" to media players')
 
                 player_controller = Playerctl.Player.new_from_name(player_name)
@@ -179,7 +178,7 @@ class MediaPlayer(Revealer):
 
             self.tabs[id].remove_style_class("empty")
             self.tabs[id].set_markup(
-                configuration.try_get_property("media_player_allowed_players")[name]
+                configuration.get_property("media_player_allowed_players")[name]
             )
             self.tabs[id].set_tooltip_markup(name)
 
@@ -223,7 +222,7 @@ class MediaPlayer(Revealer):
             else:
                 self.tabs[i].set_sensitive(True)
                 self.tabs[i].set_markup(
-                    configuration.try_get_property("media_player_allowed_players")[
+                    configuration.get_property("media_player_allowed_players")[
                         list(self.player_controllers)[self.selected_player + pos]
                     ]
                 )
@@ -276,7 +275,7 @@ class MediaPlayer(Revealer):
             new = self.selected_player + math.floor(self.max_num_tabs / 2.0) - 1
             if new < len(self.player_controllers):
                 self.tabs[-2].set_markup(
-                    configuration.try_get_property("media_player_allowed_players")[
+                    configuration.get_property("media_player_allowed_players")[
                         list(self.player_controllers)[new]
                     ]
                 )
@@ -298,7 +297,7 @@ class MediaPlayer(Revealer):
             new = self.selected_player - math.floor(self.max_num_tabs / 2.0) + 1
             if new >= 0:
                 self.tabs[1].set_markup(
-                    configuration.try_get_property("media_player_allowed_players")[
+                    configuration.get_property("media_player_allowed_players")[
                         list(self.player_controllers)[new]
                     ]
                 )
@@ -315,12 +314,6 @@ class MediaPlayer(Revealer):
             self.tabs[i].add_style_class("empty")
         for i in [1, self.max_num_tabs - 2]:
             self.tabs[i].remove_style_class("hidden")
-
-        # if self.selected_player + 1 - mid >= 0:
-        # if self.selected_player + (self.max_num_tabs - 2) - mid < len(
-        #     self.player_controllers
-        # ):
-        #     self.tabs[-2].remove_style_class("empty")
 
         self.media_controls_stack.set_visible_child(
             list(self.player_controllers.values())[self.selected_player][1]
@@ -344,7 +337,7 @@ class MediaControls(Box):
 
         self.media_previous = MarkupButton(
             name="media_previous",
-            markup=configuration.try_get_property("media_player_previous_icon"),
+            markup=configuration.get_property("media_player_previous_icon"),
             h_align="start",
         )
         self.media_previous.connect(
@@ -354,7 +347,7 @@ class MediaControls(Box):
 
         self.media_next = MarkupButton(
             name="media_next",
-            markup=configuration.try_get_property("media_player_next_icon"),
+            markup=configuration.get_property("media_player_next_icon"),
             h_align="end",
         )
         self.media_next.connect(
@@ -373,7 +366,7 @@ class MediaControls(Box):
 
         self.media_shuffle = ToggleButton(
             name="media_shuffle",
-            markup=configuration.try_get_property("media_player_shuffle_icon"),
+            markup=configuration.get_property("media_player_shuffle_icon"),
         )
         self.media_shuffle.connect(
             "on_toggled",
@@ -440,15 +433,15 @@ class MediaControls(Box):
 
         self.artwork_image = RoundedImage(
             name="media_artwork",
-            image_file=f"{configuration.try_get_property('icons_dir')}/image-off.svg",
-            size=configuration.try_get_property("media_player_no_artwork_icon_size"),
+            image_file=f"{configuration.get_property('icons_dir')}/image-off.svg",
+            size=configuration.get_property("media_player_no_artwork_icon_size"),
             h_expand=True,
         )
 
         self.artwork_box = Box(
             name="media_artwork_box",
             orientation="h",
-            size=configuration.try_get_property("media_player_artwork_size"),
+            size=configuration.get_property("media_player_artwork_size"),
             children=[self.artwork_image],
         )
 
@@ -459,15 +452,11 @@ class MediaControls(Box):
             "loop-status",
             lambda _, status: (
                 self.media_loop.set_markup(
-                    configuration.try_get_property("media_player_repeat_none_icon")
+                    configuration.get_property("media_player_repeat_none_icon")
                     if status == Playerctl.LoopStatus.NONE
-                    else configuration.try_get_property(
-                        "media_player_repeat_playlist_icon"
-                    )
+                    else configuration.get_property("media_player_repeat_playlist_icon")
                     if status == Playerctl.LoopStatus.PLAYLIST
-                    else configuration.try_get_property(
-                        "media_player_repeat_track_icon"
-                    )
+                    else configuration.get_property("media_player_repeat_track_icon")
                 ),
                 self.media_loop.set_state(
                     state=UpperToPascal(get_enum_member_name(status, default="None"))
@@ -482,9 +471,9 @@ class MediaControls(Box):
             "playback-status",
             lambda _, status: (
                 self.media_play_pause.set_markup(
-                    configuration.try_get_property("media_player_pause_icon")
+                    configuration.get_property("media_player_pause_icon")
                     if status == Playerctl.PlaybackStatus.PLAYING
-                    else configuration.try_get_property("media_player_play_icon")
+                    else configuration.get_property("media_player_play_icon")
                 ),
                 self.media_play_pause.set_state(
                     status == Playerctl.PlaybackStatus.PLAYING
@@ -538,7 +527,7 @@ class MediaControls(Box):
         logger.debug(f"Caching artwork {file_path}")
 
         formatted_exec_shell_command(
-            configuration.try_get_property("media_player_artwork_download_command"),
+            configuration.get_property("media_player_artwork_download_command"),
             url=art_url,
             path=file_path,
         )
@@ -549,8 +538,8 @@ class MediaControls(Box):
                 self.artwork_image.set_from_pixbuf,
                 GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     filename=file_path,
-                    width=configuration.try_get_property("media_player_artwork_size"),
-                    height=configuration.try_get_property("media_player_artwork_size"),
+                    width=configuration.get_property("media_player_artwork_size"),
+                    height=configuration.get_property("media_player_artwork_size"),
                     preserve_aspect_ratio=True,
                 ),
             )
@@ -560,20 +549,16 @@ class MediaControls(Box):
     def update_artwork(self, data):
         self.artwork_image.set_from_pixbuf(
             GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                filename=f"{configuration.try_get_property('icons_dir')}/image-off.svg",
-                width=configuration.try_get_property(
-                    "media_player_no_artwork_icon_size"
-                ),
-                height=configuration.try_get_property(
-                    "media_player_no_artwork_icon_size"
-                ),
+                filename=f"{configuration.get_property('icons_dir')}/image-off.svg",
+                width=configuration.get_property("media_player_no_artwork_icon_size"),
+                height=configuration.get_property("media_player_no_artwork_icon_size"),
                 preserve_aspect_ratio=True,
             )
         )
 
         if data != "":
             file_path = path.join(
-                configuration.try_get_property("artwork_cache_dir"),
+                configuration.get_property("artwork_cache_dir"),
                 data.split("/")[-1],
             )
 
@@ -581,12 +566,8 @@ class MediaControls(Box):
                 self.artwork_image.set_from_pixbuf(
                     GdkPixbuf.Pixbuf.new_from_file_at_scale(
                         filename=file_path,
-                        width=configuration.try_get_property(
-                            "media_player_artwork_size"
-                        ),
-                        height=configuration.try_get_property(
-                            "media_player_artwork_size"
-                        ),
+                        width=configuration.get_property("media_player_artwork_size"),
+                        height=configuration.get_property("media_player_artwork_size"),
                         preserve_aspect_ratio=True,
                     )
                 )
@@ -628,10 +609,10 @@ class MediaControls(Box):
             self.media_previous.set_sensitive(False)
 
         self.media_play_pause.set_markup(
-            configuration.try_get_property("media_player_pause_icon")
+            configuration.get_property("media_player_pause_icon")
             if self.player_controller.props.playback_status
             == Playerctl.PlaybackStatus.PLAYING
-            else configuration.try_get_property("media_player_play_icon")
+            else configuration.get_property("media_player_play_icon")
         )
         self.media_play_pause.set_state(
             self.player_controller.props.playback_status
@@ -641,11 +622,11 @@ class MediaControls(Box):
         self.media_shuffle.set_state(self.player_controller.props.shuffle)
 
         self.media_loop.set_markup(
-            configuration.try_get_property("media_player_repeat_none_icon")
+            configuration.get_property("media_player_repeat_none_icon")
             if self.player_controller.props.loop_status == Playerctl.LoopStatus.NONE
-            else configuration.try_get_property("media_player_repeat_playlist_icon")
+            else configuration.get_property("media_player_repeat_playlist_icon")
             if self.player_controller.props.loop_status == Playerctl.LoopStatus.PLAYLIST
-            else configuration.try_get_property("media_player_repeat_track_icon")
+            else configuration.get_property("media_player_repeat_track_icon")
         )
         self.media_loop.set_state(
             state=UpperToPascal(
@@ -666,7 +647,7 @@ class MediaControls(Box):
             f"{artist if (artist := self.player_controller.get_artist()) else 'Unknown'} 🞄 {album if (album := self.player_controller.get_album()) else 'Unknown'}"
         )
         self.artist_album_label.set_tooltip_text(
-            f"{artist if (artist := self.player_controller.get_artist()) else 'Unknown'} 🞄 {album if (album := self.player_controller.get_album()) else 'Unknown'}"
+            f"{', '.join(artists) if (artists := self.metadata_get(metadata, 'xesam:artist', None)) else artist if (artist := self.player_controller.get_artist()) else 'Unknown'} 🞄 {album if (album := self.player_controller.get_album()) else 'Unknown'}"
         )
 
         self.update_artwork(self.metadata_get(metadata, "mpris:artUrl", ""))

@@ -122,30 +122,30 @@ class ChevronButton(ToggleButton):
             self.add_style_class("toggled")
             self.set_markup(
                 (
-                    configuration.try_get_property("chevron_right")
+                    configuration.get_property("chevron_right")
                     if self.flipped
-                    else configuration.try_get_property("chevron_left")
+                    else configuration.get_property("chevron_left")
                 )
                 if self.orientation == "h"
                 else (
-                    configuration.try_get_property("chevron_down")
+                    configuration.get_property("chevron_down")
                     if self.flipped
-                    else configuration.try_get_property("chevron_up")
+                    else configuration.get_property("chevron_up")
                 )
             )
         else:
             self.remove_style_class("toggled")
             self.set_markup(
                 (
-                    configuration.try_get_property("chevron_left")
+                    configuration.get_property("chevron_left")
                     if self.flipped
-                    else configuration.try_get_property("chevron_right")
+                    else configuration.get_property("chevron_right")
                 )
                 if self.orientation == "h"
                 else (
-                    configuration.try_get_property("chevron_up")
+                    configuration.get_property("chevron_up")
                     if self.flipped
-                    else configuration.try_get_property("chevron_down")
+                    else configuration.get_property("chevron_down")
                 )
             )
 

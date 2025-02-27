@@ -68,21 +68,21 @@ class Config:
 
         self.set_css_settings()
 
-    def try_get_property(
+    def get_property(
         self,
         name: str,
         sections: Iterable[str] | str = "app_settings",
         default: bool | None = None,
     ) -> str | bool | int | None:
         if default is not None:
-            return self.get_property(name, sections, default)
+            return self.fetch_config_prop(name, sections, default)
         else:
-            if not (property := self.get_property(name, sections)):
-                property = self.get_property(name, sections, True)
+            if not (property := self.fetch_config_prop(name, sections)):
+                property = self.fetch_config_prop(name, sections, True)
 
             return property
 
-    def get_property(
+    def fetch_config_prop(
         self, name: str, sections: Iterable[str] | str = "app_settings", default=False
     ):
         config = self.default_config if default else self.config
@@ -110,10 +110,8 @@ class Config:
 
         settings = ""
         # for setting in self.config["css_settings"]:
-        for setting in self.try_get_property("css_settings", [], True):
-            settings += (
-                f"${setting}: {self.try_get_property(setting, 'css_settings')};\n"
-            )
+        for setting in self.get_property("css_settings", [], True):
+            settings += f"${setting}: {self.get_property(setting, 'css_settings')};\n"
 
         with open(get_relative_path("styles/_settings.scss"), "w") as f:
             f.write(settings)

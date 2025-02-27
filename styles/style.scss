@@ -123,17 +123,54 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 					settings.$pill_expanded_padding
 			);
 	}
+
+	&.launcher {
+		border-radius: settings.$pill_expanded_window_radius;
+	}
 }
 
 #pill_power_menu,
 #pill_dashboard,
-#pill_wallpaper_selector {
+#pill_wallpaper_selector,
+#pill_app_launcher {
 	transition: all 0.5s $transition_function;
+	opacity: 1;
 
 	&.hidden {
-		transition: all 0.3s linear;
+		transition: all 0.3s linear, opacity 0.1s ease-out;
 		min-width: 0px;
+		min-height: 0px;
 		padding: 0px;
+		opacity: 0;
+	}
+}
+
+#pill_app_launcher {
+	min-width: 500px;
+	min-height: 400px;
+
+	padding: settings.$pill_expanded_padding;
+
+	&.hidden {
+		margin: -150px -80px;
+
+		#grid_item {
+			margin: 0;
+		}
+	}
+
+	#grid_item {
+		margin: 5px;
+
+		background-color: green;
+
+		&.active {
+			background-color: red;
+		}
+
+		&.empty {
+			background-color: transparent;
+		}
 	}
 }
 
@@ -1282,13 +1319,13 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 .circular_progress_block {
-	.circular_progress_container {
-		margin-right: calc(settings.$bar_padding / 1.5);
-	}
+	// .circular_progress_container {
+	// 	margin-right: calc(settings.$bar_padding / 1.5);
+	// }
 
-	.circular_progress_overlay_icon {
-		margin-right: calc(settings.$bar_padding / 1.4);
-	}
+	// .circular_progress_overlay_icon {
+	// 	margin-right: calc(settings.$bar_padding / 1.5);
+	// }
 
 	.circular_progress_container {
 		min-width: calc(settings.$bar_height - 2 * settings.$bar_padding - 4px);
@@ -1332,7 +1369,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		padding: 0 3px;
 
 		#workspace_icon {
-			transition: all 0.1s ease-out;
+			transition: all 0.2s ease-out;
 			background-color: colors.$secondary;
 			border-radius: 5px;
 			min-width: 10px;
@@ -1453,7 +1490,6 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	);
 	padding: 0px;
 
-	background-color: transparent;
 	background-image: url(settings.$wallpaper_file);
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -1467,11 +1503,10 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		calc(settings.$bar_height / 2 - settings.$bar_padding);
 
 	padding: 3px;
-	margin-left: calc(settings.$bar_padding / 2 - 3px);
+	margin-left: calc(settings.$bar_padding / 2);
 
 	&.toggle_revealed {
 		background-color: colors.$surface_container_high;
-		margin-left: 0px;
 	}
 
 	#record_toggle {
@@ -1588,6 +1623,16 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #battery_widget {
+	&.empty {
+		padding: 0px;
+		margin: 0px;
+		background-color: transparent;
+	}
+
+	#battery_percentage_label {
+		margin-left: settings.$bar_padding;
+	}
+
 	.circular_progress_overlay_icon label {
 		font-weight: lighter;
 

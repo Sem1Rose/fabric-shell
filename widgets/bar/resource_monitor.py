@@ -32,9 +32,7 @@ class ResourceMonitor(Box):
         ).build(
             lambda progress, _: Fabricator(
                 poll_from=lambda *_: psutil.cpu_percent(),
-                interval=configuration.try_get_property(
-                    "resource_monitor_poll_interval"
-                ),
+                interval=configuration.get_property("resource_monitor_poll_interval"),
                 on_changed=lambda _, value: progress_set_value(
                     progress, float(value) / 100
                 ),
@@ -51,7 +49,7 @@ class ResourceMonitor(Box):
                 ),
                 Label(
                     style_classes="circular_progress_label",
-                    label=configuration.try_get_property("resource_monitor_cpu_icon_"),
+                    label=configuration.get_property("resource_monitor_cpu_icon_"),
                 ),
             ],
         )
@@ -67,9 +65,7 @@ class ResourceMonitor(Box):
         ).build(
             lambda progress, _: Fabricator(
                 poll_from=lambda *_: psutil.virtual_memory().percent,
-                interval=configuration.try_get_property(
-                    "resource_monitor_poll_interval"
-                ),
+                interval=configuration.get_property("resource_monitor_poll_interval"),
                 on_changed=lambda _, value: progress_set_value(
                     progress, float(value) / 100
                 ),
@@ -86,9 +82,7 @@ class ResourceMonitor(Box):
                 ),
                 Label(
                     style_classes="circular_progress_label",
-                    label=configuration.try_get_property(
-                        "resource_monitor_memory_icon_"
-                    ),
+                    label=configuration.get_property("resource_monitor_memory_icon_"),
                 ),
             ],
         )

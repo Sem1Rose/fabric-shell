@@ -35,9 +35,7 @@ class WallpaperSelector(Box):
         self.stop_goto = False
         self.goto_started = False
         self.thread_pool = ThreadPoolExecutor(
-            max_workers=configuration.try_get_property(
-                "thumbnails_generator_max_workers"
-            )
+            max_workers=configuration.get_property("thumbnails_generator_max_workers")
         )
         self.wallpaper_processor_thread = None
 
@@ -379,7 +377,7 @@ class WallpaperSelector(Box):
             # )
 
             formatted_exec_shell_command_async(
-                f'sh -c "sleep 0.5; {configuration.try_get_property("change_wallpaper_command")}"',
+                f'sh -c "sleep 0.5; {configuration.get_property("change_wallpaper_command")}"',
                 path=wallpaper_path,
                 scheme=self.matugen_scheme_combo.get_active_id(),
             )
@@ -409,7 +407,7 @@ class WallpaperSelector(Box):
     def process_images(self):
         files = [
             file
-            for file in os.listdir(configuration.try_get_property("wallpapers_dir"))
+            for file in os.listdir(configuration.get_property("wallpapers_dir"))
             if file.lower().endswith(".png")
         ]
         random.shuffle(files)
@@ -420,11 +418,9 @@ class WallpaperSelector(Box):
 
     def generate_thumbnail(self, image):
         thumbnail_path = os.path.join(
-            configuration.try_get_property("wallpapers_thumbnails_cache_dir"), image
+            configuration.get_property("wallpapers_thumbnails_cache_dir"), image
         )
-        file_path = os.path.join(
-            configuration.try_get_property("wallpapers_dir"), image
-        )
+        file_path = os.path.join(configuration.get_property("wallpapers_dir"), image)
         if os.path.exists(thumbnail_path):
             idle_add(self.append_wallpaper, thumbnail_path, file_path)
         else:

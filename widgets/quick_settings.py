@@ -70,11 +70,11 @@ class QuickSettings(Box):
         self.audio_controller = Audio()
 
         self.adapter_name = ""
-        if adapter_name := configuration.try_get_property("nmcli_wifi_adapter_name"):
+        if adapter_name := configuration.get_property("nmcli_wifi_adapter_name"):
             self.adapter_name = adapter_name
         else:
             devices = exec_shell_command(
-                f"{configuration.try_get_property('nmcli_command')} d"
+                f"{configuration.get_property('nmcli_command')} d"
             )
             for device in devices.splitlines():
                 if ":wifi:" in device:
@@ -92,7 +92,7 @@ class QuickSettings(Box):
         self.wifi_toggle.connect("on_toggled", self.toggle_wifi)
         self.update_wifi_tile()
         Fabricator(
-            poll_from=f"{configuration.try_get_property('nmcli_command')} d monitor {self.adapter_name}",
+            poll_from=f"{configuration.get_property('nmcli_command')} d monitor {self.adapter_name}",
             interval=0,
             stream=True,
             on_changed=lambda _, v: self.handle_wifi_update(v.strip()),
@@ -132,11 +132,11 @@ class QuickSettings(Box):
         )
 
         self.backlight_device = ""
-        if backlight_device := configuration.try_get_property("backlight_device"):
+        if backlight_device := configuration.get_property("backlight_device"):
             self.backlight_device = backlight_device
         else:
             devices = exec_shell_command(
-                configuration.try_get_property("brightness_list_devices_command")
+                configuration.get_property("brightness_list_devices_command")
             )
             for device in devices.splitlines():
                 if "backlight" in device:
@@ -152,7 +152,7 @@ class QuickSettings(Box):
             style_classes="qs_slider",
             h_expand=True,
             poll_command=FormattedString(
-                configuration.try_get_property("get_brightness_command")
+                configuration.get_property("get_brightness_command")
             ).format(device=self.backlight_device),
             poll_interval=200,
             poll_stream=False,
@@ -182,7 +182,7 @@ class QuickSettings(Box):
                 Box(
                     children=[
                         Label(
-                            configuration.try_get_property("speakers_header_text"),
+                            configuration.get_property("speakers_header_text"),
                             name="header_label",
                         ),
                         Box(h_expand=True),
@@ -199,7 +199,7 @@ class QuickSettings(Box):
                 Box(
                     children=[
                         Label(
-                            configuration.try_get_property("microphones_header_text"),
+                            configuration.get_property("microphones_header_text"),
                             name="header_label",
                         ),
                         Box(h_expand=True),
@@ -216,11 +216,11 @@ class QuickSettings(Box):
 
         self.speaker_tab_button = MarkupButton(
             style_classes=["tab_button", "active"],
-            markup=configuration.try_get_property("speakers_tab_icon"),
+            markup=configuration.get_property("speakers_tab_icon"),
         )
         self.microphone_tab_button = MarkupButton(
             style_classes="tab_button",
-            markup=configuration.try_get_property("microphones_tab_icon"),
+            markup=configuration.get_property("microphones_tab_icon"),
         )
         self.tabs = Box(
             children=[
@@ -237,15 +237,17 @@ class QuickSettings(Box):
                 children=[self.tabs, self.speakers_microphones_stack],
             ),
             transition_type="slide-down",
-            transition_duration=300,
+            transition_duration=configuration.get_property(
+                "pill_revealer_animation_duration"
+            ),
         )
 
         def update_brightness_icon(value):
             self.brightness_icon.set_markup(
-                configuration.try_get_property("brightness_high_icon")
+                configuration.get_property("brightness_high_icon")
                 if self.brightness_slider.value
-                > configuration.try_get_property("qs_brightness_high_threshold")
-                else configuration.try_get_property("brightness_low_icon")
+                > configuration.get_property("qs_brightness_high_threshold")
+                else configuration.get_property("brightness_low_icon")
             )
 
         def update_volume_slider(*_):
@@ -274,15 +276,15 @@ class QuickSettings(Box):
             self.volume_toggle.set_state(muted)
 
             self.volume_toggle.set_markup(
-                configuration.try_get_property("volume_muted_icon")
+                configuration.get_property("volume_muted_icon")
                 if muted
                 else (
-                    configuration.try_get_property("volume_high_icon")
+                    configuration.get_property("volume_high_icon")
                     if self.audio_controller.speaker.volume
-                    > configuration.try_get_property("qs_volume_high_threshold")
-                    else configuration.try_get_property("volume_low_icon")
+                    > configuration.get_property("qs_volume_high_threshold")
+                    else configuration.get_property("volume_low_icon")
                     if self.audio_controller.speaker.volume > 0.0
-                    else configuration.try_get_property("volume_off_icon")
+                    else configuration.get_property("volume_off_icon")
                 )
             )
 
@@ -300,7 +302,7 @@ class QuickSettings(Box):
             else:
                 self.volume_toggle.set_state(False)
                 self.volume_toggle.set_markup(
-                    configuration.try_get_property("volume_muted_icon")
+                    configuration.get_property("volume_muted_icon")
                 )
                 self.volume_toggle.set_sensitive(False)
 
@@ -337,7 +339,7 @@ class QuickSettings(Box):
         self.brightness_slider.connect(
             "on_interacted",
             lambda _, v: formatted_exec_shell_command_async(
-                configuration.try_get_property("set_brightness_command"),
+                configuration.get_property("set_brightness_command"),
                 device=self.backlight_device,
                 value=int(v * 255),
             ),
@@ -414,7 +416,7 @@ class QuickSettings(Box):
 
     def toggle_wifi(self, toggle, *args):
         exec_shell_command_async(
-            f"{configuration.try_get_property('nmcli_command')} r wifi {'on' if toggle.toggled else 'off'}"
+            f"{configuration.get_property('nmcli_command')} r wifi {'on' if toggle.toggled else 'off'}"
         )
 
     def handle_wifi_update(self, v: str):
@@ -430,7 +432,7 @@ class QuickSettings(Box):
         if operation.split()[0] == "connecting":
             self.wifi_toggle.set_label("Connecting...")
             self.wifi_toggle.set_icon(
-                configuration.try_get_property("network_connecting_icon")
+                configuration.get_property("network_connecting_icon")
             )
 
             logger.debug("Wifi connecting...")
@@ -440,7 +442,7 @@ class QuickSettings(Box):
 
     def update_wifi_tile(self):
         status = exec_shell_command(
-            f"{configuration.try_get_property('nmcli_command')} r wifi"
+            f"{configuration.get_property('nmcli_command')} r wifi"
         ).strip()
         logger.debug(f"Wifi {status}")
 
@@ -449,33 +451,33 @@ class QuickSettings(Box):
 
         if active:
             active_connections = exec_shell_command(
-                f"{configuration.try_get_property('nmcli_command')} c show --active"
+                f"{configuration.get_property('nmcli_command')} c show --active"
             )
             for connection in [c.split(":") for c in active_connections.splitlines()]:
                 if self.adapter_name in connection:
                     self.wifi_toggle.set_label(connection[0])
                     self.wifi_toggle.set_icon(
-                        configuration.try_get_property("wifi_connected_icon")
+                        configuration.get_property("wifi_connected_icon")
                     )
                     logger.debug(f"Wifi connected {connection[0]}")
                     break
             else:
                 self.wifi_toggle.set_label("Disconnected")
                 self.wifi_toggle.set_icon(
-                    configuration.try_get_property("network_disconnected_icon")
+                    configuration.get_property("network_disconnected_icon")
                 )
                 logger.debug("Wifi disconnected")
         else:
             self.wifi_toggle.set_label("Disabled")
             self.wifi_toggle.set_icon(
-                configuration.try_get_property("network_disconnected_icon")
+                configuration.get_property("network_disconnected_icon")
             )
 
     def handle_bluetooth_update(self, client):
         if client.state == "turning-on":
             self.bluetooth_toggle.set_label("Turning on...")
             self.bluetooth_toggle.set_icon(
-                configuration.try_get_property("bluetooth_disconnected_icon")
+                configuration.get_property("bluetooth_disconnected_icon")
             )
             logger.debug("Bluetooth turning on...")
             # client.scan()
@@ -485,7 +487,7 @@ class QuickSettings(Box):
             logger.debug("Bluetooth off")
             self.bluetooth_toggle.set_label("Off")
             self.bluetooth_toggle.set_icon(
-                configuration.try_get_property("bluetooth_disconnected_icon")
+                configuration.get_property("bluetooth_disconnected_icon")
             )
         elif client.state == "on":
             self.bluetooth_toggle.set_state(True)
@@ -494,14 +496,14 @@ class QuickSettings(Box):
                     if device.connecting:
                         self.bluetooth_toggle.set_label("Connecting...")
                         self.bluetooth_toggle.set_icon(
-                            configuration.try_get_property("bluetooth_connecting_icon")
+                            configuration.get_property("bluetooth_connecting_icon")
                         )
                         logger.debug(f"Bluetooth connecting  {device.props.name}...")
                         return
                     elif device.connected:
                         self.bluetooth_toggle.set_label(device.props.name)
                         self.bluetooth_toggle.set_icon(
-                            configuration.try_get_property("bluetooth_connected_icon")
+                            configuration.get_property("bluetooth_connected_icon")
                         )
                         logger.debug(f"Bluetooth connected {device.props.name}")
                         return
@@ -509,13 +511,13 @@ class QuickSettings(Box):
                     logger.debug("Bluetooth on")
                     self.bluetooth_toggle.set_label("On")
                     self.bluetooth_toggle.set_icon(
-                        configuration.try_get_property("bluetooth_disconnected_icon")
+                        configuration.get_property("bluetooth_disconnected_icon")
                     )
 
         if client.scanning:
             self.bluetooth_toggle.set_label("Scanning...")
             self.bluetooth_toggle.set_icon(
-                configuration.try_get_property("bluetooth_connecting_icon")
+                configuration.get_property("bluetooth_connecting_icon")
             )
             logger.debug("Bluetooth scanning...")
 
@@ -547,13 +549,13 @@ class QuickSettings(Box):
 
         def speaker_factory(speaker):
             if not speaker.icon_name:
-                icon = configuration.try_get_property("speakers_unknown_icon")
+                icon = configuration.get_property("speakers_unknown_icon")
             elif "audio-card" in speaker.icon_name:
-                icon = configuration.try_get_property("speakers_built_in_icon")
+                icon = configuration.get_property("speakers_built_in_icon")
             elif "headset" in speaker.icon_name:
-                icon = configuration.try_get_property("speakers_headphones_icon")
+                icon = configuration.get_property("speakers_headphones_icon")
             else:
-                icon = configuration.try_get_property("speakers_unknown_icon")
+                icon = configuration.get_property("speakers_unknown_icon")
 
             button = QSTileButton(
                 name="speaker_button",
@@ -575,7 +577,7 @@ class QuickSettings(Box):
             return button
 
         def microphone_factory(microphone):
-            icon = configuration.try_get_property("microphones_icon")
+            icon = configuration.get_property("microphones_icon")
 
             button = QSTileButton(
                 name="microphone_button",

@@ -34,7 +34,7 @@ class PowerMenu(Box):
         self.lock_button = MarkupButton(
             name="power_menu_lock",
             style_classes="power_menu_action",
-            markup=configuration.try_get_property("power_menu_action_lock_icon"),
+            markup=configuration.get_property("power_menu_action_lock_icon"),
         )
         self.lock_button.set_can_focus(False)
         self.lock_button.connect(
@@ -45,7 +45,7 @@ class PowerMenu(Box):
         self.suspend_button = MarkupButton(
             name="power_menu_suspend",
             style_classes="power_menu_action",
-            markup=configuration.try_get_property("power_menu_action_suspend_icon"),
+            markup=configuration.get_property("power_menu_action_suspend_icon"),
         )
         self.suspend_button.set_can_focus(False)
         self.suspend_button.connect(
@@ -56,7 +56,7 @@ class PowerMenu(Box):
         self.reboot_button = MarkupButton(
             name="power_menu_reboot",
             style_classes="power_menu_action",
-            markup=configuration.try_get_property("power_menu_action_reboot_icon"),
+            markup=configuration.get_property("power_menu_action_reboot_icon"),
         )
         self.reboot_button.set_can_focus(False)
         self.reboot_button.connect(
@@ -67,7 +67,7 @@ class PowerMenu(Box):
         self.shut_down_button = MarkupButton(
             name="power_menu_shut_down",
             style_classes="power_menu_action",
-            markup=configuration.try_get_property("power_menu_action_shut_down_icon"),
+            markup=configuration.get_property("power_menu_action_shut_down_icon"),
         )
         self.shut_down_button.set_can_focus(False)
         self.shut_down_button.connect(
@@ -143,7 +143,9 @@ class PowerMenu(Box):
             name="power_menu_confirmation_revealer",
             child=self.confirmation_popup,
             transition_type="slide-down",
-            transition_duration=400,
+            transition_duration=configuration.get_property(
+                "pill_revealer_animation_duration"
+            ),
         )
 
         self.children = [
@@ -230,7 +232,7 @@ class PowerMenu(Box):
                 commands = " ".join(
                     [
                         f"{command};"
-                        for command in configuration.try_get_property(
+                        for command in configuration.get_property(
                             "power_menu_lock_commands"
                         )
                     ]
@@ -242,12 +244,12 @@ class PowerMenu(Box):
                 pre_suspend_commands = " ".join(
                     [
                         f"{command};"
-                        for command in configuration.try_get_property(
+                        for command in configuration.get_property(
                             "power_menu_suspend_commands"
                         )[:-1]
                     ]
                 )
-                suspend_command = configuration.try_get_property(
+                suspend_command = configuration.get_property(
                     "power_menu_suspend_commands"
                 )[-1]
 
@@ -261,7 +263,7 @@ class PowerMenu(Box):
                 commands = " ".join(
                     [
                         f"{command};"
-                        for command in configuration.try_get_property(
+                        for command in configuration.get_property(
                             "power_menu_reboot_commands"
                         )
                     ]
@@ -273,7 +275,7 @@ class PowerMenu(Box):
                 commands = " ".join(
                     [
                         f"{command};"
-                        for command in configuration.try_get_property(
+                        for command in configuration.get_property(
                             "power_menu_shutdown_commands"
                         )
                     ]

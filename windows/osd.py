@@ -43,11 +43,11 @@ class OSDWindow(Window):
         self.audio_controller = Audio()
 
         self.backlight_device = ""
-        if backlight_device := configuration.try_get_property("backlight_device"):
+        if backlight_device := configuration.get_property("backlight_device"):
             self.backlight_device = backlight_device
         else:
             devices = exec_shell_command(
-                configuration.try_get_property("brightness_list_devices_command")
+                configuration.get_property("brightness_list_devices_command")
             )
             for device in devices.splitlines():
                 if "backlight" in device:
@@ -59,10 +59,10 @@ class OSDWindow(Window):
 
         def update_brightness_icon(value):
             self.brightness_icon.set_markup(
-                configuration.try_get_property("brightness_high_icon")
+                configuration.get_property("brightness_high_icon")
                 if self.brightness_slider.value
-                > configuration.try_get_property("qs_brightness_high_threshold")
-                else configuration.try_get_property("brightness_low_icon")
+                > configuration.get_property("qs_brightness_high_threshold")
+                else configuration.get_property("brightness_low_icon")
             )
 
         self.brightness_icon = Label(
@@ -76,7 +76,7 @@ class OSDWindow(Window):
             v_expand=True,
             inverted=True,
             poll_command=FormattedString(
-                configuration.try_get_property("get_brightness_command")
+                configuration.get_property("get_brightness_command")
             ).format(device=self.backlight_device),
             poll_interval=200,
             poll_stream=False,
@@ -87,7 +87,7 @@ class OSDWindow(Window):
         self.brightness_slider.connect(
             "on_interacted",
             lambda _, v: formatted_exec_shell_command_async(
-                configuration.try_get_property("set_brightness_command"),
+                configuration.get_property("set_brightness_command"),
                 device=self.backlight_device,
                 value=int(v * 255),
             ),
@@ -143,15 +143,15 @@ class OSDWindow(Window):
             self.volume_toggle.set_state(muted)
 
             self.volume_toggle.set_markup(
-                configuration.try_get_property("volume_muted_icon")
+                configuration.get_property("volume_muted_icon")
                 if muted
                 else (
-                    configuration.try_get_property("volume_high_icon")
+                    configuration.get_property("volume_high_icon")
                     if self.audio_controller.speaker.volume
-                    > configuration.try_get_property("qs_volume_high_threshold")
-                    else configuration.try_get_property("volume_low_icon")
+                    > configuration.get_property("qs_volume_high_threshold")
+                    else configuration.get_property("volume_low_icon")
                     if self.audio_controller.speaker.volume > 0
-                    else configuration.try_get_property("volume_off_icon")
+                    else configuration.get_property("volume_off_icon")
                 )
             )
 
@@ -175,7 +175,7 @@ class OSDWindow(Window):
             else:
                 self.volume_toggle.set_state(False)
                 self.volume_toggle.set_markup(
-                    configuration.try_get_property("volume_muted_icon")
+                    configuration.get_property("volume_muted_icon")
                 )
                 self.volume_toggle.set_sensitive(False)
 
@@ -208,7 +208,9 @@ class OSDWindow(Window):
                 ],
             ),
             transition_type="slide-left",
-            transition_duration=200,
+            transition_duration=configuration.get_property(
+                "pill_revealer_animation_duration"
+            ),
             child_revealed=True,
         )
 
@@ -314,12 +316,12 @@ class OSDWindow(Window):
     def on_mouse_leave(self):
         if self.brightness_revealer.child_revealed:
             (self.brightness_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
+                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
             )
 
         if self.volume_revealer.child_revealed:
             (self.volume_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
+                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
             )
 
     def show_brightness_slider(self):
@@ -332,7 +334,7 @@ class OSDWindow(Window):
 
         if not self.hovered:
             (self.brightness_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
+                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
             )
 
     def show_volume_slider(self):
@@ -345,7 +347,7 @@ class OSDWindow(Window):
 
         if not self.hovered:
             (self.volume_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.try_get_property('osd_timeout')}; fabric-cli execute {configuration.try_get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
+                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
             )
 
     def hide_brightness_slider(self):
@@ -377,14 +379,14 @@ class OSDWindow(Window):
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def inc_volume(self):
-        self.audio_controller.speaker.volume += configuration.try_get_property(
+        self.audio_controller.speaker.volume += configuration.get_property(
             "osd_volume_delta"
         )
         self.show_volume_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def dec_volume(self):
-        self.audio_controller.speaker.volume -= configuration.try_get_property(
+        self.audio_controller.speaker.volume -= configuration.get_property(
             "osd_volume_delta"
         )
         self.show_volume_slider()
@@ -397,18 +399,18 @@ class OSDWindow(Window):
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def inc_brightness(self):
         formatted_exec_shell_command_async(
-            configuration.try_get_property("brightness_inc_command"),
+            configuration.get_property("brightness_inc_command"),
             device=self.backlight_device,
-            delta=f"{configuration.try_get_property('osd_brightness_delta')}%",
+            delta=f"{configuration.get_property('osd_brightness_delta')}%",
         )
         self.show_brightness_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def dec_brightness(self):
         formatted_exec_shell_command_async(
-            configuration.try_get_property("brightness_dec_command"),
+            configuration.get_property("brightness_dec_command"),
             device=self.backlight_device,
-            delta=f"{configuration.try_get_property('osd_brightness_delta')}%",
+            delta=f"{configuration.get_property('osd_brightness_delta')}%",
         )
         self.show_brightness_slider()
 
@@ -563,13 +565,13 @@ class UrgentBatteryOSD(Box):
         )
         self.description = Label(
             name="battery_osd_description",
-            label=f"Battery level is below {configuration.try_get_property('battery_warning_level')}%",
+            label=f"Battery level is below {configuration.get_property('battery_warning_level')}%",
             h_align="start",
             h_expand=True,
         )
         self.confirm_button = MarkupButton(
             name="battery_osd_confirm",
-            markup=configuration.try_get_property("confirm_icon"),
+            markup=configuration.get_property("confirm_icon"),
         )
         self.confirm_button.set_can_focus(False)
 

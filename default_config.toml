@@ -10,8 +10,6 @@ wallpapers_thumbnails_cache_dir = ""
 
 thumbnails_generator_max_workers = 4
 
-pill_applet_transition_duration = 450
-
 sass_compiler_command = "sass {input} {output} --no-source-map"
 
 confirm_icon = "&#xea5e;"
@@ -27,11 +25,14 @@ power_menu_suspend_commands = ["playerctl pause", "loginctl lock-session", "syst
 power_menu_reboot_commands = ["systemctl reboot"]
 power_menu_shutdown_commands = ["systemctl poweroff"]
 
+pill_stack_transition_duration = 400
+pill_revealer_animation_duration = 400
+bar_revealer_animation_duration = 250
+
 media_player_artwork_download_command = "curl -s '{url}' -o '{path}'"
 media_player_artwork_size = 120
 media_player_icon_size = 16
 media_player_no_artwork_icon_size = 40
-media_player_reveal_animation_duration = 400
 media_player_previous_icon = "&#xf693;"
 media_player_next_icon = "&#xf694;"
 media_player_pause_icon = "&#xf690;"
@@ -42,8 +43,7 @@ media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
 media_player_allowed_players = { "spotify" = "󰓇" }
 
-battery_list_devices_command = "upower -e"
-battery_device_info_command = "upower -i {device}"
+battery_widget_compact = false
 battery_widget_headset_icon = "&#xfa3c;"
 battery_widget_battery_full_icon = "&#xff19;"
 battery_widget_battery_half_full_icon = "&#xff1b;"
@@ -51,9 +51,10 @@ battery_widget_battery_empty_icon = "&#xff15;"
 battery_widget_battery_charging_icon = "&#x10021;"
 battery_widget_battery_unknown_icon = "&#xf671;"
 battery_widget_tooltip_markup = "{icon} {name}: {battery}\n{state}"
+battery_list_devices_command = "upower -e"
+battery_device_info_command = "upower -i {device}"
 
 tray_icon_size = 16
-tray_revealer_reveal_animation_duration = 300
 
 chevron_left = "&#xea60;"
 chevron_right = "&#xea61;"
@@ -66,17 +67,16 @@ set_brightness_command = "brightnessctl -md {device} s {value}"
 brightness_inc_command = "brightnessctl -md {device} s +{delta}"
 brightness_dec_command = "brightnessctl -md {device} s {delta}-"
 
+qs_brightness_high_threshold = 0.4
+qs_volume_high_threshold = 50
+
 brightness_high_icon = "&#xfb24;"
 brightness_low_icon = "&#xfb23;"
-
-qs_brightness_high_threshold = 0.4
 
 volume_high_icon = "&#xeb51;"
 volume_low_icon = "&#xeb4f;"
 volume_off_icon = "&#xeb50;"
 volume_muted_icon = "&#xf1c3;"
-
-qs_volume_high_threshold = 50
 
 workspaces_widget_num_workspaces = 6
 
@@ -132,6 +132,10 @@ speakers_headphones_icon = "&#xfa3c;"
 microphones_header_text = "Select Input Device:"
 microphones_icon = "&#xeaf0;"
 microphones_tab_icon = "&#xef2c;"
+
+app_launcher_columns = 8
+app_launcher_rows = 5
+app_launcher_icon_size = 32
 
 [css_settings]
 text_font_family = "Lexend"

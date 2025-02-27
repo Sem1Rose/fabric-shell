@@ -116,6 +116,8 @@ class PillWindow(Window):
                 self.pill.powermenu.handle_enter()
             case PillApplets.WALLPAPER:
                 self.pill.wallpaper_selector.select_wallpaper()
+            case PillApplets.LAUNCHER:
+                self.pill.app_launcher.select_app()
             case _:
                 pass
 
@@ -125,6 +127,8 @@ class PillWindow(Window):
                 self.pill.powermenu.navigate_actions(event_key)
             case PillApplets.WALLPAPER:
                 self.pill.wallpaper_selector.handle_arrow_keys(event_key)
+            case PillApplets.LAUNCHER:
+                self.pill.app_launcher.handle_arrow_keys(event_key)
             case _:
                 pass
 
@@ -155,6 +159,8 @@ class PillWindow(Window):
             applet = PillApplets.POWERMENU
         elif applet == "wallpaper" or applet == PillApplets.WALLPAPER:
             applet = PillApplets.WALLPAPER
+        elif applet == "launcher" or applet == PillApplets.LAUNCHER:
+            applet = PillApplets.LAUNCHER
         else:
             logger.error(f"Unknown applet {applet}")
             return

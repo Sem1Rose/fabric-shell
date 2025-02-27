@@ -28,8 +28,8 @@ def apply_styles():
 
     logger.info("Compiling sass...")
     output = formatted_exec_shell_command(
-        configuration.try_get_property("sass_compiler_command"),
-        input=os.path.join(configuration.try_get_property("styles_dir"), "style.scss"),
+        configuration.get_property("sass_compiler_command"),
+        input=os.path.join(configuration.get_property("styles_dir"), "style.scss"),
         output="style.css",
     )
 
@@ -63,14 +63,14 @@ if __name__ == "__main__":
     bar_window = BarWindow()
 
     app = Application(
-        configuration.try_get_property("app_name"),
+        configuration.get_property("app_name"),
         osd_window,
         urgent_osd,
         bar_window_left,
         bar_window_right,
         pill_window,
         bar_window,
-        open_inspector=configuration.try_get_property("debug"),
+        open_inspector=configuration.get_property("debug"),
     )
 
     if not os.path.exists("style.css"):
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         GLib.Thread.new("apply-styles", apply_styles)
 
     css_monitor = monitor_file(
-        get_relative_path(configuration.try_get_property("styles_dir"))
+        get_relative_path(configuration.get_property("styles_dir"))
     )
     css_monitor.connect("changed", lambda *_: apply_styles())
 
