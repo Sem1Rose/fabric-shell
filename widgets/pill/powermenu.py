@@ -26,7 +26,13 @@ class PowerMenu(Box):
     def on_action(self): ...
 
     def __init__(self, *args, **kwargs):
-        super().__init__(name="pill_power_menu", orientation="v", *args, **kwargs)
+        super().__init__(
+            name="pill_power_menu",
+            style_classes="pill_applet",
+            orientation="v",
+            *args,
+            **kwargs,
+        )
 
         self.selected_action = 0
         self.selected_popup_action = 0

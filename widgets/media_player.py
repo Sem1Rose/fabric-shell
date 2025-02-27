@@ -34,7 +34,7 @@ class MediaPlayer(Revealer):
         )
 
         self.player_manager = Playerctl.PlayerManager.new()
-        self.shown = False
+        self.can_reveal = False
         self.player_controllers = {}
         self.selected_player = 0
         self.max_num_tabs = 7
@@ -135,22 +135,22 @@ class MediaPlayer(Revealer):
         show = len(self.player_controllers) != 0
 
         if show:
-            if not self.shown:
+            if not self.can_reveal:
                 logger.debug("Player found!")
                 self.on_show_hide(True)
-                self.shown = True
+                self.can_reveal = True
 
-            self.reveal()
+            # self.reveal()
             self.main_container.remove_style_class("empty")
 
             # self.update_metadata()
         else:
-            if self.shown:
+            if self.can_reveal:
                 logger.warning("No media is playing!")
                 self.on_show_hide(False)
-                self.shown = False
+                self.can_reveal = False
 
-            self.unreveal()
+            # self.unreveal()
             self.main_container.add_style_class("empty")
 
     def add_player(self, player):

@@ -27,6 +27,7 @@ power_menu_shutdown_commands = ["systemctl poweroff"]
 
 pill_stack_transition_duration = 400
 pill_revealer_animation_duration = 400
+osd_revealer_animation_duration = 250
 bar_revealer_animation_duration = 250
 
 media_player_artwork_download_command = "curl -s '{url}' -o '{path}'"

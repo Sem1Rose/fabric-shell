@@ -70,6 +70,17 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 					settings.$pill_expanded_window_radius $pill_large_radius
 					$pill_large_radius;
 
+				#pill_dashboard {
+					#quick_settings_container {
+						transition: margin 0.3s cubic-bezier(1, 0, 1, 0);
+
+						&.revealed {
+							// transition: margin 0.5s ease-in-out;
+							transition: margin 0.1s cubic-bezier(0, 1, 0, 1);
+						}
+					}
+				}
+
 				// #qs_speakers_container {
 				// 	border-radius: $pill_large_ui_radius;
 				// 	padding: settings.$pill_expanded_padding;
@@ -129,48 +140,59 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
-#pill_power_menu,
-#pill_dashboard,
-#pill_wallpaper_selector,
-#pill_app_launcher {
+.pill_applet {
 	transition: all 0.5s $transition_function;
-	opacity: 1;
 
 	&.hidden {
-		transition: all 0.3s linear, opacity 0.1s ease-out;
+		transition: all 0.3s linear;
 		min-width: 0px;
 		min-height: 0px;
 		padding: 0px;
-		opacity: 0;
 	}
 }
 
-#pill_app_launcher {
-	min-width: 500px;
-	min-height: 400px;
-
-	padding: settings.$pill_expanded_padding;
+#pill_dashboard {
+	transition: all 0.3s linear;
+	min-width: 0px;
+	padding: settings.$pill_padding;
 
 	&.hidden {
-		margin: -150px -80px;
+		// transition: opacity 5s ease-out;
+		margin: -20px;
+	}
 
-		#grid_item {
-			margin: 0;
+	&.peeking {
+		transition: all 0.3s linear, padding 0.5s $transition_function;
+
+		padding: settings.$pill_expanded_padding;
+
+		&.media_player {
+			transition: min-width 0.5s $transition_function;
+
+			min-width: calc(
+				settings.$pill_expanded_width - 2 *
+					settings.$pill_expanded_padding
+			);
+		}
+
+		#date_time_widget {
+			#date,
+			#time,
+			#day {
+				padding: 0px settings.$pill_expanded_padding;
+				border-radius: $pill_expanded_ui_radius;
+				min-height: calc($pill_expanded_ui_radius * 2);
+				font-size: 15px;
+			}
 		}
 	}
 
-	#grid_item {
-		margin: 5px;
+	&.expanded {
+		transition: min-width 0.5s $transition_function;
 
-		background-color: green;
-
-		&.active {
-			background-color: red;
-		}
-
-		&.empty {
-			background-color: transparent;
-		}
+		min-width: calc(
+			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
+		);
 	}
 }
 
@@ -189,7 +211,8 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	min-width: $width;
 
 	&.hidden {
-		margin: -40px calc($width / -2);
+		margin: -60px calc($width / -2);
+		// margin: -1000;
 
 		#wallpaper_view {
 			transition: all 0.2s ease-in;
@@ -277,39 +300,6 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 				opacity: 0;
 			}
 		}
-	}
-}
-
-#pill_dashboard {
-	transition: all 0.25s ease-out;
-	// transition: all 0.4s ease-out;
-	padding: settings.$pill_padding;
-	// min-height: calc(settings.$pill_height - 2 * settings.$pill_padding);
-
-	&.hidden {
-		// transition: all 0.3s linear;
-		margin: -20px;
-	}
-
-	&.peeking {
-		padding: settings.$pill_expanded_padding;
-
-		#date_time_widget {
-			#date,
-			#time,
-			#day {
-				padding: 0px settings.$pill_expanded_padding;
-				border-radius: $pill_expanded_ui_radius;
-				min-height: calc($pill_expanded_ui_radius * 2);
-				font-size: 15px;
-			}
-		}
-	}
-
-	&.expanded {
-		min-width: calc(
-			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
-		);
 	}
 }
 
@@ -454,6 +444,35 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
+#pill_app_launcher {
+	min-width: 500px;
+	min-height: 400px;
+
+	padding: settings.$pill_expanded_padding;
+
+	&.hidden {
+		margin: -200px -160px;
+
+		#grid_item {
+			margin: 0;
+		}
+	}
+
+	#grid_item {
+		margin: 5px;
+
+		background-color: green;
+
+		&.active {
+			background-color: red;
+		}
+
+		&.empty {
+			background-color: transparent;
+		}
+	}
+}
+
 .floating_buttons {
 	transition: all 0.4s ease-out;
 
@@ -494,10 +513,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 #quick_settings_container {
 	transition: margin 0.1s ease-out;
 
-	margin: 0 -50px;
+	margin: 0px -15px;
 
 	&.revealed {
 		// transition: margin 0.5s ease-in-out;
+		transition: margin 0.1s cubic-bezier(0, 1, 0, 1);
 		margin: settings.$pill_expanded_padding 0px
 			calc(settings.$pill_expanded_padding / -4) 0px;
 		// min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
@@ -801,11 +821,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	&.revealed {
-		transition: all 0.55s $transition_function;
+		transition: all 0.3s ease-out;
 		margin: settings.$pill_expanded_padding 0px 0px 0px;
-		min-width: calc(
-			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
-		);
+		// min-width: calc(
+		// 	settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
+		// );
 	}
 
 	.media_controls {

@@ -83,7 +83,7 @@ class Pill(EventBox):
         )
         self.main_container = Box(name="pill_box", children=[self.stack])
 
-        if self.dashboard.media_player.shown:
+        if self.dashboard.media_player.can_reveal:
             self.inc_num_large_widgets()
 
         self.connect("enter-notify-event", self.mouse_enter)

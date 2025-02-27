@@ -25,7 +25,11 @@ class WallpaperSelector(Box):
 
     def __init__(self, *args, **kwargs):
         super().__init__(
-            name="pill_wallpaper_selector", orientation="v", *args, **kwargs
+            name="pill_wallpaper_selector",
+            style_classes="pill_applet",
+            orientation="v",
+            *args,
+            **kwargs,
         )
 
         self.matugen_scheme = "scheme-tonal-spot"

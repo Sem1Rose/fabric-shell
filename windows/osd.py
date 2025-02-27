@@ -209,7 +209,7 @@ class OSDWindow(Window):
             ),
             transition_type="slide-left",
             transition_duration=configuration.get_property(
-                "pill_revealer_animation_duration"
+                "osd_revealer_animation_duration"
             ),
             child_revealed=True,
         )
@@ -229,7 +229,9 @@ class OSDWindow(Window):
                 ],
             ),
             transition_type="slide-left",
-            transition_duration=200,
+            transition_duration=configuration.get_property(
+                "osd_revealer_animation_duration"
+            ),
             child_revealed=True,
         )
 

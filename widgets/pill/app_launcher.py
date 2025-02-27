@@ -13,7 +13,12 @@ class AppLauncher(Box):
     def on_launched(self): ...
 
     def __init__(self, *args, **kwargs):
-        super().__init__(name="pill_app_launcher", orientation="v", *args, **kwargs)
+        super().__init__(
+            name="pill_app_launcher",
+            orientation="v",
+            *args,
+            **kwargs,
+        )
 
         self.app_grid = Grid(
             columns=configuration.get_property("app_launcher_columns"),
