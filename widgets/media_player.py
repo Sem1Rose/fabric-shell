@@ -366,7 +366,7 @@ class MediaControls(Box):
 
         self.media_shuffle = ToggleButton(
             name="media_shuffle",
-            markup=configuration.get_property("media_player_shuffle_icon"),
+            # markup=configuration.get_property("media_player_shuffle_icon"),
         )
         self.media_shuffle.connect(
             "on_toggled",
@@ -465,7 +465,14 @@ class MediaControls(Box):
         )
         self.player_controller.connect(
             "shuffle",
-            lambda _, status: self.media_shuffle.set_state(status),
+            lambda _, status: (
+                self.media_shuffle.set_markup(
+                    configuration.get_property("media_player_shuffle_icon")
+                    if status
+                    else configuration.get_property("media_player_no_shuffle_icon")
+                ),
+                self.media_shuffle.set_state(status),
+            ),
         )
         self.player_controller.connect(
             "playback-status",
@@ -557,10 +564,13 @@ class MediaControls(Box):
         )
 
         if data != "":
-            file_path = path.join(
-                configuration.get_property("artwork_cache_dir"),
-                data.split("/")[-1],
-            )
+            if data.startswith("file://"):
+                file_path = data.replace("file://", "")
+            else:
+                file_path = path.join(
+                    configuration.get_property("artwork_cache_dir"),
+                    data.split("/")[-1],
+                )
 
             if path.exists(file_path):
                 self.artwork_image.set_from_pixbuf(
@@ -619,6 +629,11 @@ class MediaControls(Box):
             == Playerctl.PlaybackStatus.PLAYING
         )
 
+        self.media_shuffle.set_markup(
+            configuration.get_property("media_player_shuffle_icon")
+            if self.player_controller.props.shuffle
+            else configuration.get_property("media_player_no_shuffle_icon")
+        )
         self.media_shuffle.set_state(self.player_controller.props.shuffle)
 
         self.media_loop.set_markup(

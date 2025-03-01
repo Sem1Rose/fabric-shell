@@ -58,15 +58,26 @@ class OSDWindow(Window):
                 logger.error("Counldn't find a controllable brightness device.")
 
         def update_brightness_icon(value):
-            self.brightness_icon.set_markup(
-                configuration.get_property("brightness_high_icon")
+            self.auto_brightness_toggle.set_markup(
+                configuration.get_property("auto_brightness_icon")
+                if self.auto_brightness_toggle.toggled
+                else configuration.get_property("brightness_high_icon")
                 if self.brightness_slider.value
                 > configuration.get_property("qs_brightness_high_threshold")
                 else configuration.get_property("brightness_low_icon")
             )
 
-        self.brightness_icon = Label(
-            name="osd_brightness_icon", h_expand=True, v_expand=True
+        # self.auto_brightness_toggle = Label(
+        #     name="osd_brightness_icon", h_expand=True, v_expand=True
+        # )
+        self.auto_brightness_toggle = ToggleButton(
+            name="osd_auto_brightness_toggle", h_expand=True, v_expand=True
+        ).build(
+            lambda toggle, _: Fabricator(
+                poll_from=configuration.get_property("auto_brightness_check_command"),
+                interval=1000,
+                on_changed=lambda _, value: toggle.set_state(value == "active"),
+            )
         )
 
         self.brightness_slider = Slider(
@@ -140,7 +151,7 @@ class OSDWindow(Window):
 
         def update_volume_toggle(*_):
             muted = self.audio_controller.speaker.muted
-            self.volume_toggle.set_state(muted)
+            self.volume_toggle.set_state(not muted)
 
             self.volume_toggle.set_markup(
                 configuration.get_property("volume_muted_icon")
@@ -186,11 +197,20 @@ class OSDWindow(Window):
         )
 
         def toggle_mute_stream(mute):
-            self.audio_controller.speaker.muted = mute
+            self.audio_controller.speaker.muted = not mute
 
         self.volume_toggle.connect(
             "on_toggled",
             lambda toggle, *_: toggle_mute_stream(toggle.toggled),
+        )
+
+        self.auto_brightness_toggle.connect(
+            "on_toggled",
+            lambda toggle, *_: exec_shell_command_async(
+                configuration.get_property("auto_brightness_start_command")
+                if toggle.toggled
+                else configuration.get_property("auto_brightness_stop_command")
+            ),
         )
 
         self.brightness_revealer = Revealer(
@@ -201,7 +221,7 @@ class OSDWindow(Window):
                     self.brightness_slider,
                     Box(
                         name="osd_icon_container",
-                        children=self.brightness_icon,
+                        children=self.auto_brightness_toggle,
                         h_expand=True,
                         v_expand=True,
                     ),
@@ -296,10 +316,10 @@ class OSDWindow(Window):
         self.brightness_slider.connect(
             "leave-notify-event", lambda *_: self.on_mouse_leave()
         )
-        self.brightness_icon.connect(
+        self.auto_brightness_toggle.connect(
             "enter-notify-event", lambda *_: self.on_mouse_enter()
         )
-        self.brightness_icon.connect(
+        self.auto_brightness_toggle.connect(
             "leave-notify-event", lambda *_: self.on_mouse_leave()
         )
 

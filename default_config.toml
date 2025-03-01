@@ -39,6 +39,7 @@ media_player_next_icon = "&#xf694;"
 media_player_pause_icon = "&#xf690;"
 media_player_play_icon = "&#xf691;"
 media_player_shuffle_icon = "&#xf000;"
+media_player_no_shuffle_icon = "&#xedb3;"
 media_player_repeat_none_icon = "&#xf18e;"
 media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
@@ -67,12 +68,19 @@ get_brightness_command = "brightnessctl -md {device} g"
 set_brightness_command = "brightnessctl -md {device} s {value}"
 brightness_inc_command = "brightnessctl -md {device} s +{delta}"
 brightness_dec_command = "brightnessctl -md {device} s {delta}-"
+auto_brightness_check_command = "systemctl --user is-active wluma"
+auto_brightness_start_command = "systemctl --user start wluma --now"
+auto_brightness_stop_command = "systemctl --user stop wluma"
 
 qs_brightness_high_threshold = 0.4
 qs_volume_high_threshold = 50
 
+# brightness_high_icon = "󰃠"
+# brightness_low_icon = "󰃟"
+# auto_brightness_icon = "󰃡"
 brightness_high_icon = "&#xfb24;"
 brightness_low_icon = "&#xfb23;"
+auto_brightness_icon = "&#xfd99;"
 
 volume_high_icon = "&#xeb51;"
 volume_low_icon = "&#xeb4f;"

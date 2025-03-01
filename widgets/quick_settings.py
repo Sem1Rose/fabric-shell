@@ -146,7 +146,15 @@ class QuickSettings(Box):
             else:
                 logger.error("Counldn't find a controllable brightness device.")
 
-        self.brightness_icon = Label(name="qs_brightness_icon")
+        self.auto_brightness_toggle = ToggleButton(
+            name="qs_auto_brightness_toggle"
+        ).build(
+            lambda toggle, _: Fabricator(
+                poll_from=configuration.get_property("auto_brightness_check_command"),
+                interval=1000,
+                on_changed=lambda _, value: toggle.set_state(value == "active"),
+            )
+        )
         self.brightness_slider = Slider(
             name="brightness_slider",
             style_classes="qs_slider",
@@ -243,8 +251,10 @@ class QuickSettings(Box):
         )
 
         def update_brightness_icon(value):
-            self.brightness_icon.set_markup(
-                configuration.get_property("brightness_high_icon")
+            self.auto_brightness_toggle.set_markup(
+                configuration.get_property("auto_brightness_icon")
+                if self.auto_brightness_toggle.toggled
+                else configuration.get_property("brightness_high_icon")
                 if self.brightness_slider.value
                 > configuration.get_property("qs_brightness_high_threshold")
                 else configuration.get_property("brightness_low_icon")
@@ -273,7 +283,7 @@ class QuickSettings(Box):
 
         def update_volume_toggle(*_):
             muted = self.audio_controller.speaker.muted
-            self.volume_toggle.set_state(muted)
+            self.volume_toggle.set_state(not muted)
 
             self.volume_toggle.set_markup(
                 configuration.get_property("volume_muted_icon")
@@ -307,7 +317,7 @@ class QuickSettings(Box):
                 self.volume_toggle.set_sensitive(False)
 
         def toggle_mute_stream(mute):
-            self.audio_controller.speaker.muted = mute
+            self.audio_controller.speaker.muted = not mute
 
         self.volume_chevron.connect(
             "on-toggled",
@@ -349,6 +359,15 @@ class QuickSettings(Box):
             lambda _, v: update_brightness_icon(int(v * 255)),
         )
 
+        self.auto_brightness_toggle.connect(
+            "on_toggled",
+            lambda toggle, *_: exec_shell_command_async(
+                configuration.get_property("auto_brightness_start_command")
+                if toggle.toggled
+                else configuration.get_property("auto_brightness_stop_command")
+            ),
+        )
+
         self.volume_slider.connect(
             "on_interacted",
             lambda _, v: change_volume(v),
@@ -388,7 +407,7 @@ class QuickSettings(Box):
         self.rows.append(
             Box(
                 style_classes="qs_row",
-                children=[self.brightness_icon, self.brightness_slider],
+                children=[self.auto_brightness_toggle, self.brightness_slider],
             ),
         )
         self.rows.append(
