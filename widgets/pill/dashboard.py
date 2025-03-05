@@ -1,6 +1,7 @@
 from loguru import logger
 
 from config import configuration
+from widgets.pill.applet import Applet
 from widgets.date_time import DateTimeWidget
 from widgets.media_player import MediaPlayer
 from widgets.quick_settings import QuickSettings
@@ -9,9 +10,10 @@ from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
 
 
-class Dashboard(Box):
+class Dashboard(Applet, Box):
     def __init__(self, *args, **kwargs):
-        super().__init__(
+        Box.__init__(
+            self,
             name="pill_dashboard",
             style_classes="pill_applet",
             orientation="v",
@@ -151,9 +153,11 @@ class Dashboard(Box):
         logger.debug("Shrinking")
 
     def hide(self, *args):
+        Applet.hide(self, *args)
+
         self.unpeek()
-        self.add_style_class("hidden")
 
     def unhide(self, expand, *args):
+        Applet.unhide(self, *args)
+
         self.expand if expand else self.unpeek()
-        self.remove_style_class("hidden")

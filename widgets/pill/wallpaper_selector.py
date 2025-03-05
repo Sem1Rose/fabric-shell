@@ -7,6 +7,7 @@ from PIL import Image
 from config import configuration
 from concurrent.futures import ThreadPoolExecutor
 
+from widgets.pill.applet import Applet
 from widgets.buttons import MarkupButton
 from widgets.cooldown import cooldown
 from widgets.helpers.formatted_exec import formatted_exec_shell_command_async
@@ -19,12 +20,13 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib  # noqa: E402
 
 
-class WallpaperSelector(Box):
+class WallpaperSelector(Applet, Box):
     @Signal
     def on_selected(self): ...
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
+        Box.__init__(
+            self,
             name="pill_wallpaper_selector",
             style_classes="pill_applet",
             orientation="v",
@@ -445,7 +447,8 @@ class WallpaperSelector(Box):
         return True
 
     def hide(self, *args):
-        self.add_style_class("hidden")
+        Applet.hide(self, *args)
+
         self.stop_goto = True
 
         for i in range(5):
@@ -453,6 +456,7 @@ class WallpaperSelector(Box):
             self.Images[i].set_style("background-image: none;")
 
     def unhide(self, *args):
-        self.remove_style_class("hidden")
+        Applet.unhide(self, *args)
+
         self.format_view()
         self.start_thumbnails_thread()

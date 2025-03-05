@@ -46,11 +46,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 #pill_box {
 	transition: all 0.3s ease-out;
 
-	// margin-top: calc(settings.$pill_padding / 2);
 	background-color: colors.$background;
 	border-radius: $pill_window_radius;
 	min-width: 100px;
 	min-height: calc($pill_window_radius * 2);
+	background-clip: padding-box;
 
 	&.dashboard {
 		&.peeking {
@@ -148,17 +148,23 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		min-width: 0px;
 		min-height: 0px;
 		padding: 0px;
+		opacity: 0;
 	}
 }
 
 #pill_dashboard {
-	transition: all 0.3s linear;
+	// transition: all 0.3s linear;
 	min-width: 0px;
 	padding: settings.$pill_padding;
 
 	&.hidden {
 		// transition: opacity 5s ease-out;
 		margin: -20px;
+
+		#date_time_widget {
+			margin: 0px;
+			padding: 0px;
+		}
 	}
 
 	&.peeking {
@@ -176,6 +182,9 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		}
 
 		#date_time_widget {
+			margin: calc(-1 * settings.$pill_expanded_padding);
+			padding: settings.$pill_expanded_padding;
+
 			#date,
 			#time,
 			#day {
@@ -491,6 +500,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #date_time_widget {
+	margin: calc(-1 * settings.$pill_padding);
+	padding: settings.$pill_padding;
+
+	// background-color: red;
+
 	#date,
 	#time,
 	#day {
@@ -1716,7 +1730,8 @@ menu {
 
 			border: 2px solid colors.$secondary;
 			padding: 3px;
-			background-color: colors.$surface_container_lowest;
+			background-color: transparent;
+			/* background-color: colors.$surface_container_lowest; */
 			min-width: 8px;
 			min-height: 8px;
 			margin: 0px settings.$bar_padding 0px 0px;

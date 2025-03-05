@@ -608,6 +608,10 @@ class MediaControls(Box):
         else:
             self.length = 0
 
+        # logger.warning(
+        #     f"control:{self.player_controller.props.can_control} next:{self.player_controller.props.can_go_next} previous:{self.player_controller.props.can_go_previous} pause:{self.player_controller.props.can_pause} play:{self.player_controller.props.can_play} seek:{self.player_controller.props.can_seek}"
+        # )
+
         if self.player_controller.props.can_go_next:
             self.media_next.set_sensitive(True)
         else:

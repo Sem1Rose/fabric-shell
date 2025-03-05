@@ -1,8 +1,9 @@
 from loguru import logger
-from enum import Enum
+from enum import IntEnum
 
 from config import configuration
 from widgets.buttons import MarkupButton
+from widgets.pill.applet import Applet
 
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
@@ -14,19 +15,20 @@ from fabric.utils.helpers import exec_shell_command, exec_shell_command_async
 from gi.repository import GLib
 
 
-class Actions(Enum):
+class Actions(IntEnum):
     LOCK = 0
     SUSPEND = 1
     REBOOT = 2
     SHUT_DOWN = 3
 
 
-class PowerMenu(Box):
+class PowerMenu(Applet, Box):
     @Signal
     def on_action(self): ...
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
+        Box.__init__(
+            self,
             name="pill_power_menu",
             style_classes="pill_applet",
             orientation="v",
@@ -34,52 +36,40 @@ class PowerMenu(Box):
             **kwargs,
         )
 
-        self.selected_action = 0
-        self.selected_popup_action = 0
+        self.selected_action = Actions.LOCK
+        self.selected_popup_action = Actions.LOCK
 
         self.lock_button = MarkupButton(
             name="power_menu_lock",
             style_classes="power_menu_action",
             markup=configuration.get_property("power_menu_action_lock_icon"),
         )
-        self.lock_button.set_can_focus(False)
-        self.lock_button.connect(
-            "clicked",
-            lambda _: (self.change_action(0), self.execute_action()),
-        )
+        # self.lock_button.set_can_focus(False)
+        # self.lock_button.set_focus_on_click(False)
 
         self.suspend_button = MarkupButton(
             name="power_menu_suspend",
             style_classes="power_menu_action",
             markup=configuration.get_property("power_menu_action_suspend_icon"),
         )
-        self.suspend_button.set_can_focus(False)
-        self.suspend_button.connect(
-            "clicked",
-            lambda _: (self.change_action(1), self.show_confirmation_popup()),
-        )
+        # self.suspend_button.set_can_focus(False)
+        # self.suspend_button.set_focus_on_click(False)
 
         self.reboot_button = MarkupButton(
             name="power_menu_reboot",
             style_classes="power_menu_action",
             markup=configuration.get_property("power_menu_action_reboot_icon"),
         )
-        self.reboot_button.set_can_focus(False)
-        self.reboot_button.connect(
-            "clicked",
-            lambda _: (self.change_action(2), self.show_confirmation_popup()),
-        )
+        # self.reboot_button.set_can_focus(False)
+        # self.reboot_button.set_focus_on_click(False)
 
         self.shut_down_button = MarkupButton(
             name="power_menu_shut_down",
             style_classes="power_menu_action",
             markup=configuration.get_property("power_menu_action_shut_down_icon"),
         )
-        self.shut_down_button.set_can_focus(False)
-        self.shut_down_button.connect(
-            "clicked",
-            lambda _: (self.change_action(3), self.show_confirmation_popup()),
-        )
+        # self.shut_down_button.set_can_focus(False)
+        # self.shut_down_button.set_focus_on_click(False)
 
         self.actions_enum = [
             Actions.LOCK,
@@ -87,17 +77,39 @@ class PowerMenu(Box):
             Actions.REBOOT,
             Actions.SHUT_DOWN,
         ]
-        self.actions = [
+        self.action_buttons = [
             self.lock_button,
             self.suspend_button,
             self.reboot_button,
             self.shut_down_button,
         ]
 
+        for i, b in enumerate(self.action_buttons):
+            # logger.error(f"{i}: {b} {self.actions_enum[i]}")
+            b.set_can_focus(False)
+            b.set_focus_on_click(False)
+
+            b.connect(
+                "clicked",
+                lambda button: self.change_action(
+                    self.actions_enum[self.action_buttons.index(button)]
+                ),
+            )
+            if i == 0:
+                b.connect(
+                    "clicked",
+                    lambda _: self.execute_action(),
+                )
+            else:
+                b.connect(
+                    "clicked",
+                    lambda _: self.show_confirmation_popup(),
+                )
+
         self.actions_container = Box(
             name="power_menu_actions",
             # v_expand=True,
-            children=self.actions,
+            children=self.action_buttons,
         )
         self.actions_container.set_homogeneous(True)
 
@@ -169,11 +181,11 @@ class PowerMenu(Box):
                 action_id = 0
         else:
             if 0 > action_id:
-                action_id = len(self.actions) - 1
-            elif action_id >= len(self.actions):
+                action_id = len(self.action_buttons) - 1
+            elif action_id >= len(self.action_buttons):
                 action_id = 0
 
-        for action in self.actions:
+        for action in self.action_buttons:
             action.remove_style_class("focused")
         for popup_action in self.popup_actions:
             popup_action.remove_style_class("focused")
@@ -187,14 +199,14 @@ class PowerMenu(Box):
             self.change_action(action_id)
 
     def change_action(self, action_id=0):
-        self.actions[action_id].add_style_class("focused")
+        self.action_buttons[action_id].add_style_class("focused")
         self.selected_action = action_id
 
     def handle_enter(self):
         if self.confirmation_popup_revealer.get_reveal_child():
             self.popup_actions[self.selected_popup_action].clicked()
         else:
-            self.actions[self.selected_action].clicked()
+            self.action_buttons[self.selected_action].clicked()
 
     def navigate_actions(self, event_key):
         match event_key.keyval:
@@ -231,9 +243,11 @@ class PowerMenu(Box):
         self.confirmation_popup_revealer.unreveal()
         self.select_action(self.selected_action)
 
-    def execute_action(self):
+    def execute_action(self, action: Actions | None = None):
+        action = action if action is not None else self.selected_action
+
         self.hide_confirmation_popup()
-        match self.actions_enum[self.selected_action]:
+        match self.actions_enum[action]:
             case Actions.LOCK:
                 commands = " ".join(
                     [
@@ -251,21 +265,30 @@ class PowerMenu(Box):
                     [
                         f"{command};"
                         for command in configuration.get_property(
-                            "power_menu_suspend_commands"
-                        )[:-1]
+                            "power_menu_lock_commands"
+                        )
                     ]
                 )
                 suspend_command = configuration.get_property(
                     "power_menu_suspend_commands"
-                )[-1]
+                )
 
                 def suspend():
-                    logger.warning("SUSPENDING")
                     exec_shell_command(f"sh -c 'sleep 0.5; {pre_suspend_commands}'")
                     exec_shell_command_async(suspend_command)
 
+                logger.warning("SUSPENDING")
                 GLib.Thread.new("suspend", suspend)
             case Actions.REBOOT:
+                if pre_shutdown_commands_raw := configuration.get_property(
+                    "power_menu_pre_shutdown_commands"
+                ):
+                    pre_shutdown_commands = " ".join(
+                        [f"{command};" for command in pre_shutdown_commands_raw]
+                    )
+
+                    exec_shell_command_async(f"sh -c '{pre_shutdown_commands}'")
+
                 commands = " ".join(
                     [
                         f"{command};"
@@ -278,6 +301,15 @@ class PowerMenu(Box):
                 logger.warning("REBOOTING")
                 exec_shell_command_async(f"sh -c 'sleep 0.5; {commands}'")
             case Actions.SHUT_DOWN:
+                if pre_shutdown_commands_raw := configuration.get_property(
+                    "power_menu_pre_shutdown_commands"
+                ):
+                    pre_shutdown_commands = " ".join(
+                        [f"{command};" for command in pre_shutdown_commands_raw]
+                    )
+
+                    exec_shell_command_async(f"sh -c '{pre_shutdown_commands}'")
+
                 commands = " ".join(
                     [
                         f"{command};"
@@ -292,10 +324,8 @@ class PowerMenu(Box):
 
         self.on_action()
 
-    def hide(self, *args):
-        self.add_style_class("hidden")
-
     def unhide(self, *args):
-        self.remove_style_class("hidden")
+        Applet.unhide(self, *args)
+
         self.confirmation_popup_revealer.unreveal()
         self.select_action()

@@ -2,18 +2,20 @@ from loguru import logger
 
 from config import configuration
 from widgets.grid import Grid
+from widgets.pill.applet import Applet
 
 from fabric.widgets.box import Box
 from fabric.core.service import Signal
 from fabric.utils.helpers import get_desktop_applications
 
 
-class AppLauncher(Box):
+class AppLauncher(Applet, Box):
     @Signal
     def on_launched(self): ...
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
+        Box.__init__(
+            self,
             name="pill_app_launcher",
             orientation="v",
             *args,
@@ -60,10 +62,8 @@ class AppLauncher(Box):
 
         self.on_launched()
 
-    def hide(self, *args):
-        self.add_style_class("hidden")
-
     def unhide(self, *args):
-        self.remove_style_class("hidden")
+        Applet.unhide(self, *args)
+
         self.app_grid.reset_items()
         # self.app_grid.init_items()

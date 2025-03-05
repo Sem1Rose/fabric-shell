@@ -21,7 +21,7 @@ power_menu_action_reboot_icon = "&#xebb4;"
 power_menu_action_shut_down_icon = "&#xeb0d;"
 
 power_menu_lock_commands = ["playerctl pause", "loginctl lock-session"]
-power_menu_suspend_commands = ["playerctl pause", "loginctl lock-session", "systemctl suspend"]
+power_menu_suspend_commands = ["systemctl suspend"]
 power_menu_reboot_commands = ["systemctl reboot"]
 power_menu_shutdown_commands = ["systemctl poweroff"]
 

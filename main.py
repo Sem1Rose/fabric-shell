@@ -50,24 +50,24 @@ if __name__ == "__main__":
     global urgent_osd
     urgent_osd = UrgentOSDWindow()
 
-    global bar_window_left
-    bar_window_left = BarWindowLeft()
+    # global bar_window_left
+    # bar_window_left = BarWindowLeft()
 
-    global bar_window_right
-    bar_window_right = BarWindowRight()
-
-    global pill_window
-    pill_window = PillWindow()
+    # global bar_window_right
+    # bar_window_right = BarWindowRight()
 
     global bar_window
     bar_window = BarWindow()
+
+    global pill_window
+    pill_window = PillWindow()
 
     app = Application(
         configuration.get_property("app_name"),
         osd_window,
         urgent_osd,
-        bar_window_left,
-        bar_window_right,
+        # bar_window_left,
+        # bar_window_right,
         pill_window,
         bar_window,
         open_inspector=configuration.get_property("debug"),

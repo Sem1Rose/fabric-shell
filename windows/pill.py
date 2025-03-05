@@ -22,7 +22,7 @@ class PillWindow(Window):
             anchor="top",
             exclusivity="normal",
             layer="top",
-            # margin=f"{int(float(configuration.get_property('pill_padding', 'css_settings')[:-2]) / 2)}px 0px 0px 0px",
+            margin=f"-{configuration.get_property('bar_height', 'css_settings')} 0px 0px 0px",
             visible=False,
             *args,
             **kwargs,
