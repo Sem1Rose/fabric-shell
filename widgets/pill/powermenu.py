@@ -249,7 +249,7 @@ class PowerMenu(Applet, Box):
         self.hide_confirmation_popup()
         match self.actions_enum[action]:
             case Actions.LOCK:
-                commands = " ".join(
+                lock_commands = " ".join(
                     [
                         f"{command};"
                         for command in configuration.get_property(
@@ -259,9 +259,9 @@ class PowerMenu(Applet, Box):
                 )
 
                 logger.warning("LOCKING")
-                exec_shell_command_async(f"sh -c 'sleep 0.5; {commands}'")
+                exec_shell_command_async(f"sh -c 'sleep 0.5; {lock_commands}'")
             case Actions.SUSPEND:
-                pre_suspend_commands = " ".join(
+                lock_commands = " ".join(
                     [
                         f"{command};"
                         for command in configuration.get_property(
@@ -269,17 +269,19 @@ class PowerMenu(Applet, Box):
                         )
                     ]
                 )
-                suspend_command = configuration.get_property(
+                suspend_commands = configuration.get_property(
                     "power_menu_suspend_commands"
                 )
 
                 def suspend():
-                    exec_shell_command(f"sh -c 'sleep 0.5; {pre_suspend_commands}'")
-                    exec_shell_command_async(suspend_command)
+                    exec_shell_command(f"sh -c 'sleep 0.5; {lock_commands}'")
+                    exec_shell_command_async(suspend_commands)
 
                 logger.warning("SUSPENDING")
                 GLib.Thread.new("suspend", suspend)
             case Actions.REBOOT:
+                pre_shutdown_commands = None
+
                 if pre_shutdown_commands_raw := configuration.get_property(
                     "power_menu_pre_shutdown_commands"
                 ):
@@ -287,9 +289,7 @@ class PowerMenu(Applet, Box):
                         [f"{command};" for command in pre_shutdown_commands_raw]
                     )
 
-                    exec_shell_command_async(f"sh -c '{pre_shutdown_commands}'")
-
-                commands = " ".join(
+                reboot_commands = " ".join(
                     [
                         f"{command};"
                         for command in configuration.get_property(
@@ -298,9 +298,16 @@ class PowerMenu(Applet, Box):
                     ]
                 )
 
+                def reboot():
+                    if pre_shutdown_commands is not None:
+                        exec_shell_command(f"timeout 3 sh -c '{pre_shutdown_commands}'")
+                    exec_shell_command_async(f"sh -c 'sleep 0.5; {reboot_commands}'")
+
                 logger.warning("REBOOTING")
-                exec_shell_command_async(f"sh -c 'sleep 0.5; {commands}'")
+                GLib.Thread.new("reboot", reboot)
             case Actions.SHUT_DOWN:
+                pre_shutdown_commands = None
+
                 if pre_shutdown_commands_raw := configuration.get_property(
                     "power_menu_pre_shutdown_commands"
                 ):
@@ -308,9 +315,7 @@ class PowerMenu(Applet, Box):
                         [f"{command};" for command in pre_shutdown_commands_raw]
                     )
 
-                    exec_shell_command_async(f"sh -c '{pre_shutdown_commands}'")
-
-                commands = " ".join(
+                shutdown_commands = " ".join(
                     [
                         f"{command};"
                         for command in configuration.get_property(
@@ -319,8 +324,13 @@ class PowerMenu(Applet, Box):
                     ]
                 )
 
+                def shutdown():
+                    if pre_shutdown_commands is not None:
+                        exec_shell_command(f"timeout 3 sh -c '{pre_shutdown_commands}'")
+                    exec_shell_command_async(f"sh -c 'sleep 0.5; {shutdown_commands}'")
+
                 logger.warning("SHUTTING DOWN")
-                exec_shell_command_async(f"sh -c 'sleep 0.5; {commands}'")
+                GLib.Thread.new("shutdown", shutdown)
 
         self.on_action()
 

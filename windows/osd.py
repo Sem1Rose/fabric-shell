@@ -1,25 +1,21 @@
 from enum import Enum
 from loguru import logger
+from config import configuration
 
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.label import Label
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
 from fabric.widgets.stack import Stack
-from fabric.widgets.eventbox import EventBox
-from fabric.widgets.shapes.corner import Corner
 from fabric.core.fabricator import Fabricator
-from fabric.utils.helpers import (
-    exec_shell_command_async,
-    exec_shell_command,
-    cooldown,
-    FormattedString,
-)
+from fabric.utils.helpers import exec_shell_command_async, cooldown
 
-from config import configuration
+# from fabric.widgets.eventbox import EventBox
+# from fabric.widgets.shapes.corner import Corner
+
+from widgets.brightness import get_brightness_service
 from widgets.interactable_slider import Slider
 from widgets.buttons import ToggleButton, MarkupButton
-from widgets.helpers.formatted_exec import formatted_exec_shell_command_async
 from fabric.audio import Audio
 
 
@@ -41,23 +37,26 @@ class OSDWindow(Window):
         self.volume_handle = None
 
         self.audio_controller = Audio()
+        self.brightness_service = get_brightness_service()
 
-        self.backlight_device = ""
-        if backlight_device := configuration.get_property("backlight_device"):
-            self.backlight_device = backlight_device
-        else:
-            devices = exec_shell_command(
-                configuration.get_property("brightness_list_devices_command")
-            )
-            for device in devices.splitlines():
-                if "backlight" in device:
-                    self.backlight_device = device.split(",")[0]
-                    logger.info(f"Found brightness device {self.backlight_device}")
-                    break
-            else:
-                logger.error("Counldn't find a controllable brightness device.")
+        # self.backlight_device = ""
+        # if backlight_device := configuration.get_property("backlight_device"):
+        #     self.backlight_device = backlight_device
+        # else:
+        #     devices = exec_shell_command(
+        #         configuration.get_property("brightness_list_devices_command")
+        #     )
+        #     for device in devices.splitlines():
+        #         if "backlight" in device:
+        #             self.backlight_device = device.split(",")[0]
+        #             logger.info(f"Found brightness device {self.backlight_device}")
+        #             break
+        #     else:
+        #         logger.error("Counldn't find a controllable brightness device.")
 
-        def update_brightness_icon(value):
+        def update_brightness(value):
+            self.brightness_slider.set_value(value)
+
             self.auto_brightness_toggle.set_markup(
                 configuration.get_property("auto_brightness_icon")
                 if self.auto_brightness_toggle.toggled
@@ -86,26 +85,31 @@ class OSDWindow(Window):
             orientation="v",
             v_expand=True,
             inverted=True,
-            poll_command=FormattedString(
-                configuration.get_property("get_brightness_command")
-            ).format(device=self.backlight_device),
-            poll_interval=200,
-            poll_stream=False,
-            poll_value_processor=lambda v: float(v) / 255,
+            # poll_command=FormattedString(
+            #     configuration.get_property("get_brightness_command")
+            # ).format(device=self.backlight_device),
+            # poll_interval=200,
+            # poll_stream=False,
+            # poll_value_processor=lambda v: float(v) / 255,
+            poll=False,
             # animation_duration=0.1,
             # animation_curve=(0.3, 0, 0.35, 1),
         )
         self.brightness_slider.connect(
             "on_interacted",
-            lambda _, v: formatted_exec_shell_command_async(
-                configuration.get_property("set_brightness_command"),
-                device=self.backlight_device,
-                value=int(v * 255),
-            ),
+            lambda _, v: self.brightness_service.set_brightness(v),
+            # lambda _, v: formatted_exec_shell_command_async(
+            #     configuration.get_property("set_brightness_command"),
+            #     device=self.backlight_device,
+            #     value=int(v * 255),
+            # ),
         )
-        self.brightness_slider.connect(
-            "on_polled",
-            lambda _, v: update_brightness_icon(int(v * 255)),
+        # self.brightness_slider.connect(
+        #     "on_polled",
+        #     lambda _, v: update_brightness_icon(int(v * 255)),
+        # )
+        self.brightness_service.connect(
+            "brightness_changed", lambda _, v: update_brightness(v)
         )
 
         self.volume_slider = Slider(
@@ -420,20 +424,27 @@ class OSDWindow(Window):
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def inc_brightness(self):
-        formatted_exec_shell_command_async(
-            configuration.get_property("brightness_inc_command"),
-            device=self.backlight_device,
-            delta=f"{configuration.get_property('osd_brightness_delta')}%",
+        # formatted_exec_shell_command_async(
+        #     configuration.get_property("brightness_inc_command"),
+        #     device=self.backlight_device,
+        #     delta=f"{configuration.get_property('osd_brightness_delta')}%",
+        # )
+        self.brightness_service.screen_brightness += configuration.get_property(
+            "osd_brightness_delta"
         )
         self.show_brightness_slider()
 
     @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
     def dec_brightness(self):
-        formatted_exec_shell_command_async(
-            configuration.get_property("brightness_dec_command"),
-            device=self.backlight_device,
-            delta=f"{configuration.get_property('osd_brightness_delta')}%",
+        # formatted_exec_shell_command_async(
+        #     configuration.get_property("brightness_dec_command"),
+        #     device=self.backlight_device,
+        #     delta=f"{configuration.get_property('osd_brightness_delta')}%",
+        # )
+        self.brightness_service.screen_brightness -= configuration.get_property(
+            "osd_brightness_delta"
         )
+
         self.show_brightness_slider()
 
 

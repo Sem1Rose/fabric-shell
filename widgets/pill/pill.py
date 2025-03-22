@@ -166,7 +166,7 @@ class Pill(EventBox):
 
     def toggle_dashboard_expand(self, peek):
         if self.active_applet != PillApplets.DASHBOARD:
-            self.select_pill_applet(PillApplets.DASHBOARD)
+            self.select_pill_applet(PillApplets.DASHBOARD, True)
             return
 
         if self.dashboard.can_expand():

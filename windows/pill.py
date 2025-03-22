@@ -139,6 +139,8 @@ class PillWindow(Window):
 
         if applet != PillApplets.DASHBOARD:
             self.steal_input()
+        else:
+            self.return_input()
 
     def on_peeked(self, _, applet):
         for child in self.pill_widgets:

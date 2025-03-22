@@ -8,12 +8,10 @@ from fabric.utils.helpers import (
     FormattedString,
 )
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
+from widgets.circular_progress_icon import CircularProgressIcon
 from fabric.core.service import Property
 
 from fabric.widgets.box import Box
-from fabric.widgets.circularprogressbar import CircularProgressBar
-from fabric.widgets.label import Label
-from fabric.widgets.overlay import Overlay
 
 
 class BatteryWidget(Box):
@@ -34,6 +32,12 @@ class BatteryWidget(Box):
         )
 
     def update_battery_levels(self):
+        (
+            self.add_style_class
+            if configuration.get_property("battery_widget_compact")
+            else self.remove_style_class
+        )("compact")
+
         output = exec_shell_command(
             configuration.get_property("battery_list_devices_command")
         )
@@ -149,7 +153,14 @@ class BatteryWidget(Box):
 
         for device, (name, percentage, icon, state) in processed_devices.items():
             if device in self.blocks:
-                self.blocks[device][0].bulk_set(device, name, percentage, icon, state)
+                self.blocks[device][0].bulk_set(
+                    icon=icon,
+                    percentage=percentage,
+                    device=device,
+                    name=name,
+                    state=state,
+                    show_label=not configuration.get_property("battery_widget_compact"),
+                )
 
                 if (
                     first_device is not None
@@ -161,7 +172,14 @@ class BatteryWidget(Box):
             elif len(replacement_blocks) != 0:
                 new_block = replacement_blocks[0]
                 del replacement_blocks[0]
-                new_block[0].bulk_set(device, name, percentage, icon, state)
+                new_block[0].bulk_set(
+                    icon=icon,
+                    percentage=percentage,
+                    device=device,
+                    name=name,
+                    state=state,
+                    show_label=not configuration.get_property("battery_widget_compact"),
+                )
                 self.blocks[device] = new_block
 
                 if (
@@ -180,8 +198,17 @@ class BatteryWidget(Box):
                     first_device is not None and device == first_device
                 )
 
-                new_block = BatteryBlock()
-                new_block.bulk_set(device, name, percentage, icon, state)
+                new_block = BatteryBlock(
+                    add_label=not configuration.get_property("battery_widget_compact")
+                )
+                new_block.bulk_set(
+                    icon=icon,
+                    percentage=percentage,
+                    device=device,
+                    name=name,
+                    state=state,
+                    show_label=not configuration.get_property("battery_widget_compact"),
+                )
 
                 if make_first:
                     new_spacer = None
@@ -213,121 +240,75 @@ class BatteryWidget(Box):
         return True
 
 
-class BatteryBlock(Box):
+class BatteryBlock(CircularProgressIcon):
+    @Property(str, "rw", default_value="")
+    def state(self) -> str:
+        return self._state
+
+    @state.setter
+    def state(self, value: str):
+        self._state = value
+
+        self.update_state()
+
+    @Property(str, "rw", default_value="")
+    def device_name(self) -> str:
+        return self._device_name
+
+    @device_name.setter
+    def device_name(self, value: str):
+        self._device_name = value
+
+    @Property(str, "rw", default_value="")
+    def device(self) -> str:
+        return self._device
+
+    @device.setter
+    def device(self, value: str):
+        self._device = value
+
+        self.update_state()
+        # self.update_tooltip()
+
     def __init__(
         self,
-        percentage_display_processor=lambda v: f"{int(v * 100)} %",
         *args,
         **kwargs,
     ):
         super().__init__(
-            style_classes="circular_progress_block",
+            tooltip_markup=configuration.get_property("battery_widget_tooltip_markup"),
             *args,
             **kwargs,
         )
         self._device = ""
         self._device_name = ""
         self._state = ""
-        self._icon = ""
-        self._percentage = ""
-        self.percentage_display_processor = percentage_display_processor
 
-        match configuration.get_property("circular_progress_empty_part"):
-            case "bottom":
-                circ_progress_empty_base_angle = 90
-            case "right":
-                circ_progress_empty_base_angle = 0
-            case "top":
-                circ_progress_empty_base_angle = 270
-            case "left":
-                circ_progress_empty_base_angle = 180
-            case _:
-                circ_progress_empty_base_angle = 0
+    def bulk_set(
+        self,
+        device: str | None = None,
+        name: str | None = None,
+        state: str | None = None,
+        **kwargs,
+    ):
+        if state is not None:
+            self.state = state
+        if name is not None:
+            self.device_name = name
+        if device is not None:
+            self.device = device
+        super().bulk_set(**kwargs)
 
-        circ_progress_start_angle = circ_progress_empty_base_angle + (
-            float(configuration.get_property("circular_progress_empty_angle")) / 2
-        )
-        circ_progress_end_angle = (
-            360
-            + circ_progress_empty_base_angle
-            - (float(configuration.get_property("circular_progress_empty_angle")) / 2)
-        )
-
-        self.circ_progress = CircularProgressBar(
-            name="battery_percentage",
-            style_classes="circular_progress",
-            value=0,
-            h_expand=True,
-            v_expand=True,
-            start_angle=circ_progress_start_angle,
-            end_angle=circ_progress_end_angle,
-        )
-        self.icon = Label()
-        self.label = Label(name="battery_percentage_label")
-
-        self.children = [
-            Overlay(
-                child=Box(
-                    style_classes="circular_progress_container",
-                    children=[self.circ_progress],
-                ),
-                overlays=[
-                    Box(
-                        style_classes="circular_progress_overlay_icon",
-                        children=[self.icon],
-                        h_expand=True,
-                        v_expand=True,
-                        h_align="center",
-                        v_align="center",
-                    )
-                ],
-            ),
-        ]
-
-        if not configuration.get_property("battery_widget_compact"):
-            self.add(self.label)
-
-    def bulk_set(self, device, name, percentage, icon, state):
-        self.set_percentage(percentage)
-        self.set_icon(icon)
-        self.set_state(state)
-        self.set_device(device, name)
-
-    def set_device(self, device, name):
-        self._device = device
-        self._device_name = name
-
-        self.set_state(self._state)
-        self.update_tooltip()
-
-    def set_percentage(self, new_percentage: float):
-        self._percentage = new_percentage
-
-        self.label.set_markup(self.percentage_display_processor(self._percentage))
-        self.circ_progress.value = self._percentage
-
-    def set_state(self, new_state: str):
-        self._state = new_state
-
-        self.icon.add_style_class("charging") if new_state in (
+    def update_state(self):
+        self.icon.add_style_class("charging") if self._state in (
             "charging",
             "fully-charged",
         ) and "headset" not in self._device else self.icon.remove_style_class(
             "charging"
         )
 
-    def set_icon(self, new_icon: str):
-        self._icon = new_icon
-        self.icon.set_markup(self._icon)
-
     def update_tooltip(self):
-        self.set_tooltip_markup(
-            FormattedString(
-                configuration.get_property("battery_widget_tooltip_markup")
-            ).format(
-                icon=self._icon,
-                name=self._device_name,
-                battery=self.percentage_display_processor(self._percentage),
-                state=self._state,
-            )
+        super().update_tooltip(
+            name=self._device_name,
+            state=self._state,
         )

@@ -4,7 +4,7 @@ from fabric.widgets.label import Label
 from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.box import Box
-from fabric.core.service import Signal
+from fabric.core.service import Signal, Property
 from fabric.hyprland.widgets import WorkspaceButton
 
 from loguru import logger
@@ -384,6 +384,17 @@ class CycleToggleButton(MarkupButton):
 
 
 class WorkspaceMarkupButton(WorkspaceButton):
+    @Property(bool, "read-write", default_value=False)
+    def urgent(self) -> bool:
+        return self._urgent
+
+    @urgent.setter
+    def urgent(self, value: bool):
+        self._urgent = (not self._active) and value
+
+        (self.add_style_class if self._urgent else self.remove_style_class)("urgent")
+        return self.do_bake_label()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

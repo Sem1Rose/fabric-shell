@@ -148,16 +148,17 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		min-width: 0px;
 		min-height: 0px;
 		padding: 0px;
-		opacity: 0;
 	}
 }
 
 #pill_dashboard {
 	// transition: all 0.3s linear;
+	transition: all 0.3s linear;
 	min-width: 0px;
 	padding: settings.$pill_padding;
 
 	&.hidden {
+		// transition: all 0;
 		// transition: opacity 5s ease-out;
 		margin: -20px;
 
@@ -168,8 +169,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	&.peeking {
-		transition: all 0.3s linear, padding 0.5s $transition_function;
-
+		transition: all 0.3s linear, padding 0.3s $transition_function;
 		padding: settings.$pill_expanded_padding;
 
 		&.media_player {
@@ -213,11 +213,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 			(
 					settings.$wallpaper_selector_wallpaper_height + 2 *
 						$wallpaper_padding
-				) * 16 / 9 * 2 + $wallpaper_padding * 2.5
+				) * 16 / 9 * 2 + $wallpaper_padding * 2
 		)
 	);
 	padding: $wallpaper_padding;
-	min-width: $width;
+	// min-width: $width;
 
 	&.hidden {
 		margin: -60px calc($width / -2);
@@ -268,7 +268,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 			(
 					settings.$wallpaper_selector_wallpaper_height + 2 *
 						$wallpaper_padding
-				) * 16 / 9 * 2 + $wallpaper_padding * 3
+				) * 16 / 9 * 2 + $wallpaper_padding * 3 - 5px
 		);
 
 		#wallpaper_item {
@@ -1314,37 +1314,29 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	border-bottom-left-radius: settings.$bar_radius;
 }
 
-.circular_progress_block {
-	// .circular_progress_container {
-	// 	margin-right: calc(settings.$bar_padding / 1.5);
-	// }
+#circular_progress_block {
+	#circular_progress_container {
+		min-width: 16px;
+		min-height: 16px;
 
-	// .circular_progress_overlay_icon {
-	// 	margin-right: calc(settings.$bar_padding / 1.5);
-	// }
-
-	.circular_progress_container {
-		min-width: calc(settings.$bar_height - 2 * settings.$bar_padding - 4px);
-		min-height: calc(
-			settings.$bar_height - 2 * settings.$bar_padding - 4px
-		);
-
-		.circular_progress {
+		#circular_progress {
 			color: colors.$surface_container_high;
 			border-color: colors.$tertiary;
-			min-width: 5px;
+
+			#circular_progress_icon {
+				font-size: 16px;
+				color: colors.$secondary;
+			}
 		}
 	}
 
-	.circular_progress_overlay_icon {
-		label {
-			font-size: 16px;
-			color: colors.$secondary;
-		}
+	#circular_progress_label {
+		margin-left: calc(settings.$bar_padding / 1.5);
 	}
 }
+
 .circular_progress_block_spacer {
-	margin: settings.$bar_padding;
+	margin: calc(settings.$bar_padding / 1.5) settings.$bar_padding;
 	min-width: 4px;
 	border-radius: 100px;
 	background-color: colors.$on_primary_container;
@@ -1389,8 +1381,12 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 					border-radius: 6px;
 					min-height: 12px;
 				}
-				// min-height: 12px;
-				// margin: 0 calc(settings.$bar_padding / 2.5);
+
+				&.outsider {
+					#workspace_icon {
+						border-radius: 3px;
+					}
+				}
 			}
 		}
 
@@ -1596,45 +1592,56 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #resource_monitor_widget {
-	.circular_progress_block {
-		.circular_progress_container,
-		.circular_progress_overlay_icon {
-			margin-right: calc(settings.$bar_padding / 1);
-		}
+	border-radius: 100px;
+	padding: 2px;
 
-		.circular_progress_container {
-			min-width: 24px;
-			min-height: 24px;
+	#circular_progress_block {
+		#circular_progress_container {
+			min-width: 30px;
+			min-height: 30px;
 
-			.circular_progress {
-				min-width: 6px;
+			#circular_progress {
+				min-width: 5px;
+
+				#circular_progress_icon {
+					font-family: "Ubuntu Nerd Font";
+					font-size: 14px;
+					margin-left: calc(settings.$bar_padding / 2);
+				}
 			}
-		}
-
-		.circular_progress_label {
-			font-family: "Ubuntu Nerd Font";
-			font-size: 20px;
 		}
 	}
 }
 
 #battery_widget {
+	&.compact {
+		border-radius: 100px;
+		padding: 3px;
+	}
+
+	#circular_progress_block {
+		#circular_progress_container {
+			min-width: 29px;
+			min-height: 29px;
+
+			#circular_progress {
+				min-width: 5px;
+
+				#circular_progress_icon {
+					font-size: 15px;
+
+					&.charging {
+						color: #0bd92a;
+					}
+				}
+			}
+		}
+	}
+
 	&.empty {
 		padding: 0px;
 		margin: 0px;
 		background-color: transparent;
-	}
-
-	#battery_percentage_label {
-		margin-left: settings.$bar_padding;
-	}
-
-	.circular_progress_overlay_icon label {
-		font-weight: lighter;
-
-		&.charging {
-			color: #0bd92a;
-		}
 	}
 }
 
