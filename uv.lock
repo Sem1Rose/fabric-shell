@@ -44,6 +44,8 @@ dependencies = [
     { name = "pillow" },
     { name = "platformdirs" },
     { name = "psutil" },
+    { name = "sdbus" },
+    { name = "sdbus-networkmanager" },
     { name = "toml" },
 ]
 
@@ -54,6 +56,8 @@ requires-dist = [
     { name = "pillow", specifier = ">=11.1.0" },
     { name = "platformdirs", specifier = ">=4.3.6" },
     { name = "psutil", specifier = ">=6.1.1" },
+    { name = "sdbus", specifier = ">=0.13.0" },
+    { name = "sdbus-networkmanager", specifier = ">=2.0.0" },
     { name = "toml", specifier = ">=0.10.2" },
 ]
 
@@ -139,6 +143,28 @@ dependencies = [
     { name = "pycairo" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2b/58/d34e67a79631177e3c08e7d02b5165147f590171f2cae6769502af5f7f7e/pygobject-3.50.0.tar.gz", hash = "sha256:4500ad3dbf331773d8dedf7212544c999a76fc96b63a91b3dcac1e5925a1d103", size = 1080367 }
+
+[[package]]
+name = "sdbus"
+version = "0.13.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4f/c7/8740ff78e9ffdbb9a28e7722e145795015c62ea7ce812242f5968073511c/sdbus-0.13.0.tar.gz", hash = "sha256:801bd46608ee82614d42960c8ba8ae9300edb1bf5bbeb534bc8fd21f13d2c20e", size = 85887 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/fb/060bc3ffdbfae6062800ee516b68c5a050e5c4cb9424759a7650462a9f5b/sdbus-0.13.0-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fcc88e70e76723234fd0987edccbcc3fe5f4e99245eb30a6b362ef7f882fd8a3", size = 540599 },
+    { url = "https://files.pythonhosted.org/packages/57/33/5d6d93d2897901cf503ed6db47b10208195fedaa0ed4e9f7c9f511fc649c/sdbus-0.13.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:199a4c321fc5b4cded57a110f82625f6541909c40e733f574d12afc5ace149a7", size = 539172 },
+]
+
+[[package]]
+name = "sdbus-networkmanager"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sdbus" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/31/ab/e864c6c2eb778c194cfb56cd9d98b5594dc00573210fdf6b44904745a0bf/sdbus-networkmanager-2.0.0.tar.gz", hash = "sha256:3572ac3a8189c683ec0416acb148761773a8f0881ad3d78b6d6f6864eff9c50b", size = 165071 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/0c/6a67ebd967f3816022d04ab93db5f3d998a55d79c138af11feb1f59a6f10/sdbus_networkmanager-2.0.0-py3-none-any.whl", hash = "sha256:710a5ccfb1c3267016c990023ca76ad6210b13ab63aa5dad3a20e590b291b08f", size = 248349 },
+]
 
 [[package]]
 name = "toml"

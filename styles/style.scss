@@ -483,7 +483,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 .floating_buttons {
-	transition: all 0.4s ease-out;
+	transition: all 0.2s ease-out, color 0.1s linear;
 
 	background-color: colors.$background;
 	border-radius: 50%;
@@ -492,10 +492,27 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	// min-width: (settings.$bar_height - settings.$pill_padding);
 	// min-height: (settings.$bar_height - settings.$pill_padding);
 	margin: 0px calc(settings.$pill_padding / 2);
+	padding: 0px;
+	color: colors.$surface_container_highest;
+
+	&:hover {
+		color: colors.$secondary;
+	}
+
+	label {
+		transition: all 0.2s ease-out;
+
+		font-weight: normal;
+		font-size: 24px;
+	}
 
 	&.peeking {
 		min-width: settings.$bar_height;
 		min-height: settings.$bar_height;
+
+		label {
+			font-size: 32px;
+		}
 	}
 }
 
@@ -1668,7 +1685,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	#tray_widget {
-		background-color: colors.$tertiary_container;
+		background-color: colors.$secondary_container;
 		border-radius: 8px 0px 0px 8px;
 		padding: calc(settings.$bar_padding / 2);
 

@@ -52,8 +52,19 @@ class PillWindow(Window):
         #     child=self.pill,
         # )
 
-        self.left_button = MarkupButton(style_classes="floating_buttons")
-        self.right_button = MarkupButton(style_classes="floating_buttons")
+        self.left_button = MarkupButton(
+            style_classes="floating_buttons",
+            markup=configuration.get_property("wallpaper_selector_icon"),
+        )
+        self.left_button.set_can_focus(False)
+        self.left_button.set_focus_on_click(False)
+
+        self.right_button = MarkupButton(
+            style_classes="floating_buttons",
+            markup=configuration.get_property("power_menu_icon"),
+        )
+        self.right_button.set_can_focus(False)
+        self.right_button.set_focus_on_click(False)
 
         self.center_box = CenterBox(name="pill_window", orientation="h")
         self.center_box.center_container.set_orientation(Gtk.Orientation.VERTICAL)
@@ -71,6 +82,9 @@ class PillWindow(Window):
         ]
 
         self.pill_widgets = [self.left_button, self.right_button]
+
+        self.left_button.connect("clicked", lambda *_: self.change_applet("wallpaper"))
+        self.right_button.connect("clicked", lambda *_: self.change_applet("powermenu"))
 
         self.add_keybinding(
             "Escape",

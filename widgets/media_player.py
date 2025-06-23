@@ -356,8 +356,7 @@ class MediaControls(Box):
         )
 
         self.media_play_pause = ToggleButton(
-            name="media_play_pause",
-            h_align="end",
+            name="media_play_pause", h_align="end", auto_toggle=False
         )
         self.media_play_pause.connect(
             "on_toggled",
@@ -366,21 +365,26 @@ class MediaControls(Box):
 
         self.media_shuffle = ToggleButton(
             name="media_shuffle",
+            auto_toggle=False,
             # markup=configuration.get_property("media_player_shuffle_icon"),
         )
         self.media_shuffle.connect(
             "on_toggled",
-            lambda toggle, *_: self.player_controller.set_shuffle(toggle.toggled),
+            lambda toggle, *_: self.player_controller.set_shuffle(not toggle.toggled),
         )
 
         self.media_loop = CycleToggleButton(
-            name="media_loop",
-            states=["None", "Playlist", "Track"],
+            name="media_loop", states=["None", "Playlist", "Track"], auto_toggle=False
         )
         self.media_loop.connect(
             "on_cycled",
-            lambda cycle_toggle, *_: self.player_controller.set_loop_status(
-                get_enum_member(Playerctl.LoopStatus, cycle_toggle.get_state())
+            lambda cycle_toggle, *_: (
+                logger.error(
+                    f"{cycle_toggle.get_state()} {cycle_toggle.get_next_state()}"
+                ),
+                self.player_controller.set_loop_status(
+                    get_enum_member(Playerctl.LoopStatus, cycle_toggle.get_next_state())
+                ),
             ),
         )
 
@@ -633,27 +637,46 @@ class MediaControls(Box):
             == Playerctl.PlaybackStatus.PLAYING
         )
 
-        self.media_shuffle.set_markup(
-            configuration.get_property("media_player_shuffle_icon")
-            if self.player_controller.props.shuffle
-            else configuration.get_property("media_player_no_shuffle_icon")
-        )
-        self.media_shuffle.set_state(self.player_controller.props.shuffle)
+        if self.player_controller.props.shuffle is None:
+            self.media_shuffle.set_sensitive(False)
+            self.media_shuffle.set_markup(
+                configuration.get_property("media_player_no_shuffle_icon")
+            )
+            self.media_shuffle.set_state(False)
+        else:
+            self.media_shuffle.set_sensitive(True)
+            self.media_shuffle.set_markup(
+                configuration.get_property("media_player_shuffle_icon")
+                if self.player_controller.props.shuffle
+                else configuration.get_property("media_player_no_shuffle_icon")
+            )
+            self.media_shuffle.set_state(self.player_controller.props.shuffle)
 
-        self.media_loop.set_markup(
-            configuration.get_property("media_player_repeat_none_icon")
-            if self.player_controller.props.loop_status == Playerctl.LoopStatus.NONE
-            else configuration.get_property("media_player_repeat_playlist_icon")
-            if self.player_controller.props.loop_status == Playerctl.LoopStatus.PLAYLIST
-            else configuration.get_property("media_player_repeat_track_icon")
-        )
-        self.media_loop.set_state(
-            state=UpperToPascal(
-                get_enum_member_name(
-                    self.player_controller.props.loop_status, default="None"
+        logger.error(f"{self.player_controller.props.can_control}")
+
+        if self.player_controller.props.loop_status is None:
+            self.media_loop.set_sensitive(False)
+            self.media_loop.set_markup(
+                configuration.get_property("media_player_repeat_none_icon")
+            )
+            self.media_loop.set_state(state="None")
+        else:
+            self.media_loop.set_sensitive(True)
+            self.media_loop.set_markup(
+                configuration.get_property("media_player_repeat_none_icon")
+                if self.player_controller.props.loop_status == Playerctl.LoopStatus.NONE
+                else configuration.get_property("media_player_repeat_playlist_icon")
+                if self.player_controller.props.loop_status
+                == Playerctl.LoopStatus.PLAYLIST
+                else configuration.get_property("media_player_repeat_track_icon")
+            )
+            self.media_loop.set_state(
+                state=UpperToPascal(
+                    get_enum_member_name(
+                        self.player_controller.props.loop_status, default="None"
+                    )
                 )
             )
-        )
 
         self.title_label.set_label(
             title if (title := self.player_controller.get_title()) else "Unknown"

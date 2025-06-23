@@ -178,7 +178,7 @@ class QuickSettings(Box):
             h_expand=True,
             poll=False,
         )
-        self.volume_toggle = ToggleButton(name="qs_volume_toggle")
+        self.volume_toggle = ToggleButton(name="qs_volume_toggle", auto_toggle=False)
         self.volume_chevron = ChevronButton(
             name="qs_volume_chevron", orientation="v", h_align="end", v_align="end"
         )

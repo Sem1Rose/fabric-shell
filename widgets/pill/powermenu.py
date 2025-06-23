@@ -23,6 +23,13 @@ class Actions(IntEnum):
 
 
 class PowerMenu(Applet, Box):
+    BUTTONS = [
+        Actions.LOCK,
+        Actions.SUSPEND,
+        Actions.REBOOT,
+        Actions.SHUT_DOWN,
+    ]
+
     @Signal
     def on_action(self): ...
 
@@ -71,12 +78,6 @@ class PowerMenu(Applet, Box):
         # self.shut_down_button.set_can_focus(False)
         # self.shut_down_button.set_focus_on_click(False)
 
-        self.actions_enum = [
-            Actions.LOCK,
-            Actions.SUSPEND,
-            Actions.REBOOT,
-            Actions.SHUT_DOWN,
-        ]
         self.action_buttons = [
             self.lock_button,
             self.suspend_button,
@@ -85,14 +86,14 @@ class PowerMenu(Applet, Box):
         ]
 
         for i, b in enumerate(self.action_buttons):
-            # logger.error(f"{i}: {b} {self.actions_enum[i]}")
+            # logger.error(f"{i}: {b} {PowerMenu.ACTIONS[i]}")
             b.set_can_focus(False)
             b.set_focus_on_click(False)
 
             b.connect(
                 "clicked",
                 lambda button: self.change_action(
-                    self.actions_enum[self.action_buttons.index(button)]
+                    PowerMenu.BUTTONS[self.action_buttons.index(button)]
                 ),
             )
             if i == 0:
@@ -247,7 +248,7 @@ class PowerMenu(Applet, Box):
         action = action if action is not None else self.selected_action
 
         self.hide_confirmation_popup()
-        match self.actions_enum[action]:
+        match action:
             case Actions.LOCK:
                 lock_commands = " ".join(
                     [
@@ -275,7 +276,7 @@ class PowerMenu(Applet, Box):
 
                 def suspend():
                     exec_shell_command(f"sh -c 'sleep 0.5; {lock_commands}'")
-                    exec_shell_command_async(suspend_commands)
+                    exec_shell_command(suspend_commands)
 
                 logger.warning("SUSPENDING")
                 GLib.Thread.new("suspend", suspend)

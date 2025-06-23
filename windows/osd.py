@@ -172,6 +172,7 @@ class OSDWindow(Window):
 
         self.volume_toggle = ToggleButton(
             name="osd_volume_toggle",
+            auto_toggle=False,
             h_expand=True,
             v_expand=True,
         )

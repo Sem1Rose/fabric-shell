@@ -270,7 +270,7 @@ class WallpaperSelector(Applet, Box):
     def append_wallpaper(self, thumbnail, path):
         if len(self.wallpaper_paths) - self.selected_index < 2:
             self.Images[len(self.wallpaper_paths) - self.selected_index + 2].set_style(
-                f'background-image: url("{thumbnail}")'
+                f'background-image: url("{thumbnail}");'
             )
             self.Images[
                 len(self.wallpaper_paths) - self.selected_index + 2
@@ -278,6 +278,23 @@ class WallpaperSelector(Applet, Box):
 
         self.wallpaper_paths.append((thumbnail, path))
         # self.update_scroll_buttons()
+
+    def shuffle_wallpapers(self):
+        random.shuffle(self.wallpaper_paths)
+
+        for i in range(5):
+            if len(self.wallpaper_paths) > self.selected_index + i - 2 >= 0:
+                thumbnail, path = self.wallpaper_paths[self.selected_index + i - 2]
+
+                self.Images[self.selected_index + i].set_style(
+                    f'background-image: url("{thumbnail}");'
+                )
+                self.Images[self.selected_index + i].set_sensitive(True)
+            else:
+                self.Images[self.selected_index + i].set_style(
+                    "background-image: none;"
+                )
+                self.Images[self.selected_index + i].set_sensitive(False)
 
     @cooldown(0.26, lambda *_: False, True)
     def cycle_cooldown(self, next=True):
@@ -416,11 +433,15 @@ class WallpaperSelector(Applet, Box):
             for file in os.listdir(configuration.get_property("wallpapers_dir"))
             if file.lower().endswith(".png")
         ]
-        random.shuffle(files)
 
-        self.thread_pool.map(self.generate_thumbnail, files)
+        results = self.thread_pool.map(self.generate_thumbnail, files)
+
+        for _ in results:
+            ...
 
         self.wallpaper_processor_thread = None
+
+        idle_add(self.shuffle_wallpapers)
 
     def generate_thumbnail(self, image):
         thumbnail_path = os.path.join(

@@ -5,13 +5,14 @@ from fabric.utils.helpers import (
     invoke_repeater,
     exec_shell_command,
     exec_shell_command_async,
-    FormattedString,
+    # FormattedString,
 )
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 from widgets.circular_progress_icon import CircularProgressIcon
 from fabric.core.service import Property
 
 from fabric.widgets.box import Box
+from gi.repository import GLib
 
 
 class BatteryWidget(Box):
@@ -23,6 +24,7 @@ class BatteryWidget(Box):
             **kwargs,
         )
         self.warned_low_battery = False
+        self.execed_suspend_commands = False
         self.primary_previous_state = ""
         self.blocks = {}
 
@@ -71,29 +73,63 @@ class BatteryWidget(Box):
             except Exception:
                 percentage_float = 0.0
 
-            if name == "Primary" and self.primary_previous_state != state:
+            if name == "Primary":
                 if (
+                    # self.primary_previous_state != state
                     state == "discharging" or state == "unknown"
-                ) and not self.warned_low_battery:
-                    if percentage_float * 100 < configuration.get_property(
-                        "battery_warning_level"
+                ):
+                    if (
+                        percentage_float * 100
+                        < configuration.get_property("battery_warning_level")
+                        and not self.warned_low_battery
                     ):
                         self.warned_low_battery = True
                         exec_shell_command_async(
                             f"fabric-cli execute {configuration.get_property('app_name')} \"urgent_osd.show_urgent_osd('battery')\""
                         )
-                    elif percentage_float * 100 < configuration.get_property(
-                        "battery_hibernate_level"
+
+                        # self.primary_previous_state = state
+                    elif (
+                        percentage_float * 100
+                        < configuration.get_property("battery_hibernate_level")
+                        and not self.execed_suspend_commands
                     ):
-                        # TODO
-                        pass
-                elif state != "discharging" and state != "unknown":
+                        self.execed_suspend_commands = True
+
+                        exec_shell_command_async(
+                            f'fabric-cli execute {configuration.get_property("app_name")} "urgent_osd.hide_urgent_osd()"'
+                        )
+
+                        logger.warning("Suspending due to low charge!")
+
+                        lock_commands = " ".join(
+                            [
+                                f"{command};"
+                                for command in configuration.get_property(
+                                    "power_menu_lock_commands"
+                                )
+                            ]
+                        )
+                        suspend_commands = " ".join(
+                            [
+                                f"{command};"
+                                for command in configuration.get_property(
+                                    "power_menu_suspend_commands"
+                                )
+                            ]
+                        )
+
+                        # def suspend():
+                        exec_shell_command(f"sh -c '{lock_commands}'")
+                        exec_shell_command(f"sh -c '{suspend_commands}'")
+
+                        # GLib.Thread.new("suspend", suspend)
+                else:
                     self.warned_low_battery = False
+                    self.execed_suspend_commands = False
                     exec_shell_command_async(
                         f'fabric-cli execute {configuration.get_property("app_name")} "urgent_osd.hide_urgent_osd()"'
                     )
-
-                self.primary_previous_state = state
 
             if "headset" in device:
                 icon = configuration.get_property("battery_widget_headset_icon")

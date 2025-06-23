@@ -15,18 +15,19 @@ sass_compiler_command = "sass {input} {output} --no-source-map"
 confirm_icon = "&#xea5e;"
 cancel_icon = "&#xeb55;"
 
+power_menu_icon = "&#xeb0d;"
 power_menu_action_lock_icon = "&#xeae2;"
 power_menu_action_suspend_icon = "&#xeaf8;"
 power_menu_action_reboot_icon = "&#xebb4;"
 power_menu_action_shut_down_icon = "&#xeb0d;"
 
-power_menu_lock_commands = ["playerctl pause", "loginctl lock-session"]
+power_menu_lock_commands = ["playerctl pause", "loginctl lock-session", "sleep 4"]
 power_menu_suspend_commands = ["systemctl suspend"]
 power_menu_reboot_commands = ["systemctl reboot"]
 power_menu_shutdown_commands = ["systemctl poweroff"]
 
 pill_stack_transition_duration = 400
-pill_revealer_animation_duration = 400
+pill_revealer_animation_duration = 300
 osd_revealer_animation_duration = 250
 bar_revealer_animation_duration = 250
 
@@ -52,7 +53,7 @@ battery_widget_battery_half_full_icon = "&#xff1b;"
 battery_widget_battery_empty_icon = "&#xff15;"
 battery_widget_battery_charging_icon = "&#x10021;"
 battery_widget_battery_unknown_icon = "&#xf671;"
-battery_widget_tooltip_markup = "{icon} {name}: {battery}\n{state}"
+battery_widget_tooltip_markup = "{icon} {name}: {percentage}\n{state}"
 battery_list_devices_command = "upower -e"
 battery_device_info_command = "upower -i {device}"
 
@@ -72,7 +73,7 @@ auto_brightness_check_command = "systemctl --user is-active wluma"
 auto_brightness_start_command = "systemctl --user start wluma --now"
 auto_brightness_stop_command = "systemctl --user stop wluma"
 
-qs_brightness_high_threshold = 0.4
+qs_brightness_high_threshold = 40
 qs_volume_high_threshold = 50
 
 # brightness_high_icon = "󰃠"
@@ -91,8 +92,9 @@ workspaces_widget_num_workspaces = 6
 
 resource_monitor_poll_interval = 2000
 resource_monitor_overlay_icon = "&#xf692;"
-resource_monitor_cpu_icon_ = " "
-resource_monitor_memory_icon_ = " "
+resource_monitor_cpu_icon = " "
+resource_monitor_memory_icon = " "
+resource_monitor_tooltip_markup = "{name}: {percentage}"
 
 wifi_connected_icon = "&#xeb52;"
 ethernet_connected_icon = "&#xf00a;"
@@ -122,10 +124,12 @@ screen_record_widget_speakers_icon = "&#xeb51;"
 screen_record_widget_no_audio_icon = "&#xf1c3;"
 
 osd_timeout = 2
-osd_brightness_delta = 5
+osd_brightness_delta = 0.05
 osd_volume_delta = 5
 
 change_wallpaper_command = ""
+
+wallpaper_selector_icon = "&#xfc4a;"
 
 battery_warning_level = 20
 battery_hibernate_level = 10

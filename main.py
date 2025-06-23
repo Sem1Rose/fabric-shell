@@ -11,6 +11,25 @@ from windows.pill import PillWindow, PillApplets
 from windows.osd import OSDWindow, UrgentOSDWindow
 from windows.bar import BarWindowLeft, BarWindowRight, BarWindow
 
+# import sdbus
+# from sdbus_block.networkmanager import (
+#     NetworkDeviceGeneric,
+#     NetworkDeviceWireless,
+#     NetworkConnectionSettings,
+#     NetworkManagerSettings,
+#     NetworkManager,
+# )
+# from sdbus import sd_bus_open_system
+# from sdbus_async.networkmanager import (
+#     NetworkDeviceGeneric,
+#     NetworkDeviceWireless,
+#     NetworkConnectionSettings,
+#     NetworkManagerSettings,
+#     NetworkManager,
+#     AccessPoint,
+# )
+
+# from sdbus_block.networkmanager.enums import DeviceType
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -87,6 +106,42 @@ if __name__ == "__main__":
     config_monitor = monitor_file(config_file)
     # config_monitor = monitor_file(get_relative_path("default_config.toml"))
     config_monitor.connect("changed", lambda *_: configuration.load_config())
+
+    # sdbus.set_default_bus(sdbus.sd_bus_open_system())
+    # system_bus = sd_bus_open_system()  # We need system bus
+    # network_manager = NetworkManager(system_bus)
+    # all_devices = {path: NetworkDeviceGeneric(path) for path in network_manager.devices}
+
+    # wifi_devices = [
+    #     NetworkDeviceWireless(path)
+    #     for path, device in all_devices.items()
+    #     if device.device_type == DeviceType.WIFI
+    # ]
+
+    # logger.error(wifi_devices)
+
+    # wifi = wifi_devices[0]
+    # ap = AccessPoint(wifi.active_access_point)
+    # logger.error(ap)
+    # nmasync = NetworkManagerAsync()
+
+    # networwork_manager_settings = NetworkManagerSettings()
+    # all_devices = {path: NetworkDeviceGeneric(path) for path in network_manager.devices}
+
+    # wifi_devices = [
+    #     NetworkDeviceWireless(path)
+    #     for path, device in all_devices.items()
+    #     if device.device_type == DeviceType.WIFI
+    # ]
+
+    # all_connections = [
+    #     NetworkConnectionSettings(x) for x in networwork_manager_settings.connections
+    # ]
+    # logger.error(all_connections)
+
+    # setting = NetworkConnectionSettings(networwork_manager_settings.connections[0])
+    # setting_dataclass = setting.get_profile(False)
+    # logger.error(setting_dataclass.connection)
 
     logger.info(f"Starting shell... pid:{os.getpid()}")
     app.run()

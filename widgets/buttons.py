@@ -58,10 +58,11 @@ class ToggleButton(MarkupButton):
     @Signal
     def mmb_pressed(self, modifiers: int): ...
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, auto_toggle=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.toggled = False
+        self.auto_toggle = auto_toggle
 
         self.connect("button-release-event", self.handle_button_release)
 
@@ -83,7 +84,9 @@ class ToggleButton(MarkupButton):
         return True
 
     def toggle(self, modifiers):
-        self.set_state(not self.toggled)
+        if self.auto_toggle:
+            self.set_state(not self.toggled)
+
         self.on_toggled(modifiers)
 
     def set_state(self, state):
@@ -323,11 +326,13 @@ class CycleToggleButton(MarkupButton):
     @Signal
     def mmb_pressed(self, modifiers: int): ...
 
-    def __init__(self, states, *args, **kwargs):
+    def __init__(self, states, auto_toggle=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.toggled = False
         self.states = states
+        self.auto_toggle = auto_toggle
+
         self.num_states = len(states)
 
         self.state = 0
@@ -351,12 +356,9 @@ class CycleToggleButton(MarkupButton):
         return True
 
     def cycle(self, modifiers):
-        def cycle_val(v, max):
-            if v < max:
-                return v
-            return 0
+        if self.auto_toggle:
+            self.set_state(index=self.get_next_state())
 
-        self.set_state(index=cycle_val(self.state + 1, self.num_states))
         self.on_cycled(modifiers)
 
     def set_state(self, state=None, index=None):
@@ -381,6 +383,11 @@ class CycleToggleButton(MarkupButton):
 
     def get_state(self):
         return self.states[self.state]
+
+    def get_next_state(self):
+        if self.state + 1 < self.num_states:
+            return self.states[self.state + 1]
+        return self.states[0]
 
 
 class WorkspaceMarkupButton(WorkspaceButton):

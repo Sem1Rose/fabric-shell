@@ -11,14 +11,17 @@ from widgets.corner import Corner
 from widgets.keyboard_layout import KeyboardLayout
 
 from fabric.widgets.wayland import WaylandWindow as Window
+from fabric.widgets.label import Label
 from fabric.widgets.box import Box
+from fabric.widgets.eventbox import EventBox
 from fabric.widgets.revealer import Revealer
 from fabric.hyprland.widgets import Workspaces, get_hyprland_connection
-from fabric.utils.helpers import FormattedString
+from fabric.utils.helpers import FormattedString, idle_add
 
 # from fabric.widgets.shapes.corner import Corner
 
 from loguru import logger
+from gi.repository import GLib, Gio
 
 
 class BarWindow(Window):
@@ -249,6 +252,19 @@ class BarWindowRight(Box):
                     configuration.get_property("chevron_right")
                 )
 
+            # if self.tray_unreveal_handler is not None:
+            # if cancellable := self.tray_unreveal_handler.get_cancellable():
+            # self.tray_unreveal_handler.get_cancellable().cancel()
+            # self.tray_unreveal_handler = None
+
+        # self.tray_expander = EventBox(
+        #     child=Box(
+        #         name="tray_container_expander",
+        #         children=Label(
+        #             markup=configuration.get_property("chevron_left"),
+        #         ),
+        #     )
+        # )
         self.tray_expander = MarkupButton(
             name="tray_container_expander",
             markup=configuration.get_property("chevron_left"),
@@ -258,13 +274,15 @@ class BarWindowRight(Box):
             lambda *_: on_tray_expander_clicked(),
         )
 
-        self.tray_container = Box(
-            name="tray_container",
-            style_classes="bar_widget",
-            children=[
-                self.tray_revealer,
-                self.tray_expander,
-            ],
+        self.tray_container = EventBox(
+            child=Box(
+                name="tray_container",
+                style_classes="bar_widget",
+                children=[
+                    self.tray_revealer,
+                    self.tray_expander,
+                ],
+            )
         )
 
         # self.widgets = Box(
@@ -310,6 +328,50 @@ class BarWindowRight(Box):
             )
         )
 
+        self.tray_hovered = False
+        self.tray_unreveal_handler = None
+        self.cancellable = Gio.Cancellable.new()
+
+        def change_tray_hovered(hovered):
+            self.tray_hovered = hovered
+
+            # if not hovered and self.tray_revealer.child_revealed:
+            #     start_unreveal_thread()
+
+        def start_unreveal_thread():
+            # if not self.tray_revealer.child_revealed:
+            #     return
+            if self.tray_unreveal_handler is not None:
+                # self.tray_unreveal_handler.get_cancellable().cancel()
+                # if cancellable := self.tray_unreveal_handler.get_cancellable():
+                #     logger.error("cancelled")
+                #     cancellable.cancel()
+                self.cancellable.cancel()
+                self.cancellable = Gio.Cancellable.new()
+                self.tray_unreveal_handler = None
+
+            def unreveal(*_):
+                logger.warning("waiting")
+                self.cancellable.set_error_if_cancelled()
+                GLib.usleep(int(3 * 1e6))
+                logger.warning("closing")
+
+                if not self.tray_hovered and self.tray_revealer.child_revealed:
+                    logger.warning("closed")
+                    idle_add(on_tray_expander_clicked)
+
+            # self.tray_unreveal_handler = Gio.Task.new()
+            self.tray_unreveal_handler = Gio.Task.new()
+            self.tray_unreveal_handler.set_return_on_cancel(True)
+            self.tray_unreveal_handler.run_in_thread(unreveal)
+            # self.tray_unreveal_handler = GLib.Thread.new("tray_unreveal", unreveal)
+
+        self.tray_expander.connect(
+            "enter-notify-event", lambda *_: change_tray_hovered(True)
+        )
+        self.tray_expander.connect(
+            "leave-notify-event", lambda *_: change_tray_hovered(False)
+        )
         # self.main_container = Box(
         #     name="bar_window_right",
         #     orientation="h",
