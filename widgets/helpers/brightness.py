@@ -15,8 +15,12 @@ if device := configuration.get_property("backlight_device"):
 else:
     try:
         backlight_device = os.listdir("/sys/class/backlight")
-        backlight_device = backlight_device[0] if backlight_device else ""
-        logger.info(f"Found brightness device {backlight_device}")
+        if backlight_device:
+            backlight_device = backlight_device[0]
+            logger.info(f"Found brightness device {backlight_device}")
+        else:
+            backlight_device = ""
+            logger.error("Counldn't find a controllable brightness device.")
     except FileNotFoundError:
         devices = exec_shell_command(
             configuration.get_property("brightness_list_devices_command")
@@ -27,8 +31,8 @@ else:
                 logger.info(f"Found brightness device {backlight_device}")
                 break
         else:
-            logger.error("Counldn't find a controllable brightness device.")
             backlight_device = ""
+            logger.error("Counldn't find a controllable brightness device.")
 
 
 # massive thanks to [HyDePanel](https://github.com/rubiin/HyDePanel/blob/master/services/brightness.py)
@@ -44,7 +48,10 @@ class Brightness(Service):
         self.max_brightness = self.get_max_brightness(self.screen_backlight_path)
 
         if backlight_device == "":
+            self.active = False
             return
+
+        self.active = True
 
         self.screen_monitor = monitor_file(f"{self.screen_backlight_path}/brightness")
         self.screen_monitor.connect(

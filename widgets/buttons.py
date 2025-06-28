@@ -165,10 +165,13 @@ class QSToggleButton(EventBox):
         markup: str | None = None,
         icon: str | None = None,
         add_chevron=False,
+        auto_toggle=True,
         *args,
         **kwargs,
     ):
         super().__init__()
+
+        self.auto_toggle = auto_toggle
 
         self.chevron_button = None
         self.label = Label(
@@ -243,7 +246,9 @@ class QSToggleButton(EventBox):
             self.rmb_pressed(event.get_state())
 
     def toggle(self, modifiers):
-        self.set_state(not self.toggled)
+        if self.auto_toggle:
+            self.set_state(not self.toggled)
+
         self.on_toggled(modifiers)
 
     def set_state(self, state):
@@ -341,11 +346,11 @@ class CycleToggleButton(MarkupButton):
             "button-release-event", lambda _, event: self.handle_button_press(event)
         )
 
-        self.set_state(index=self.state)
+        self.set_state(self.state)
 
     def handle_button_press(self, event):
         if event.button == 1:
-            self.cycle(event.get_state())
+            self.cycle(modifiers=event.get_state())
         elif event.button == 2:
             self.mmb_pressed(event.get_state())
         elif event.button == 3:
@@ -357,18 +362,18 @@ class CycleToggleButton(MarkupButton):
 
     def cycle(self, modifiers):
         if self.auto_toggle:
-            self.set_state(index=self.get_next_state())
+            self.set_state(self.get_next_state())
 
         self.on_cycled(modifiers)
 
-    def set_state(self, state=None, index=None):
-        if state is None and index is None:
+    def set_state(self, state=None):
+        if state is None:
             return
-        if state is not None:
+        if isinstance(state, str):
             if state in self.states:
                 self.state = self.states.index(state)
-        elif index is not None:
-            self.state = index
+        elif isinstance(state, int):
+            self.state = state
 
         self.toggled = self.state > 0
 

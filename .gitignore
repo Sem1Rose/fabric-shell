@@ -10,5 +10,7 @@ wheels/
 .venv
 
 config.toml
+style.css.map
 style.css
 styles/_settings.scss
+styles/_colors.scss

@@ -28,7 +28,13 @@ class Dashboard(Applet, Box):
         self.date_time_widget = DateTimeWidget()
         self.date_time_widget.set_can_focus(False)
 
-        self.quick_settings_widget = QuickSettings()
+        # self.qs_populated = configuration.get_property("dashboard_qs").__len__() > 0
+        self.qs_populated = True
+        if self.qs_populated:
+            self.quick_settings_widget = QuickSettings()
+        else:
+            self.quick_settings_widget = Box()
+
         self.media_player = MediaPlayer(
             transition_duration=configuration.get_property(
                 "pill_revealer_animation_duration"

@@ -94,12 +94,15 @@ class Pill(EventBox):
             if v
             else self.dec_num_large_widgets(),
         )
-        self.dashboard.quick_settings_widget.volume_chevron.connect(
-            "on-toggled",
-            lambda button, *_: self.inc_num_large_widgets()
-            if button.toggled
-            else self.dec_num_large_widgets(),
-        )
+
+        if self.dashboard.quick_settings_widget.volume_chevron:
+            self.dashboard.quick_settings_widget.volume_slider.chevron.connect(
+                "on-toggled",
+                lambda button, *_: self.inc_num_large_widgets()
+                if button.toggled
+                else self.dec_num_large_widgets(),
+            )
+
         self.dashboard.date_time_widget.connect(
             "clicked", lambda *_: self.toggle_dashboard_expand(True)
         )

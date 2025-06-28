@@ -45,6 +45,7 @@ media_player_repeat_none_icon = "&#xf18e;"
 media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
 media_player_allowed_players = { "spotify" = "󰓇" }
+bar_widgets = { "left" = ["workspaces", "wallpaper", "key_layout", "recorder"], "right" = ["tray", "battery", "res_monitor", "net_monitor"] }
 
 battery_widget_compact = false
 battery_widget_headset_icon = "&#xfa3c;"
@@ -81,6 +82,7 @@ qs_volume_high_threshold = 50
 # auto_brightness_icon = "󰃡"
 brightness_high_icon = "&#xfb24;"
 brightness_low_icon = "&#xfb23;"
+brightness_off_icon = "&#xed63;"
 auto_brightness_icon = "&#xfd99;"
 
 volume_high_icon = "&#xeb51;"
@@ -112,13 +114,13 @@ nmcli_command = "nmcli -c no -t"
 
 screen_records_dir = "user_videos_dir-Screen_Recordings"
 
-screen_record_command = "wf-recorder -B 60 -r 24"
+screen_record_command = "wf-recorder -c hevc_vaapi -F scale_vaapi=format=nv12"
 screen_record_audio_option = "--audio="
 screen_record_portion_option = "-g"
 screen_record_portion_command = "slurp"
 screen_record_output_option = "-f"
 screen_record_widget_record_icon = "&#xf671;"
-screen_record_widget_stop_icon = "&#xfc40;"
+screen_record_widget_stop_icon = "&#xf6a5;"
 screen_record_widget_mic_icon = "&#xeaf0;"
 screen_record_widget_speakers_icon = "&#xeb51;"
 screen_record_widget_no_audio_icon = "&#xf1c3;"
@@ -129,7 +131,7 @@ osd_volume_delta = 5
 
 change_wallpaper_command = ""
 
-wallpaper_selector_icon = "&#xfc4a;"
+wallpaper_selector_icon = "&#xeb0a;"
 
 battery_warning_level = 20
 battery_hibernate_level = 10
@@ -150,6 +152,11 @@ app_launcher_columns = 8
 app_launcher_rows = 5
 app_launcher_icon_size = 32
 
+[app_settings.dashboard_qs]
+tiles = [ ["bluetooth", "wifi"] ]
+sliders = ["volume-d", "brightness"]
+
+
 [css_settings]
 text_font_family = "Lexend"
 text_font_size = "14px"
@@ -158,14 +165,13 @@ icon_font_family = "tabler-icons"
 
 bar_height = "50px"
 bar_padding = "8px"
-bar_ui_radius = "10px"
 bar_radius = "18px"
 
 pill_height = "50px"
 pill_padding = "10px"
 pill_expanded_padding = "18px"
 pill_expanded_window_radius = "32px"
-pill_expanded_width = "475px"
+pill_expanded_width = "450px"
 
 media_player_slider_inner_padding = "8px"
 media_player_slider_padding_left = "15px"
@@ -174,8 +180,7 @@ media_title_font_size = "18px"
 media_artist_album_font_size = "10px"
 media_artwork_size = "120px"
 
-qs_row_height = "55px"
-qs_slider_padding = "6px"
+qs_row_height = "54px"
 
 wallpaper_file = "\"\""
 
@@ -186,6 +191,11 @@ osd_pos_vertical = "200px"
 osd_slider_min_height = "250px"
 osd_slider_width = "42px"
 osd_slider_padding = "8px"
+
+thick_slider_length = "250px"
+thick_slider_thickness = "46px"
+thick_slider_padding = "4px"
+thick_slider_toggle_spacing = "12px"
 
 wallpaper_selector_wallpaper_height = "75px"
 wallpaper_selector_wallpaper_border_radius = "36px"

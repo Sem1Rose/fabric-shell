@@ -1,6 +1,9 @@
+from typing import Literal
 from loguru import logger
 from config import configuration
 import json
+
+from widgets.helpers.network import get_wifi_adapter_name, get_eth_adapter_name
 
 from fabric.utils.helpers import exec_shell_command
 from fabric.core.fabricator import Fabricator
@@ -10,7 +13,9 @@ from fabric.widgets.label import Label
 
 
 class NetworkUsage(Box):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self, type: Literal["wifi", "ethernet"] | None = None, *args, **kwargs
+    ):
         super().__init__(
             name="network_usage_widget",
             style_classes="bar_widget",
@@ -18,19 +23,48 @@ class NetworkUsage(Box):
             **kwargs,
         )
 
-        self.adapter_name = ""
-        if adapter_name := configuration.get_property("nmcli_wifi_adapter_name"):
-            self.adapter_name = adapter_name
+        wifi_adapter = get_wifi_adapter_name()
+        eth_adapter = get_eth_adapter_name()
+
+        if type:
+            match type:
+                case "wifi":
+                    self.adapter_name = wifi_adapter
+                case "ethernet":
+                    self.adapter_name = eth_adapter
         else:
-            devices = exec_shell_command(
-                f"{configuration.get_property('nmcli_command')} d"
+            self.adapter_name = (
+                eth_adapter
+                if eth_adapter
+                else wifi_adapter
+                if wifi_adapter
+                else eth_adapter
             )
-            for device in devices.splitlines():
-                if ":wifi:" in device:
-                    self.adapter_name = device.split(":")[0]
-                    break
-            else:
-                logger.error("Counldn't find a wifi device.")
+
+        # self.adapter_name = None
+        # if adapter_name := configuration.get_property(
+        #     "nmcli_wifi_adapter_name" if type == "wifi" else "nmcli_eth_adapter_name"
+        # ):
+        #     self.adapter_name = adapter_name
+        # else:
+        #     devices = exec_shell_command(
+        #         f"{configuration.get_property('nmcli_command')} d"
+        #     )
+        #     for device in devices.splitlines():
+        #         if (":wifi:" if type == "wifi" else ":ethernet:") in device:
+        #             self.adapter_name = device.split(":")[0]
+        #             break
+        #     else:
+        #         logger.error(
+        #             "Counldn't find " + "a Wifi"
+        #             if type == "wifi"
+        #             else "an Ethernet" + " device."
+        #         )
+        #         self.add_style_class("empty")
+        #         return
+        if not self.adapter_name:
+            self.add_style_class("empty")
+            return
 
         self.icon = Label(
             name="network_usage_icon",

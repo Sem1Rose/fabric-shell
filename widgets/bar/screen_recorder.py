@@ -1,5 +1,6 @@
 from loguru import logger
 from config import configuration
+from pathlib import Path
 import signal
 import time
 
@@ -15,6 +16,7 @@ class ScreenRecorder(Box):
     def __init__(self, *args, **kwargs):
         super().__init__(
             name="screen_recorder_container",
+            style_classes="bar_widget",
             *args,
             **kwargs,
         )
@@ -84,7 +86,7 @@ class ScreenRecorder(Box):
             else configuration.get_property("screen_record_widget_no_audio_icon")
         )
 
-    def toggle_recording(self, modifiers=0, portion=False):
+    def toggle_recording(self, modifiers=0, partial=False):
         if self.audio_toggle_revealer.child_revealed:
             self.toggle_audio_toggle_revealer()
 
@@ -100,11 +102,8 @@ class ScreenRecorder(Box):
         else:
             self.record_toggle.set_state(self.recording)
 
-            # logger.warning(modifiers)
-            # portion = modifiers & Gdk.ModifierType.SHIFT_MASK
-
             geometry = None
-            if portion:
+            if partial:
                 geometry = exec_shell_command(
                     configuration.get_property("screen_record_portion_command")
                 )
@@ -112,7 +111,11 @@ class ScreenRecorder(Box):
                 if not geometry or "selection cancelled" in geometry:
                     return
 
+            Path(configuration.get_property("screen_records_dir")).mkdir(
+                parents=True, exist_ok=True
+            )
             self.recording_path = f"{configuration.get_property('screen_records_dir')}/{time.strftime(r'%y%m%d.%s', time.localtime())}.mp4"
+
             self.command = f"{configuration.get_property('screen_record_command')}"
 
             input_device = None
@@ -160,7 +163,7 @@ class ScreenRecorder(Box):
                         ]
                     )
 
-            if portion:
+            if partial:
                 self.command = " ".join(
                     [
                         self.command,

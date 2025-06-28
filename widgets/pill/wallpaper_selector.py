@@ -445,7 +445,7 @@ class WallpaperSelector(Applet, Box):
 
     def generate_thumbnail(self, image):
         thumbnail_path = os.path.join(
-            configuration.get_property("wallpapers_thumbnails_cache_dir"), image
+            configuration.get_property("wallpapers_dir"), "thumbnails", image
         )
         file_path = os.path.join(configuration.get_property("wallpapers_dir"), image)
         if os.path.exists(thumbnail_path):

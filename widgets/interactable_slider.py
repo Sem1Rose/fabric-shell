@@ -18,7 +18,7 @@ class Slider(Scale):
         poll_value_processor=lambda v: v,
         poll_interval=400,
         poll_stream=True,
-        poll=True,
+        poll=False,
         *args,
         **kwargs,
     ):

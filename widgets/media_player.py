@@ -659,7 +659,7 @@ class MediaControls(Box):
             self.media_loop.set_markup(
                 configuration.get_property("media_player_repeat_none_icon")
             )
-            self.media_loop.set_state(state="None")
+            self.media_loop.set_state("None")
         else:
             self.media_loop.set_sensitive(True)
             self.media_loop.set_markup(
@@ -671,7 +671,7 @@ class MediaControls(Box):
                 else configuration.get_property("media_player_repeat_track_icon")
             )
             self.media_loop.set_state(
-                state=UpperToPascal(
+                UpperToPascal(
                     get_enum_member_name(
                         self.player_controller.props.loop_status, default="None"
                     )

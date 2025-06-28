@@ -4,12 +4,12 @@ from config import configuration, config_file
 from loguru import logger
 
 from fabric import Application
-from fabric.utils import monitor_file, get_relative_path
+from fabric.utils import monitor_file, get_relative_path, idle_add
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 
 from windows.pill import PillWindow, PillApplets
 from windows.osd import OSDWindow, UrgentOSDWindow
-from windows.bar import BarWindowLeft, BarWindowRight, BarWindow
+from windows.bar import BarWindow
 
 # import sdbus
 # from sdbus_block.networkmanager import (
@@ -53,27 +53,23 @@ def apply_styles():
     )
 
     if output == "":
-        # idle_add(app.set_stylesheet_from_file, "style.css")
-        app.set_stylesheet_from_file("style.css")
+        # for app in apps.values():
+        # app.set_stylesheet_from_file("style.css")
+        idle_add(app.set_stylesheet_from_file, "style.css")
         logger.info("Successfully loaded styles!")
     else:
-        # idle_add(app.set_stylesheet_from_string, "")
-        app.set_stylesheet_from_string("")
+        # for app in apps.values():
+        # app.set_stylesheet_from_string("")
+        idle_add(app.set_stylesheet_from_string, "")
         logger.error("Failed to compile sass!")
 
 
 if __name__ == "__main__":
-    global osd_window
-    osd_window = OSDWindow()
+    # global osd_window
+    # osd_window = OSDWindow()
 
-    global urgent_osd
-    urgent_osd = UrgentOSDWindow()
-
-    # global bar_window_left
-    # bar_window_left = BarWindowLeft()
-
-    # global bar_window_right
-    # bar_window_right = BarWindowRight()
+    # global urgent_osd
+    # urgent_osd = UrgentOSDWindow()
 
     global bar_window
     bar_window = BarWindow()
@@ -83,14 +79,33 @@ if __name__ == "__main__":
 
     app = Application(
         configuration.get_property("app_name"),
-        osd_window,
-        urgent_osd,
-        # bar_window_left,
-        # bar_window_right,
+        # osd_window,
+        # urgent_osd,
         pill_window,
         bar_window,
         open_inspector=configuration.get_property("debug"),
     )
+    # apps = {}
+    # apps["osd_app"] = Application(
+    #     f"{configuration.get_property('app_name')}-osd",
+    #     osd_window,
+    #     open_inspector=configuration.get_property("debug"),
+    # )
+    # apps["urgent_osd_app"] = Application(
+    #     f"{configuration.get_property('app_name')}-urgent-osd",
+    #     urgent_osd,
+    #     open_inspector=configuration.get_property("debug"),
+    # )
+    # apps["bar_app"] = Application(
+    #     f"{configuration.get_property('app_name')}-bar",
+    #     bar_window,
+    #     open_inspector=configuration.get_property("debug"),
+    # )
+    # apps["pill_app"] = Application(
+    #     f"{configuration.get_property('app_name')}-pill",
+    #     pill_window,
+    #     open_inspector=configuration.get_property("debug"),
+    # )
 
     if not os.path.exists("style.css"):
         apply_styles()
@@ -145,3 +160,13 @@ if __name__ == "__main__":
 
     logger.info(f"Starting shell... pid:{os.getpid()}")
     app.run()
+
+    # handles = []
+    # for name, app in apps.items():
+    #     handles.append(GLib.Thread.new(name, app.run))
+    #     handles.append(GLib.Thread.new("urgent_osd", urgent_osd_app.run))
+    #     handles.append(GLib.Thread.new("bar", bar_app.run))
+    #     handles.append(GLib.Thread.new("pill", pill_app.run))
+
+    # for handle in handles:
+    #     handle.join()

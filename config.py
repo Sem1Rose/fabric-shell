@@ -13,6 +13,19 @@ config_file = os.path.join(user_config_dir("fabric-shell"), "config.toml")
 
 
 class Config:
+    BAR_WIDGETS = [
+        "workspaces",
+        "wallpaper",
+        "key_layout",
+        "recorder",
+        "tray",
+        "battery",
+        "res_monitor",
+        "net_monitor",
+        "net_monitor_wifi",
+        "net_monitor_eth",
+    ]
+
     def try_parse_dir(self, dir: str) -> str:
         if not isinstance(dir, str):
             return dir
@@ -115,6 +128,9 @@ class Config:
 
         with open(get_relative_path("styles/_settings.scss"), "w") as f:
             f.write(settings)
+
+    def filter_bar_widgets(self, widgets):
+        return [item for item in widgets if item in self.BAR_WIDGETS]
 
 
 configuration = Config()

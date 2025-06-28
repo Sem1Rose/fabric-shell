@@ -1,5 +1,5 @@
 from fabric.widgets.scale import Scale
-from widgets.animator import Animator
+from widgets.helpers.animator import Animator
 
 
 class SmoothScale(Scale):

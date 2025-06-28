@@ -1,11 +1,14 @@
 import json
 import re
 from loguru import logger
-from gi.repository import Gdk  # noqa: E402
 from collections.abc import Callable
+from config import configuration
 
+from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.hyprland.widgets import Language
 from fabric.hyprland.service import HyprlandEvent
+
+from gi.repository import Gdk
 
 
 class KeyboardLayout(Language):
@@ -13,10 +16,16 @@ class KeyboardLayout(Language):
         self, language_formatter: Callable[[str], str] = lambda x: x, *args, **kwargs
     ):
         self.language_formatter = language_formatter
-        super().__init__(*args, **kwargs)
+        super().__init__(style_classes="bar_widget", *args, **kwargs)
 
         self.connect("enter-notify-event", lambda *_: self.cursor_enter())
         self.connect("leave-notify-event", lambda *_: self.cursor_leave())
+        self.connect(
+            "button-release-event",
+            lambda *_: get_hyprland_connection().send_command(
+                f"switchxkblayout {configuration.get_property('switchxkblayout_keyboard_name')} next"
+            ),
+        )
 
     def on_activelayout(self, _, event: HyprlandEvent):
         if len(event.data) < 2:
