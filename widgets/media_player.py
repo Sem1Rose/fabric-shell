@@ -10,7 +10,6 @@ from widgets.interactable_slider import Slider
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 from widgets.helpers.str import UpperToPascal
 
-# from fabric import Fabricator
 from fabric.widgets.box import Box
 from fabric.widgets.stack import Stack
 from fabric.widgets.revealer import Revealer
@@ -406,6 +405,7 @@ class MediaControls(Box):
             h_expand=True,
             draw_value=False,
             orientation="h",
+            poll=True,
             poll_command=try_get_position,
             poll_value_processor=lambda v: (
                 (v / self.length) if self.length != 0 else 0
@@ -652,7 +652,7 @@ class MediaControls(Box):
             )
             self.media_shuffle.set_state(self.player_controller.props.shuffle)
 
-        logger.error(f"{self.player_controller.props.can_control}")
+        # logger.error(f"{self.player_controller.props.can_control}")
 
         if self.player_controller.props.loop_status is None:
             self.media_loop.set_sensitive(False)

@@ -11,7 +11,7 @@ from widgets.buttons import (
 )
 from widgets.brightness_slider import BrightnessSlider
 from widgets.volume_slider import VolumeSlider
-from widgets.interactable_slider import Slider
+from widgets.microphone_slider import MicrophoneSlider
 # from widgets.helpers.brightness import get_brightness_service
 
 from fabric.widgets.box import Box
@@ -174,6 +174,27 @@ class QuickSettings(Box):
                 if add_device_selection:
                     qs_row.add(self.volume_slider.speakers_microphones_revealer)
                     self.chevrons.append(self.volume_slider.chevron)
+            elif slider == "microphone" or slider.startswith("microphone-"):
+                inverted = False
+                orientation = "horizontal"
+                if (modifiers := slider.split("-")).__len__() > 1:
+                    for modifier in modifiers[1::]:
+                        match modifier:
+                            case "i":
+                                inverted = True
+                            case "v":
+                                orientation = "vertical"
+                            case _:
+                                logger.warning(
+                                    f"Unknown modifier '{modifier}' for slider '{slider}'"
+                                )
+
+                self.microphone_slider = MicrophoneSlider(
+                    inverted=inverted,
+                    orientation=orientation,
+                )
+
+                qs_row.add(self.microphone_slider)
             elif slider == "brightness":
                 self.brightness_slider = BrightnessSlider(True)
                 qs_row.add(self.brightness_slider)

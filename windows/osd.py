@@ -1,4 +1,8 @@
+import gi
+
 from enum import Enum
+from time import sleep
+from fabric.utils import idle_add
 from loguru import logger
 from config import configuration
 
@@ -21,6 +25,8 @@ from widgets.interactable_slider import Slider
 from widgets.buttons import ToggleButton, MarkupButton
 # from widgets.helpers.brightness import get_brightness_service
 
+from gi.repository import GLib
+
 
 class OSDWindow(Window):
     def __init__(self, *args, **kwargs):
@@ -34,222 +40,34 @@ class OSDWindow(Window):
             **kwargs,
         )
 
-        self.hovered = False
+        # self.hovered = False
         self.revealed = False
-        self.brightness_handle = None
+        # self.brightness_handle = None
         self.volume_handle = None
 
-        # self.audio_controller = Audio()
-        # self.brightness_service = get_brightness_service()
+        # self.brightness_slider = BrightnessSlider(True, True, orientation="vertical")
 
-        # self.backlight_device = ""
-        # if backlight_device := configuration.get_property("backlight_device"):
-        #     self.backlight_device = backlight_device
-        # else:
-        #     devices = exec_shell_command(
-        #         configuration.get_property("brightness_list_devices_command")
-        #     )
-        #     for device in devices.splitlines():
-        #         if "backlight" in device:
-        #             self.backlight_device = device.split(",")[0]
-        #             logger.info(f"Found brightness device {self.backlight_device}")
-        #             break
-        #     else:
-        #         logger.error("Counldn't find a controllable brightness device.")
-
-        # def update_brightness(value):
-        #     self.brightness_slider.set_value(value)
-
-        #     self.auto_brightness_toggle.set_markup(
-        #         configuration.get_property("auto_brightness_icon")
-        #         if self.auto_brightness_toggle.toggled
-        #         else configuration.get_property("brightness_high_icon")
-        #         if self.brightness_slider.value
-        #         > configuration.get_property("qs_brightness_high_threshold")
-        #         else configuration.get_property("brightness_low_icon")
-        #     )
-
-        # self.auto_brightness_toggle = Label(
-        #     name="osd_brightness_icon", h_expand=True, v_expand=True
+        # self.brightness_revealer = Revealer(
+        #     self.brightness_slider,
+        #     # Box(
+        #     #     name="osd_brightness_container",
+        #     #     orientation="v",
+        #     #     # children=[
+        #     #     #     self.brightness_slider,
+        #     #     #     Box(
+        #     #     #         name="osd_icon_container",
+        #     #     #         children=self.auto_brightness_toggle,
+        #     #     #         h_expand=True,
+        #     #     #         v_expand=True,
+        #     #     #     ),
+        #     #     # ],
+        #     # ),
+        #     transition_type="slide-left",
+        #     transition_duration=configuration.get_property(
+        #         "osd_revealer_animation_duration"
+        #     ),
+        #     child_revealed=True,
         # )
-        # self.auto_brightness_toggle = ToggleButton(
-        #     name="osd_auto_brightness_toggle", h_expand=True, v_expand=True
-        # ).build(
-        #     lambda toggle, _: Fabricator(
-        #         poll_from=configuration.get_property("auto_brightness_check_command"),
-        #         interval=1000,
-        #         on_changed=lambda _, value: toggle.set_state(value == "active"),
-        #     )
-        #     if self.brightness_service.active
-        #     else ()
-        # )
-
-        # self.brightness_slider = Slider(
-        #     name="osd_brightness_slider",
-        #     style_classes="osd_slider",
-        #     orientation="v",
-        #     v_expand=True,
-        #     inverted=True,
-        #     # poll_command=FormattedString(
-        #     #     configuration.get_property("get_brightness_command")
-        #     # ).format(device=self.backlight_device),
-        #     # poll_interval=200,
-        #     # poll_stream=False,
-        #     # poll_value_processor=lambda v: float(v) / 255,
-        #     poll=False,
-        #     # animation_duration=0.1,
-        #     # animation_curve=(0.3, 0, 0.35, 1),
-        # )
-
-        # if self.brightness_service.active:
-        #     self.brightness_slider.connect(
-        #         "on_interacted",
-        #         lambda _, v: self.brightness_service.set_brightness(v),
-        #         # lambda _, v: formatted_exec_shell_command_async(
-        #         #     configuration.get_property("set_brightness_command"),
-        #         #     device=self.backlight_device,
-        #         #     value=int(v * 255),
-        #         # ),
-        #     )
-        #     self.auto_brightness_toggle.connect(
-        #         "on_toggled",
-        #         lambda toggle, *_: exec_shell_command_async(
-        #             configuration.get_property("auto_brightness_start_command")
-        #             if toggle.toggled
-        #             else configuration.get_property("auto_brightness_stop_command")
-        #         ),
-        #     )
-        #     # self.brightness_slider.connect(
-        #     #     "on_polled",
-        #     #     lambda _, v: update_brightness_icon(int(v * 255)),
-        #     # )
-        #     self.brightness_service.connect(
-        #         "brightness_changed", lambda _, v: update_brightness(v)
-        #     )
-        # else:
-        #     self.auto_brightness_toggle.set_sensitive(False)
-        #     self.brightness_slider.set_sensitive(False)
-
-        # self.volume_slider = Slider(
-        #     name="osd_volume_slider",
-        #     style_classes="osd_slider",
-        #     orientation="v",
-        #     v_expand=True,
-        #     poll=False,
-        #     inverted=True,
-        # )
-
-        # def update_volume_slider(*_):
-        #     self.volume_slider.change_value(
-        #         float(self.audio_controller.speaker.volume) / 100.0
-        #     )
-
-        # def connect_volume_slider():
-        #     if self.audio_controller.speaker:
-        #         update_volume_slider()
-        #         self.audio_controller.speaker.connect(
-        #             "notify::volume",
-        #             update_volume_slider,
-        #         )
-
-        #         self.volume_slider.set_sensitive(True)
-        #     else:
-        #         self.volume_slider.change_value(0)
-        #         self.volume_slider.set_sensitive(False)
-
-        # connect_volume_slider()
-        # self.audio_controller.connect(
-        #     "speaker-changed",
-        #     lambda *_: connect_volume_slider(),
-        # )
-
-        # def change_volume(v):
-        #     self.audio_controller.speaker.volume = int(v * 100)
-
-        # self.volume_slider.connect(
-        #     "on_interacted",
-        #     lambda _, v: change_volume(v),
-        # )
-
-        # def update_volume_toggle(*_):
-        #     muted = self.audio_controller.speaker.muted
-        #     self.volume_toggle.set_state(not muted)
-
-        #     self.volume_toggle.set_markup(
-        #         configuration.get_property("volume_muted_icon")
-        #         if muted
-        #         else (
-        #             configuration.get_property("volume_high_icon")
-        #             if self.audio_controller.speaker.volume
-        #             > configuration.get_property("qs_volume_high_threshold")
-        #             else configuration.get_property("volume_low_icon")
-        #             if self.audio_controller.speaker.volume > 0
-        #             else configuration.get_property("volume_off_icon")
-        #         )
-        #     )
-
-        # self.volume_toggle = ToggleButton(
-        #     name="osd_volume_toggle",
-        #     auto_toggle=False,
-        #     h_expand=True,
-        #     v_expand=True,
-        # )
-
-        # def connect_volume_toggle():
-        #     if self.audio_controller.speaker:
-        #         update_volume_toggle()
-        #         self.audio_controller.speaker.connect(
-        #             "notify::muted", update_volume_toggle
-        #         )
-        #         self.audio_controller.speaker.connect(
-        #             "notify::volume", update_volume_toggle
-        #         )
-
-        #         self.volume_toggle.set_sensitive(True)
-        #     else:
-        #         self.volume_toggle.set_state(False)
-        #         self.volume_toggle.set_markup(
-        #             configuration.get_property("volume_muted_icon")
-        #         )
-        #         self.volume_toggle.set_sensitive(False)
-
-        # connect_volume_toggle()
-        # self.audio_controller.connect(
-        #     "speaker-changed",
-        #     lambda *_: connect_volume_toggle(),
-        # )
-
-        # def toggle_mute_stream(mute):
-        #     self.audio_controller.speaker.muted = not mute
-
-        # self.volume_toggle.connect(
-        #     "on_toggled",
-        #     lambda toggle, *_: toggle_mute_stream(toggle.toggled),
-        # )
-
-        self.brightness_slider = BrightnessSlider(True, True, orientation="vertical")
-
-        self.brightness_revealer = Revealer(
-            self.brightness_slider,
-            # Box(
-            #     name="osd_brightness_container",
-            #     orientation="v",
-            #     # children=[
-            #     #     self.brightness_slider,
-            #     #     Box(
-            #     #         name="osd_icon_container",
-            #     #         children=self.auto_brightness_toggle,
-            #     #         h_expand=True,
-            #     #         v_expand=True,
-            #     #     ),
-            #     # ],
-            # ),
-            transition_type="slide-left",
-            transition_duration=configuration.get_property(
-                "osd_revealer_animation_duration"
-            ),
-            child_revealed=True,
-        )
 
         self.volume_slider = VolumeSlider(inverted=True, orientation="vertical")
         self.volume_revealer = Revealer(
@@ -276,58 +94,24 @@ class OSDWindow(Window):
 
         self.main_container = Box(
             name="osd_container",
-            children=[self.volume_revealer, self.brightness_revealer],
+            children=[
+                self.volume_revealer,
+                # self.brightness_revealer,
+            ],
         )
-        #     name="osd_main_box",
-        #     orientation="v",
-        #     children=[
-        #         Box(
-        #             children=[
-        #                 Box(h_expand=True),
-        #                 Box(
-        #                     name="osd_corner_container",
-        #                     children=Corner(
-        #                         name="corner",
-        #                         h_expand=True,
-        #                         v_expand=True,
-        #                         orientation="bottom-right",
-        #                     ),
-        #                 ),
-        #             ]
-        #         ),
-        #         Box(
-        #             name="osd_container",
-        #             children=[self.volume_revealer, self.brightness_revealer],
-        #         ),
-        #         Box(
-        #             children=[
-        #                 Box(h_expand=True),
-        #                 Box(
-        #                     name="osd_corner_container",
-        #                     children=Corner(
-        #                         name="corner",
-        #                         h_expand=True,
-        #                         v_expand=True,
-        #                         orientation="top-right",
-        #                     ),
-        #                 ),
-        #             ]
-        #         ),
-        #     ],
-        # )
 
-        # self.volume_slider.connect(
-        #     "enter-notify-event", lambda *_: self.on_mouse_enter()
-        # )
-        # self.volume_slider.connect(
-        #     "leave-notify-event", lambda *_: self.on_mouse_leave()
-        # )
-        # self.volume_toggle.connect(
-        #     "enter-notify-event", lambda *_: self.on_mouse_enter()
-        # )
-        # self.volume_toggle.connect(
-        #     "leave-notify-event", lambda *_: self.on_mouse_leave()
-        # )
+        self.volume_slider.slider.connect(
+            "enter-notify-event", lambda *_: self.on_mouse_enter()
+        )
+        self.volume_slider.slider.connect(
+            "leave-notify-event", lambda *_: self.on_mouse_leave()
+        )
+        self.volume_slider.toggle.connect(
+            "enter-notify-event", lambda *_: self.on_mouse_enter()
+        )
+        self.volume_slider.toggle.connect(
+            "leave-notify-event", lambda *_: self.on_mouse_leave()
+        )
 
         # self.brightness_slider.connect(
         #     "enter-notify-event", lambda *_: self.on_mouse_enter()
@@ -345,21 +129,21 @@ class OSDWindow(Window):
         self.add(self.main_container)
         self.show_all()
 
-        self.hide_brightness_slider()
+        # self.hide_brightness_slider()
         self.hide_volume_slider()
         # self.on_show_hide()
 
     def on_mouse_enter(self):
-        if self.brightness_handle:
-            self.brightness_handle.force_exit()
+        # if self.brightness_handle:
+        #     self.brightness_handle.force_exit()
         if self.volume_handle:
             self.volume_handle.force_exit()
 
     def on_mouse_leave(self):
-        if self.brightness_revealer.child_revealed:
-            (self.brightness_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
-            )
+        # if self.brightness_revealer.child_revealed:
+        #     (self.brightness_handle, _) = exec_shell_command_async(
+        #         f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
+        #     )
 
         if self.volume_revealer.child_revealed:
             (self.volume_handle, _) = exec_shell_command_async(
@@ -374,10 +158,14 @@ class OSDWindow(Window):
         if self.brightness_handle is not None:
             self.brightness_handle.force_exit()
 
-        if not self.hovered:
-            (self.brightness_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
-            )
+        # if not self.hovered:
+        (self.brightness_handle, _) = exec_shell_command_async(
+            f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_brightness_slider()\"'"
+        )
+
+    # def hide_volume_slider_timeout(self):
+    #     sleep(configuration.get_property("osd_timeout"))
+    #     idle_add(self.hide_volume_slider)
 
     def show_volume_slider(self):
         logger.debug("Showing volume OSD")
@@ -387,10 +175,14 @@ class OSDWindow(Window):
         if self.volume_handle is not None:
             self.volume_handle.force_exit()
 
-        if not self.hovered:
-            (self.volume_handle, _) = exec_shell_command_async(
-                f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
-            )
+        # if not self.hovered:
+            # Doestn't work because "attempt to g_thread_exit() a thread not created by GLib"
+            # self.volume_handle = GLib.Thread.new(
+            #     "hide_volume_slider", self.hide_volume_slider_timeout
+            # )
+        (self.volume_handle, _) = exec_shell_command_async(
+            f"sh -c 'sleep {configuration.get_property('osd_timeout')}; fabric-cli execute {configuration.get_property('app_name')} \"osd_window.hide_volume_slider()\"'"
+        )
 
     def hide_brightness_slider(self):
         logger.debug("Hiding brightness OSD")
@@ -407,7 +199,7 @@ class OSDWindow(Window):
     def on_show_hide(self):
         if (
             not self.volume_revealer.child_revealed
-            and not self.brightness_revealer.child_revealed
+            # and not self.brightness_revealer.child_revealed
         ):
             if self.revealed:
                 self.revealed = False
@@ -456,6 +248,8 @@ class OSDWindow(Window):
         #     device=self.backlight_device,
         #     delta=f"{configuration.get_property('osd_brightness_delta')}%",
         # )
+        return
+
         if not self.brightness_slider.service.active:
             return
 
@@ -476,6 +270,8 @@ class OSDWindow(Window):
         #     device=self.backlight_device,
         #     delta=f"{configuration.get_property('osd_brightness_delta')}%",
         # )
+        return
+
         if not self.brightness_slider.service.active:
             return
 

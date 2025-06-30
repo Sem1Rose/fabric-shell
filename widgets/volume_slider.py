@@ -254,7 +254,7 @@ class VolumeSlider(Box):
             self.toggle.set_markup(configuration.get_property("volume_muted_icon"))
 
     def toggle_mute_stream(self, mute):
-        self.controller.speaker.muted = not mute
+        self.controller.speaker.muted = mute
 
     def set_default_sink(self, speaker):
         if speaker._stream:

@@ -21,10 +21,20 @@ power_menu_action_suspend_icon = "&#xeaf8;"
 power_menu_action_reboot_icon = "&#xebb4;"
 power_menu_action_shut_down_icon = "&#xeb0d;"
 
-power_menu_lock_commands = ["playerctl pause", "loginctl lock-session", "sleep 4"]
-power_menu_suspend_commands = ["systemctl suspend"]
-power_menu_reboot_commands = ["systemctl reboot"]
-power_menu_shutdown_commands = ["systemctl poweroff"]
+power_menu_lock_commands = [
+    "playerctl pause",
+    "loginctl lock-session",
+    "sleep 4",
+]
+power_menu_suspend_commands = [
+    "systemctl suspend",
+]
+power_menu_reboot_commands = [
+    "systemctl reboot",
+]
+power_menu_shutdown_commands = [
+    "systemctl poweroff",
+]
 
 pill_stack_transition_duration = 400
 pill_revealer_animation_duration = 300
@@ -45,7 +55,17 @@ media_player_repeat_none_icon = "&#xf18e;"
 media_player_repeat_playlist_icon = "&#xeb72;"
 media_player_repeat_track_icon = "&#xeb71;"
 media_player_allowed_players = { "spotify" = "󰓇" }
-bar_widgets = { "left" = ["workspaces", "wallpaper", "key_layout", "recorder"], "right" = ["tray", "battery", "res_monitor", "net_monitor"] }
+bar_widgets = { "left" = [
+    "workspaces",
+    "wallpaper",
+    "key_layout",
+    "recorder",
+], "right" = [
+    "tray",
+    "battery",
+    "res_monitor",
+    "net_monitor",
+] }
 
 battery_widget_compact = false
 battery_widget_headset_icon = "&#xfa3c;"
@@ -74,6 +94,10 @@ auto_brightness_check_command = "systemctl --user is-active wluma"
 auto_brightness_start_command = "systemctl --user start wluma --now"
 auto_brightness_stop_command = "systemctl --user stop wluma"
 
+notification_normal_timeout = 4
+notification_low_timeout = 2
+notification_urgent_timeout = 0
+
 qs_brightness_high_threshold = 40
 qs_volume_high_threshold = 50
 
@@ -89,6 +113,10 @@ volume_high_icon = "&#xeb51;"
 volume_low_icon = "&#xeb4f;"
 volume_off_icon = "&#xeb50;"
 volume_muted_icon = "&#xf1c3;"
+
+microphone_on_icon = "&#xfe0f;"
+microphone_off_icon = "&#xeaf0;"
+microphone_muted_icon = "&#xed16;"
 
 workspaces_widget_num_workspaces = 6
 
@@ -152,10 +180,7 @@ app_launcher_columns = 8
 app_launcher_rows = 5
 app_launcher_icon_size = 32
 
-[app_settings.dashboard_qs]
-tiles = [ ["bluetooth", "wifi"] ]
-sliders = ["volume-d", "brightness"]
-
+dashboard_qs = { "tiles" = [ [ "bluetooth", "wifi"] ], "sliders" = [ "volume-d", "brightness" ] }
 
 [css_settings]
 text_font_family = "Lexend"
@@ -186,11 +211,9 @@ wallpaper_file = "\"\""
 
 power_menu_action_size = "100px"
 
-osd_padding = "10px"
+osd_padding = "8px"
+osd_height = "300px"
 osd_pos_vertical = "200px"
-osd_slider_min_height = "250px"
-osd_slider_width = "42px"
-osd_slider_padding = "8px"
 
 thick_slider_length = "250px"
 thick_slider_thickness = "46px"

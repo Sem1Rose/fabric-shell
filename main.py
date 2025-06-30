@@ -65,8 +65,8 @@ def apply_styles():
 
 
 if __name__ == "__main__":
-    # global osd_window
-    # osd_window = OSDWindow()
+    global osd_window
+    osd_window = OSDWindow()
 
     # global urgent_osd
     # urgent_osd = UrgentOSDWindow()
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     app = Application(
         configuration.get_property("app_name"),
-        # osd_window,
+        osd_window,
         # urgent_osd,
         pill_window,
         bar_window,

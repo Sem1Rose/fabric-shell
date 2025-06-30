@@ -2,6 +2,7 @@ from loguru import logger
 
 from config import configuration
 from widgets.pill.pill import Pill, PillApplets
+from widgets.pill.popup_notifications import NotificationsContainer
 from widgets.buttons import MarkupButton
 
 from fabric.widgets.box import Box
@@ -47,6 +48,8 @@ class PillWindow(Window):
         self.pill.connect("on_unpeeked", self.on_unpeeked)
         self.pill.connect("on_expanded", self.on_expanded)
 
+        self.notifications_container = NotificationsContainer()
+
         # self.hover_listener = EventBox(
         #     name="hover_listener",
         #     child=self.pill,
@@ -70,6 +73,7 @@ class PillWindow(Window):
         self.center_box.center_container.set_orientation(Gtk.Orientation.VERTICAL)
         self.center_box.center_children = [
             self.pill,
+            self.notifications_container,
             create_spacings(),
         ]
         self.center_box.start_children = [
