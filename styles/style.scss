@@ -1216,7 +1216,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	&.revealed {
 		margin: settings.$pill_expanded_padding 0px 0px 0px;
 		padding: settings.$pill_expanded_padding;
-		padding-bottom: 0;
+		padding-bottom: 0px;
 	}
 
 	#calendar_widget {
@@ -1226,25 +1226,378 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
-
+$notification_window_radius: 32px;
+$notification_window_padding: 16px;
+$notification_item_padding: 6px;
+$notification_item_radius: calc(
+	$notification_window_radius - $notification_window_padding
+);
+$notification_special_radius: 23px;
+$notification_special_item_radius: calc(
+	$notification_special_radius - $notification_window_padding
+);
 .notification {
 	transition: all 0.4s $transition_function;
 
 	background-color: colors.$surface_container_low;
-	border-radius: $pill_window_radius;
-	padding: 10px;
+	border-radius: $notification_window_radius;
+	padding: $notification_window_padding;
 
 	&.hidden {
 		transition: all 0.2s ease-out;
 		min-width: 0px;
 		padding: 0px;
 	}
+
+	&.urgent {
+		// background-color: color.color-mix(in oklab, colors.$surface_container_low 80%, colors.$on_error 20%);
+		background-color: color.scale(colors.$on_error, $lightness: -60%);
+	}
+
+	&.special {
+		border-radius: $notification_window_radius $notification_window_radius
+			$notification_special_radius $notification_special_radius;
+	}
+
+	#app_name {
+		font-size: 12;
+		color: colors.$on_background;
+		opacity: 0.4;
+	}
+	#app_icon {
+		border-radius: 100px;
+		background-color: colors.$surface_container_lowest;
+		margin-right: 5px;
+	}
+
+	#dismiss_button {
+		transition: all 0.1s ease-out;
+
+		// $size: calc($notification_item_radius * 2);
+		min-width: 24px;
+		min-height: 24px;
+		border-radius: $notification_item_radius;
+		background-color: colors.$surface_container_lowest;
+		// margin-bottom: $notification_item_padding;
+		color: colors.$error;
+
+		label {
+			font-size: larger;
+			font-weight: lighter;
+		}
+
+		&:hover {
+			background-color: colors.$on_error;
+			color: colors.$on_background;
+		}
+	}
+
+	#image {
+		border-radius: $notification_item_radius;
+	}
+
+	#icon_container {
+		min-width: 100px;
+		min-height: 100px;
+
+		border-radius: $notification_item_radius;
+
+		#icon {
+			font-size: 44px;
+			font-weight: lighter;
+		}
+
+		&.accent {
+			background-color: colors.$on_primary;
+			color: colors.$primary;
+		}
+		&.green {
+			background-color: colors.$on_green;
+			color: colors.$green;
+		}
+		&.red {
+			background-color: colors.$on_red;
+			color: colors.$red;
+		}
+		&.yellow {
+			background-color: colors.$on_yellow;
+			color: colors.$yellow;
+		}
+		&.blue {
+			background-color: colors.$on_blue;
+			color: colors.$blue;
+		}
+		&.cyan {
+			background-color: colors.$on_cyan;
+			color: colors.$cyan;
+		}
+		&.magenta {
+			background-color: colors.$on_magenta;
+			color: colors.$magenta;
+		}
+	}
+
+	#body_container {
+		margin-left: calc($notification_item_padding * 2);
+		padding-top: calc($notification_item_padding / 2);
+
+		#summary {
+			font-weight: bolder;
+			font-size: 17px;
+			color: colors.$primary;
+
+			margin-bottom: $notification_item_padding;
+		}
+		#body {
+			font-weight: lighter;
+			font-size: 12px;
+			color: colors.$on_primary_container;
+		}
+	}
+
+	#progress_bar {
+		margin-top: calc($notification_item_padding * 1.5);
+
+		trough {
+			border-radius: $notification_special_item_radius;
+			background-color: colors.$surface_container_lowest;
+			min-height: 20px;
+			padding: 3px;
+
+			progress {
+				min-height: 20px;
+				border-radius: calc($notification_special_item_radius - 3px);
+			}
+		}
+
+		&.accent {
+			progress {
+				background-color: color.scale(colors.$on_primary, $lightness: +20%, $saturation: +5%);
+			}
+		}
+		&.green {
+			progress {
+				background-color: color.scale(colors.$on_green, $lightness: +20%, $saturation: +5%);
+			}
+		}
+		&.red {
+			progress {
+				background-color: color.scale(colors.$on_red, $lightness: +20%, $saturation: +5%);
+			}
+		}
+		&.yellow {
+			progress {
+				background-color: color.scale(colors.$on_yellow, $lightness: +20%, $saturation: +5%);
+			}
+		}
+		&.blue {
+			progress {
+				background-color: color.scale(colors.$on_blue, $lightness: +20%, $saturation: +5%);
+			}
+		}
+		&.cyan {
+			progress {
+				background-color: color.scale(colors.$on_cyan, $lightness: +20%, $saturation: +5%);
+			}
+		}
+		&.magenta {
+			progress {
+				background-color: color.scale(colors.$on_magenta, $lightness: +20%, $saturation: +5%);
+			}
+		}
+	}
+
+	#actions_container {
+		min-height: 24px;
+		margin-top: $notification_item_padding;
+
+		&.accent {
+			// background-color: color.scale(colors.$on_primary, $lightness: -10%, $saturation: -40%);
+			#action_button {
+				background-color: colors.$on_primary;
+				color: colors.$primary;
+
+				&:hover {
+					background-color: colors.$primary_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_primary;
+				color: colors.$primary;
+
+				&:hover {
+					background-color: colors.$primary_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+		&.green {
+			#action_button {
+				background-color: colors.$on_green;
+				color: colors.$green;
+
+				&:hover {
+					background-color: colors.$green_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_green;
+				color: colors.$green;
+
+				&:hover {
+					background-color: colors.$green_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+		&.red {
+			#action_button {
+				background-color: colors.$on_red;
+				color: colors.$red;
+
+				&:hover {
+					background-color: colors.$red_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_red;
+				color: colors.$red;
+
+				&:hover {
+					background-color: colors.$red_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+		&.yellow {
+			#action_button {
+				background-color: colors.$on_yellow;
+				color: colors.$yellow;
+
+				&:hover {
+					background-color: colors.$yellow_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_yellow;
+				color: colors.$yellow;
+
+				&:hover {
+					background-color: colors.$yellow_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+		&.blue {
+			#action_button {
+				background-color: colors.$on_blue;
+				color: colors.$blue;
+
+				&:hover {
+					background-color: colors.$blue_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_blue;
+				color: colors.$blue;
+
+				&:hover {
+					background-color: colors.$blue_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+		&.cyan {
+			#action_button {
+				background-color: colors.$on_cyan;
+				color: colors.$cyan;
+
+				&:hover {
+					background-color: colors.$cyan_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_cyan;
+				color: colors.$cyan;
+
+				&:hover {
+					background-color: colors.$cyan_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+		&.magenta {
+			#action_button {
+				background-color: colors.$on_magenta;
+				color: colors.$magenta;
+
+				&:hover {
+					background-color: colors.$magenta_container;
+					color: colors.$on_background;
+				}
+			}
+			#overflow_actions_combo {
+				background-color: colors.$on_magenta;
+				color: colors.$magenta;
+
+				&:hover {
+					background-color: colors.$magenta_container;
+					color: colors.$on_background;
+				}
+			}
+		}
+
+		#action_button {
+			transition: all 0.1s ease-out;
+
+			background-color: colors.$surface_container_highest;
+			border-radius: $notification_special_item_radius;
+			padding: 0px $notification_special_item_radius;
+			margin-right: $notification_item_padding;
+			color: colors.$secondary;
+
+			&:last-child {
+				margin-right: 0px;
+			}
+
+			label {
+				font-size: 12px;
+				font-weight: 500;
+			}
+		}
+
+		#overflow_actions_combo {
+			transition: all 0.1s ease-out;
+
+			background-color: colors.$surface_container_highest;
+			border-radius: $notification_special_item_radius;
+			padding: 0px $notification_special_item_radius;
+			color: colors.$secondary;
+
+			arrow {
+				border-style: solid;
+				border-color: colors.$secondary transparent transparent
+					transparent;
+				margin-top: 10px;
+				border-width: 6px 5px 0px 5px;
+				margin-left: calc(settings.$pill_padding / 2);
+			}
+		}
+	}
 }
 
 #popup_notifications_container {
 	.notification {
-		margin-top: 12px;
-		min-width: calc(settings.$pill_expanded_width - 20px);
+		margin-top: 6px;
+		min-width: calc(
+			settings.$pill_expanded_width - $notification_window_padding * 2
+		);
 
 		&.hidden {
 			min-width: 0px;

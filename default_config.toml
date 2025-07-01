@@ -94,9 +94,20 @@ auto_brightness_check_command = "systemctl --user is-active wluma"
 auto_brightness_start_command = "systemctl --user start wluma --now"
 auto_brightness_stop_command = "systemctl --user stop wluma"
 
-notification_normal_timeout = 4
 notification_low_timeout = 2
+notification_low_icon = "&#xf6d8;"
+notification_low_icon_color = "blue"
+notification_normal_timeout = 3
+notification_normal_icon = "&#xf6d9;"
+notification_normal_icon_color = "green"
 notification_urgent_timeout = 0
+notification_urgent_icon = "&#xfa44;"
+notification_urgent_icon_color = "red"
+notification_app_icon_size = 16
+notification_dismiss_icon = "&#xeb55;"
+notification_max_actions = 4
+
+popup_notification_max_notifications = 3
 
 qs_brightness_high_threshold = 40
 qs_volume_high_threshold = 50
@@ -222,3 +233,5 @@ thick_slider_toggle_spacing = "12px"
 
 wallpaper_selector_wallpaper_height = "75px"
 wallpaper_selector_wallpaper_border_radius = "36px"
+
+notification_image_size = "100px"
