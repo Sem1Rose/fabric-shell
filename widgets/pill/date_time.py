@@ -19,6 +19,8 @@ class DateTimeWidget(Button):
     def __init__(self, *args, **kwargs):
         super().__init__(name="date_time_widget", *args, **kwargs)
 
+        self.add_style_class("quick_glance_widget")
+
         self.day_label = DateTime(name="day", formatter=r"%b %e", v_expand=True)
         self.time_label = DateTime(name="time", formatter=r"%R", v_expand=True)
         self.date_label = DateTime(name="date", formatter=r"%a", v_expand=True)

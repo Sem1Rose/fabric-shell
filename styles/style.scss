@@ -141,6 +141,51 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
+#pill_quick_glance {
+	// margin: calc(-1 * settings.$pill_padding);
+}
+
+.quick_glance_widget {
+	min-height: calc($pill_ui_radius * 2);
+	padding: settings.$pill_padding;
+	transition: all 0.2s ease-out;
+}
+
+#date_time_widget {
+	#date,
+	#time,
+	#day {
+		transition: all 0.2s ease-out;
+
+		min-width: 40px;
+		padding: 0px settings.$pill_padding;
+
+		background-color: colors.$surface_container;
+		color: colors.$secondary;
+		border-radius: $pill_ui_radius;
+
+		font-size: 13px;
+	}
+
+	#time {
+		margin: 0px settings.$pill_padding;
+	}
+}
+
+#music_ticker_widget {
+	padding: calc(settings.$pill_padding - 8px) settings.$pill_padding calc(settings.$pill_padding - 8px) calc(settings.$pill_padding - 4px);
+
+	#media_artwork {
+		border-radius: 14px;
+	}
+
+	label {
+		margin-left: 8px;
+		font-size: 10px;
+		color: colors.$on_primary_container;
+	}
+}
+
 .pill_applet {
 	transition: all 0.5s $transition_function;
 
@@ -153,52 +198,57 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #pill_dashboard {
-	// transition: all 0.3s linear;
-	transition: all 0.3s linear;
+	transition: all 0.3s ease-out;
+
 	min-width: 0px;
-	padding: settings.$pill_padding;
+	padding: 0px;
+	margin: 0px;
+	// padding: settings.$pill_padding;
 
 	&.hidden {
-		// transition: all 0;
+		transition: all 0s linear;
 		// transition: opacity 5s ease-out;
+		padding: 0px;
 		margin: -20px;
 
-		#date_time_widget {
-			margin: 0px;
+		.quick_glance_widget {
+			min-height: 0px;
 			padding: 0px;
 		}
 	}
 
 	&.peeking {
-		transition: all 0.3s linear, padding 0.3s $transition_function;
+		transition: all 0.3s ease-out, padding 0.3s $transition_function, min-width 0.5s linear;
 		padding: settings.$pill_expanded_padding;
 
 		&.media_player {
-			transition: min-width 0.5s $transition_function;
-
 			min-width: calc(
 				settings.$pill_expanded_width - 2 *
 					settings.$pill_expanded_padding
 			);
 		}
 
-		#date_time_widget {
-			margin: calc(-1 * settings.$pill_expanded_padding);
-			padding: settings.$pill_expanded_padding;
+		#pill_quick_glance {
+			// margin: calc(-1 * settings.$pill_expanded_padding);
+			// padding: settings.$pill_expanded_padding;
 
-			#date,
-			#time,
-			#day {
-				padding: 0px settings.$pill_expanded_padding;
-				border-radius: $pill_expanded_ui_radius;
-				min-height: calc($pill_expanded_ui_radius * 2);
-				font-size: 15px;
+			.quick_glance_widget {
+				padding: 0px;
+
+				#date,
+				#time,
+				#day {
+					padding: 0px settings.$pill_expanded_padding;
+					border-radius: $pill_expanded_ui_radius;
+					min-height: calc($pill_expanded_ui_radius * 2);
+					font-size: 15px;
+				}
 			}
 		}
 	}
 
 	&.expanded {
-		transition: min-width 0.5s $transition_function;
+		transition: all 0.3s ease-out, padding 0.3s $transition_function, min-width 0.5s linear;
 
 		min-width: calc(
 			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
@@ -522,31 +572,6 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
-#date_time_widget {
-	margin: calc(-1 * settings.$pill_padding);
-	padding: settings.$pill_padding;
-
-	// background-color: red;
-
-	#date,
-	#time,
-	#day {
-		transition: all 0.3s ease-out;
-		background-color: colors.$surface_container;
-		color: colors.$secondary;
-		border-radius: $pill_ui_radius;
-		min-height: calc($pill_ui_radius * 2);
-		min-width: 40px;
-		padding: 0px settings.$pill_padding;
-		// min-height: calc(settings.$pill_height - 3 * settings.$pill_padding);
-		font-size: 13px;
-	}
-
-	#time {
-		margin: 0px settings.$pill_padding;
-	}
-}
-
 .thick_slider_toggle_container {
 	&.vertical {
 		// min-height: settings.$thick_slider_length;
@@ -593,7 +618,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 					highlight {
 						margin-left: calc(
-							-1 * settings.$thick_slider_thickness
+							-1 * settings.$thick_slider_thickness + 4px
 						);
 					}
 				}

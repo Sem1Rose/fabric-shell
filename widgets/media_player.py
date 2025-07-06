@@ -9,6 +9,7 @@ from widgets.buttons import ToggleButton, CycleToggleButton, MarkupButton
 from widgets.interactable_slider import Slider
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 from widgets.helpers.str import UpperToPascal
+from widgets.helpers.mpris_service import get_mpris_service
 
 from fabric.widgets.box import Box
 from fabric.widgets.stack import Stack
@@ -32,9 +33,9 @@ class MediaPlayer(Revealer):
             transition_type=transition_type, transition_duration=transition_duration
         )
 
-        self.player_manager = Playerctl.PlayerManager.new()
-        self.can_reveal = False
+        self.player_manager = get_mpris_service()
         self.player_controllers = {}
+        self.can_reveal = False
         self.selected_player = 0
         self.max_num_tabs = 7
 
@@ -73,64 +74,19 @@ class MediaPlayer(Revealer):
         self.add(self.main_container)
 
         self.player_manager.connect(
-            "name-appeared",
-            lambda _, name: self.handle_manager_events(player_name=name),
+            "player-added",
+            lambda _, player: self.add_player(player),
+        )
+        self.player_manager.connect(
+            "player-removed",
+            lambda _, player: self.remove_player(player),
         )
 
-        for player_name in [
-            name
-            for name in self.player_manager.props.player_names
-            if name.name in configuration.get_property("media_player_allowed_players")
-        ]:
-            self.handle_manager_events(player_name=player_name)
+        self.player_manager.find_connected_players()
 
         self.show_hide()
 
-    def handle_manager_events(self, player=None, player_name=None):
-        # player_name != None -> adding a player
-        # player != None -> removing a player
-        if player is None and player_name is None:
-            logger.error("Either player or name must not be none")
-            return
-        elif player is not None and player_name is not None:
-            logger.error("Either player or name must be none")
-            return
-
-        if player_name:
-            name = player_name.name
-            if name in self.player_controllers:
-                logger.warning("Already added")
-                return
-
-            if name in configuration.get_property("media_player_allowed_players"):
-                logger.debug(f'Adding "{name}" to media players')
-
-                player_controller = Playerctl.Player.new_from_name(player_name)
-                self.player_manager.manage_player(player_controller)
-                # self.player_manager.move_player_to_top(player_controller)
-
-                player_controller.connect(
-                    "exit", lambda player: self.handle_manager_events(player=player)
-                )
-
-                self.add_player(player_controller)
-                self.show_hide()
-            else:
-                logger.warning(f"Player {name} is available but won't be managed")
-        elif player:
-            logger.debug(f'Removing "{player.props.player_name}" from media players')
-
-            self.remove_player(player)
-            self.show_hide()
-        else:
-            logger.error("THIS SHALL NOT BE REACHED")
-
-        # logger.error(
-        #     f"{self.player_manager.props.players}, {self.player_manager.props.player_names} \n {self.player_controller}: {'added' if player_name else 'removed'} {player.props.player_name if player else player_name.name}"
-        # )
-
     def show_hide(self):
-        # show = self.player_controller is not None
         show = len(self.player_controllers) != 0
 
         if show:
@@ -139,21 +95,20 @@ class MediaPlayer(Revealer):
                 self.on_show_hide(True)
                 self.can_reveal = True
 
-            # self.reveal()
             self.main_container.remove_style_class("empty")
-
-            # self.update_metadata()
         else:
             if self.can_reveal:
                 logger.warning("No media is playing!")
                 self.on_show_hide(False)
                 self.can_reveal = False
 
-            # self.unreveal()
             self.main_container.add_style_class("empty")
 
     def add_player(self, player):
         name = player.props.player_name
+
+        if name not in configuration.get_property("media_player_allowed_players"):
+            return
 
         media_controls = MediaControls(player)
         media_controls.update_metadata()
@@ -180,6 +135,8 @@ class MediaPlayer(Revealer):
                 configuration.get_property("media_player_allowed_players")[name]
             )
             self.tabs[id].set_tooltip_markup(name)
+
+        self.show_hide()
 
     def remove_player(self, player):
         name = player.props.player_name
@@ -229,6 +186,8 @@ class MediaPlayer(Revealer):
                     list(self.player_controllers)[self.selected_player + pos]
                 )
                 self.tabs[i].remove_style_class("empty")
+
+        self.show_hide()
 
     def handle_tab_press(self, tab):
         index = self.tabs.index(tab)

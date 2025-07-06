@@ -160,10 +160,14 @@ class PillWindow(Window):
         else:
             self.return_input()
 
+            self.notifications_container.hide()
+
     def on_peeked(self, _, applet):
         for child in self.pill_widgets:
             child.remove_style_class("expanded")
             child.add_style_class("peeking")
+
+        self.notifications_container.unhide()
 
     def on_unpeeked(self, _, applet):
         for child in self.pill_widgets:
@@ -171,6 +175,8 @@ class PillWindow(Window):
             child.remove_style_class("peeking")
 
         self.return_input()
+
+        self.notifications_container.unhide()
 
     def change_applet(self, applet, expand=True):
         if applet == "dashboard" or applet == PillApplets.DASHBOARD:

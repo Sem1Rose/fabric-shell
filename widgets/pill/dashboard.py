@@ -1,13 +1,21 @@
+from enum import IntEnum
+from fabric.widgets.stack import Stack
 from loguru import logger
 
 from config import configuration
 from widgets.pill.applet import Applet
-from widgets.date_time import DateTimeWidget
+from widgets.pill.date_time import DateTimeWidget
+from widgets.pill.music_ticker import MusicTicker
 from widgets.media_player import MediaPlayer
 from widgets.quick_settings import QuickSettings
 
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
+
+
+class QuickGlanceWidgets(IntEnum):
+    DATETIME = 0
+    MUSICTICKER = 1
 
 
 class Dashboard(Applet, Box):
@@ -28,8 +36,43 @@ class Dashboard(Applet, Box):
         self.date_time_widget = DateTimeWidget()
         self.date_time_widget.set_can_focus(False)
 
-        self.quick_settings_widget = QuickSettings()
+        self.music_ticker_widget = MusicTicker()
+        self.music_ticker_widget.set_can_focus(False)
 
+        self.music_ticker_widget.connect(
+            "music-tick",
+            lambda *_: not self.peeking and not self.expanded and self.change_quick_glance_widget(QuickGlanceWidgets.MUSICTICKER),
+        )
+        self.music_ticker_widget.connect(
+            "do-hide",
+            lambda *_: self.change_quick_glance_widget(QuickGlanceWidgets.DATETIME),
+        )
+
+        self.quick_glance_widget_stack = Stack(
+            transition_type="slide-down",
+            transition_duration=150,
+            h_expand=True,
+            children=[
+                self.date_time_widget,
+                self.music_ticker_widget,
+            ],
+        )
+
+        self.quick_glance_widgets = {
+            QuickGlanceWidgets.DATETIME: self.date_time_widget,
+            QuickGlanceWidgets.MUSICTICKER: self.music_ticker_widget,
+        }
+        self.active_quick_glance_widget = QuickGlanceWidgets.DATETIME
+
+        self.change_quick_glance_widget(self.active_quick_glance_widget)
+
+        self.quick_glance_widget = Box(
+            name="pill_quick_glance",
+            h_expand=True,
+            children=self.quick_glance_widget_stack,
+        )
+
+        self.quick_settings_widget = QuickSettings()
         self.media_player = MediaPlayer(
             transition_duration=configuration.get_property(
                 "pill_revealer_animation_duration"
@@ -53,14 +96,6 @@ class Dashboard(Applet, Box):
                 "pill_revealer_animation_duration"
             ),
         )
-        # self.media_player_revealer = Revealer(
-        #     name="media_player_revealer",
-        #     child=self.media_player_widget,
-        #     transition_type="slide-down",
-        #     transition_duration=configuration.get_property(
-        #         "pill_revealer_animation_duration"
-        #     ),
-        # )
         # self.calendar_revealer = Revealer(
         #     name="calendar_revealer",
         #     child=self.calendar_widget,
@@ -71,10 +106,9 @@ class Dashboard(Applet, Box):
         # )
 
         self.children = [
-            self.date_time_widget,
+            self.quick_glance_widget,
             self.quick_settings_revealer,
             self.media_player,
-            # self.media_player_revealer,
             # self.calendar_revealer,
         ]
 
@@ -117,6 +151,8 @@ class Dashboard(Applet, Box):
         self.media_player.add_style("revealed")
         # self.calendar_widget.add_style("revealed")
 
+        self.change_quick_glance_widget(QuickGlanceWidgets.DATETIME)
+
     def peek(self):
         self.peeking = True
         self.expanded = False
@@ -136,6 +172,7 @@ class Dashboard(Applet, Box):
         self.quick_settings_widget.hide_popups()
 
         logger.debug("Peeking")
+        self.change_quick_glance_widget(QuickGlanceWidgets.DATETIME)
 
     def unpeek(self):
         self.peeking = False
@@ -152,6 +189,21 @@ class Dashboard(Applet, Box):
         self.quick_settings_widget.hide_popups()
 
         logger.debug("Shrinking")
+        self.change_quick_glance_widget(QuickGlanceWidgets.DATETIME)
+
+    def change_quick_glance_widget(self, widget):
+        if widget == "date-time" or widget == QuickGlanceWidgets.DATETIME:
+            widget = QuickGlanceWidgets.DATETIME
+        elif widget == "music-ticker" or widget == QuickGlanceWidgets.MUSICTICKER:
+            widget = QuickGlanceWidgets.MUSICTICKER
+        else:
+            logger.error(f"Unknown quick glance widget {widget}")
+            return
+
+        self.quick_glance_widget_stack.set_visible_child(
+            self.quick_glance_widgets[widget]
+        )
+        self.active_quick_glance_widget = widget
 
     def hide(self, *args):
         Applet.hide(self, *args)
@@ -160,5 +212,6 @@ class Dashboard(Applet, Box):
 
     def unhide(self, expand, *args):
         Applet.unhide(self, *args)
+        self.change_quick_glance_widget(QuickGlanceWidgets.DATETIME)
 
-        self.expand if expand else self.unpeek()
+        self.expand() if expand else self.unpeek()

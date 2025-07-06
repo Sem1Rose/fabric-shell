@@ -1,5 +1,5 @@
-from time import sleep
 import gi
+from time import sleep
 
 from loguru import logger
 from widgets.buttons import MarkupButton
@@ -21,7 +21,6 @@ from gi.repository import Gtk, GdkPixbuf, GLib  # noqa: E402
 CUSTOM_HINTS = ["progress", "name", "custom-icon", "accent-color"]
 URGENCY = {0: "low", 1: "normal", 2: "urgent"}
 COLORS = ["accent", "green", "red", "yellow", "blue", "cyan", "magenta"]
-
 
 class NotificationWidget(Revealer):
     @Signal
@@ -94,11 +93,28 @@ class NotificationWidget(Revealer):
         self.hovored = False
         self.do_hide = False
 
+    def rebuild(self):
+        self.reset()
+        self.main_contianer.remove_style_class("hidden")
+
+        timeout = self.notification.timeout
+        if timeout == -1:
+            timeout = configuration.get_property(
+                f"notification_{URGENCY[self.notification.urgency]}_timeout"
+            )
+
+        self.reveal()
+        self.hidden = False
+
+        if self.autohide and timeout > 0:
+            self.start_hiding(timeout)
+
     def build_from_notification(self, notification: Notification):
         self.reset()
 
         self.notification = notification
 
+        self.main_contianer.remove_style_class("hidden")
         self.main_contianer.remove_style_class("special")
         for i in URGENCY.values():
             self.main_contianer.remove_style_class(i)
@@ -243,7 +259,6 @@ class NotificationWidget(Revealer):
             ],
         )
 
-        self.main_contianer.remove_style_class("hidden")
         self.main_contianer.children = [
             Box(
                 children=[
