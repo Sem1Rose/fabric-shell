@@ -173,7 +173,8 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #music_ticker_widget {
-	padding: calc(settings.$pill_padding - 8px) settings.$pill_padding calc(settings.$pill_padding - 8px) calc(settings.$pill_padding - 4px);
+	padding: calc(settings.$pill_padding - 8px) settings.$pill_padding
+		calc(settings.$pill_padding - 8px) calc(settings.$pill_padding - 4px);
 
 	#media_artwork {
 		border-radius: 14px;
@@ -218,7 +219,8 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	&.peeking {
-		transition: all 0.3s ease-out, padding 0.3s $transition_function, min-width 0.5s linear;
+		transition: all 0.3s ease-out, padding 0.3s $transition_function,
+			min-width 0.5s linear;
 		padding: settings.$pill_expanded_padding;
 
 		&.media_player {
@@ -248,7 +250,8 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	&.expanded {
-		transition: all 0.3s ease-out, padding 0.3s $transition_function, min-width 0.5s linear;
+		transition: all 0.3s ease-out, padding 0.3s $transition_function,
+			min-width 0.5s linear;
 
 		min-width: calc(
 			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
@@ -923,6 +926,144 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 }
 
+#calendar_widget {
+	transition: all 0.3s ease-in;
+	margin: 0px -100px;
+
+	&.revealed {
+		transition: all 0.3s ease-out;
+		margin: settings.$pill_expanded_padding 0px 0px 0px;
+
+		#calendar_padded_container {
+			padding: settings.$pill_expanded_padding;
+			padding-bottom: 0px;
+		}
+		#calendar_unpadded_container {
+			padding: settings.$pill_expanded_padding;
+			padding-top: 0px;
+		}
+	}
+
+	#calendar_padded_container {
+		border-radius: $pill_large_ui_radius $pill_large_ui_radius 0px 0px;
+		background-color: colors.$on_primary;
+
+		#calendar_year_label {
+			font-weight: lighter;
+			font-size: 16px;
+			margin-bottom: 6px;
+			margin-left: 6px;
+			color: colors.$on_secondary_container;
+		}
+
+		#calendar_date_label {
+			font-weight: bold;
+			font-size: 24;
+			margin-bottom: calc(settings.$pill_expanded_padding / 1.5);
+			color: colors.$on_primary_container;
+		}
+	}
+
+	$corner_radius: calc($pill_expanded_ui_radius * 2);
+	$ui_radius: calc($corner_radius - settings.$pill_expanded_padding);
+	#calendar_unpadded_container {
+		border-radius: 0px 0px $pill_large_ui_radius $pill_large_ui_radius;
+		background-color: colors.$surface_container_low;
+
+		#calendar_corners_container {
+			margin: 0 calc(settings.$pill_expanded_padding * -1);
+			margin-bottom: calc($corner_radius * -1 + settings.$pill_expanded_padding);
+
+			#calendar_corner_container {
+				min-height: $corner_radius;
+				min-width: $corner_radius;
+
+				#calendar_corner {
+					background-color: colors.$on_primary;
+				}
+			}
+		}
+
+		#calendar_navigation_buttons {
+			min-height: 24px;
+			min-width: 32px;
+			background-color: colors.$primary_container;
+			border-radius: $ui_radius;
+			color: colors.$on_primary_container;
+
+			label {
+				font-size: 18px;
+			}
+		}
+
+		#calendar_month_label {
+			font-weight: bold;
+			font-size: 16;
+
+			color: colors.$secondary;
+		}
+
+		#calendar_day_labels {
+			margin-top: 8px;
+			margin-bottom: 4px;
+
+			label {
+				// font-weight: lighter;
+				&:first-child {
+					margin-left: 4px;
+				}
+				&:last-child {
+					margin-right: 4px;
+				}
+
+				font-size: 16;
+				color: colors.$on_secondary_container;
+			}
+		}
+
+		#calendar_month {
+			#calendar_week {
+				margin: 3px 0px;
+				&:first-child {
+					margin-top: 2px;
+				}
+				&:last-child {
+					margin-bottom: 2px;
+				}
+
+				#calendar_day {
+					border-radius: 7px;
+					min-width: 48px;
+					min-height: 30px;
+					margin: 0px 3px;
+
+					label {
+						font-size: 16px;
+						font-weight: lighter;
+					}
+
+					&.outsider {
+						color: colors.$surface_variant;
+					}
+
+					&.today {
+						color: colors.$primary;
+						margin: -2px 1px;
+						border: 2px solid colors.$primary;
+						font-weight: bolder;
+					}
+
+					&.active {
+						color: colors.$on_primary;
+						background-color: colors.$primary;
+						font-weight: bolder;
+					}
+				}
+			}
+		}
+	}
+}
+
 #media_player_widget {
 	transition: all 0.3s ease-in;
 
@@ -1272,6 +1413,7 @@ $notification_special_item_radius: calc(
 		transition: all 0.2s ease-out;
 		min-width: 0px;
 		padding: 0px;
+		margin: 0px -20px;
 	}
 
 	&.urgent {
@@ -1397,37 +1539,65 @@ $notification_special_item_radius: calc(
 
 		&.accent {
 			progress {
-				background-color: color.scale(colors.$on_primary, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_primary,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 		&.green {
 			progress {
-				background-color: color.scale(colors.$on_green, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_green,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 		&.red {
 			progress {
-				background-color: color.scale(colors.$on_red, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_red,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 		&.yellow {
 			progress {
-				background-color: color.scale(colors.$on_yellow, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_yellow,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 		&.blue {
 			progress {
-				background-color: color.scale(colors.$on_blue, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_blue,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 		&.cyan {
 			progress {
-				background-color: color.scale(colors.$on_cyan, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_cyan,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 		&.magenta {
 			progress {
-				background-color: color.scale(colors.$on_magenta, $lightness: +20%, $saturation: +5%);
+				background-color: color.scale(
+					colors.$on_magenta,
+					$lightness: +20%,
+					$saturation: +5%
+				);
 			}
 		}
 	}

@@ -1,13 +1,14 @@
 from enum import IntEnum
-from fabric.widgets.stack import Stack
 from loguru import logger
-
 from config import configuration
+
+from fabric.widgets.stack import Stack
 from widgets.pill.applet import Applet
 from widgets.pill.date_time import DateTimeWidget
 from widgets.pill.music_ticker import MusicTicker
 from widgets.media_player import MediaPlayer
 from widgets.quick_settings import QuickSettings
+from widgets.calendar import Calendar
 
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
@@ -78,6 +79,7 @@ class Dashboard(Applet, Box):
                 "pill_revealer_animation_duration"
             )
         )
+        self.calendar_widget = Calendar()
         # self.calendar_widget = Box(
         #     name="calendar_container",
         #     orientation="h",
@@ -96,20 +98,20 @@ class Dashboard(Applet, Box):
                 "pill_revealer_animation_duration"
             ),
         )
-        # self.calendar_revealer = Revealer(
-        #     name="calendar_revealer",
-        #     child=self.calendar_widget,
-        #     transition_type="slide-down",
-        #     transition_duration=configuration.get_property(
-        #         "pill_revealer_animation_duration"
-        #     ),
-        # )
+        self.calendar_revealer = Revealer(
+            name="calendar_revealer",
+            child=self.calendar_widget,
+            transition_type="slide-down",
+            transition_duration=configuration.get_property(
+                "pill_revealer_animation_duration"
+            ),
+        )
 
         self.children = [
             self.quick_glance_widget,
             self.quick_settings_revealer,
+            self.calendar_revealer,
             self.media_player,
-            # self.calendar_revealer,
         ]
 
         self.media_player.connect(
@@ -140,16 +142,17 @@ class Dashboard(Applet, Box):
         self.expanded = True
 
         self.quick_settings_revealer.reveal()
+        self.calendar_revealer.reveal()
+
+        self.quick_settings_widget.add_style("revealed")
+        self.media_player.add_style("revealed")
+        self.calendar_widget.add_style("revealed")
+
         if self.media_player.can_reveal:
             self.media_player.reveal()
             self.add_style_class("media_player")
         else:
             self.remove_style_class("media_player")
-        # self.calendar_revealer.reveal()
-
-        self.quick_settings_widget.add_style("revealed")
-        self.media_player.add_style("revealed")
-        # self.calendar_widget.add_style("revealed")
 
         self.change_quick_glance_widget(QuickGlanceWidgets.DATETIME)
 
@@ -157,17 +160,21 @@ class Dashboard(Applet, Box):
         self.peeking = True
         self.expanded = False
 
+        self.calendar_revealer.unreveal()
         self.quick_settings_revealer.unreveal()
+
+        self.remove_style_class("media_player")
+        self.quick_settings_widget.remove_style("revealed")
+        self.calendar_widget.remove_style("revealed")
+        self.media_player.remove_style("revealed")
+
         if self.media_player.can_reveal:
             self.media_player.reveal()
             self.add_style_class("media_player")
+            self.media_player.add_style("revealed")
         else:
-            self.remove_style_class("media_player")
-        # self.calendar_revealer.unreveal()
-
-        self.quick_settings_widget.remove_style("revealed")
-        self.media_player.add_style("revealed")
-        # self.calendar_widget.remove_style("revealed")
+            self.calendar_revealer.reveal()
+            self.calendar_widget.add_style("revealed")
 
         self.quick_settings_widget.hide_popups()
 
@@ -180,11 +187,12 @@ class Dashboard(Applet, Box):
 
         self.quick_settings_revealer.unreveal()
         self.media_player.unreveal()
-        # self.calendar_revealer.unreveal()
+        self.calendar_revealer.unreveal()
 
+        self.remove_style_class("media_player")
         self.quick_settings_widget.remove_style("revealed")
         self.media_player.remove_style("revealed")
-        # self.calendar_widget.remove_style("revealed")
+        self.calendar_widget.remove_style("revealed")
 
         self.quick_settings_widget.hide_popups()
 

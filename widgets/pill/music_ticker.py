@@ -14,7 +14,7 @@ from widgets.helpers.mpris_service import get_mpris_service
 from widgets.rounded_image import RoundedImage
 
 gi.require_version("Playerctl", "2.0")
-from gi.repository import GdkPixbuf, GLib  # noqa: E402
+from gi.repository import GdkPixbuf, GLib, Playerctl  # noqa: E402
 
 
 class MusicTicker(Box):
@@ -70,6 +70,13 @@ class MusicTicker(Box):
             return
 
         player.connect("metadata", lambda _, metadata: self.update_metadata(metadata))
+        player.connect(
+            "playback-status",
+            lambda _, status: (self.music_tick() or self.hide_music_ticker())
+            if status == Playerctl.PlaybackStatus.PLAYING
+            else (),
+        )
+
         self.player_controllers.append(player)
 
     def remove_player(self, player):

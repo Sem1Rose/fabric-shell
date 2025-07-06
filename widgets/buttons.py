@@ -17,7 +17,7 @@ from gi.repository import Gdk  # noqa: E402
 
 class MarkupButton(Button):
     def __init__(self, markup: str | None = None, *args, **kwargs):
-        self.label = Label(justification="fill", h_expand=True, h_align="fill", v_expand=True, v_align="fill")
+        self.label = Label(justification="center", h_align="center", v_align="center")
         super().__init__(child=self.label, *args, **kwargs)
 
         self.set_markup(markup) if markup else None
