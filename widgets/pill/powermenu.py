@@ -4,10 +4,10 @@ from enum import IntEnum
 from config import configuration
 from widgets.buttons import MarkupButton
 from widgets.pill.applet import Applet
+from widgets.revealer import Revealer
 
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.widgets.revealer import Revealer
 
 from fabric.core.service import Signal
 from fabric.utils.helpers import exec_shell_command, exec_shell_command_async

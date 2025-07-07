@@ -2,39 +2,18 @@ from config import configuration
 from loguru import logger
 
 from widgets.helpers.network import get_wifi_adapter_name
-from widgets.buttons import (
-    MarkupButton,
-    ToggleButton,
-    QSToggleButton,
-    QSTileButton,
-    ChevronButton,
-)
+from widgets.buttons import QSToggleButton
 from widgets.brightness_slider import BrightnessSlider
 from widgets.volume_slider import VolumeSlider
 from widgets.microphone_slider import MicrophoneSlider
-# from widgets.helpers.brightness import get_brightness_service
 
 from fabric.widgets.box import Box
-from fabric.widgets.stack import Stack
-from fabric.widgets.overlay import Overlay
-from fabric.widgets.revealer import Revealer
-from fabric.widgets.label import Label
-from widgets.popup_window import PopupWindow
-
-from fabric.audio import Audio
 from fabric.core.fabricator import Fabricator
 from fabric.utils.helpers import (
     exec_shell_command,
     exec_shell_command_async,
 )
 from fabric.bluetooth import BluetoothClient
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-# gi.require_version("NM", "1.0")
-from gi.repository import Gtk  # , NM  # noqa: E402
-
 
 class QuickSettings(Box):
     def __init__(self, *args, **kwargs):

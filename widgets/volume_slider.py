@@ -4,13 +4,13 @@ from config import configuration
 from typing import Literal
 from widgets.buttons import ToggleButton, ChevronButton, MarkupButton, QSTileButton
 from widgets.interactable_slider import Slider
+from widgets.revealer import Revealer
 
 from fabric.audio import Audio
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from fabric.widgets.stack import Stack
-from fabric.widgets.revealer import Revealer
 
 
 class VolumeSlider(Box):

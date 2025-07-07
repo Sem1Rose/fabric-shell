@@ -1,16 +1,17 @@
 import gi
 from time import sleep
+import os.path
 
 from loguru import logger
 from widgets.buttons import MarkupButton
 from widgets.rounded_image import RoundedImage
+from widgets.revealer import Revealer
 
 from config import configuration
 
 from fabric.notifications import Notification
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.box import Box
-from fabric.widgets.revealer import Revealer
 from fabric.widgets.label import Label
 from fabric.core import Signal
 from fabric.utils.helpers import idle_add
@@ -21,6 +22,7 @@ from gi.repository import Gtk, GdkPixbuf, GLib  # noqa: E402
 CUSTOM_HINTS = ["progress", "name", "custom-icon", "accent-color"]
 URGENCY = {0: "low", 1: "normal", 2: "urgent"}
 COLORS = ["accent", "green", "red", "yellow", "blue", "cyan", "magenta"]
+
 
 class NotificationWidget(Revealer):
     @Signal
@@ -86,8 +88,8 @@ class NotificationWidget(Revealer):
 
     def reset(self):
         if self.autohide:
-            self.unreveal()
             self.hidden = True
+            self.unreveal()
             self.main_contianer.add_style_class("hidden")
 
         self.hovored = False
@@ -95,7 +97,6 @@ class NotificationWidget(Revealer):
 
     def rebuild(self):
         self.reset()
-        self.main_contianer.remove_style_class("hidden")
 
         timeout = self.notification.timeout
         if timeout == -1:
@@ -103,26 +104,23 @@ class NotificationWidget(Revealer):
                 f"notification_{URGENCY[self.notification.urgency]}_timeout"
             )
 
-        self.reveal()
-        self.hidden = False
-
         if self.autohide and timeout > 0:
             self.start_hiding(timeout)
+
+        self.hidden = False
+        self.main_contianer.remove_style_class("hidden")
+        self.reveal()
 
     def build_from_notification(self, notification: Notification):
         self.reset()
 
         self.notification = notification
-
-        self.main_contianer.remove_style_class("hidden")
-        self.main_contianer.remove_style_class("special")
         for i in URGENCY.values():
             self.main_contianer.remove_style_class(i)
-        self.main_contianer.add_style_class(URGENCY[self.notification.urgency])
 
         hints = {}
         for hint in CUSTOM_HINTS:
-            hints[hint] = notification.do_get_hint_entry(f"fabric-shell-{hint}")
+            hints[hint] = self.notification.do_get_hint_entry(f"fabric-shell-{hint}")
 
         progress = hints["progress"] is not None
         custom_icon = hints["custom-icon"]
@@ -130,28 +128,54 @@ class NotificationWidget(Revealer):
             hints["accent-color"] if hints["accent-color"] in COLORS else None
         )
 
-        actions = notification.actions.__len__() > 0
-        actions_overflow = notification.actions.__len__() > configuration.get_property(
+        actions = self.notification.actions.__len__() > 0
+        actions_overflow = self.notification.actions.__len__() > configuration.get_property(
             "notification_max_actions"
         )
 
-        image = notification.image_pixbuf
-        app_name = notification.app_name
+        image = self.notification.image_pixbuf
+        app_name = self.notification.app_name
+        try:
+            if self.notification.app_icon and self.notification.app_icon != "":
+                if os.path.isfile(self.notification.app_icon) and not image:
+                    image = GdkPixbuf.Pixbuf.new_from_file(self.notification.app_icon)
+                    pixbuf = Gtk.IconTheme().load_icon(
+                        "action-unavailable",
+                        configuration.get_property("notification_app_icon_size"),
+                        Gtk.IconLookupFlags.FORCE_SIZE,
+                    )
+                else:
+                    pixbuf = Gtk.IconTheme().load_icon(
+                        self.notification.app_icon,
+                        configuration.get_property("notification_app_icon_size"),
+                        Gtk.IconLookupFlags.FORCE_SIZE,
+                    )
+            else:
+                pixbuf = (
+                    Gtk.IconTheme()
+                    .get_default()
+                    .load_icon(
+                        "action-unavailable",
+                        configuration.get_property("notification_app_icon_size"),
+                        Gtk.IconLookupFlags.FORCE_SIZE,
+                    )
+                )
+        except Exception as e:
+            logger.error(f"Error while loading {self.notification.app_icon}: {e}")
+
+            pixbuf = (
+                Gtk.IconTheme()
+                .get_default()
+                .load_icon(
+                    "action-unavailable",
+                    configuration.get_property("notification_app_icon_size"),
+                    Gtk.IconLookupFlags.FORCE_SIZE,
+                )
+            )
+
         app_icon = RoundedImage(
             name="app_icon",
-            pixbuf=Gtk.IconTheme().load_icon(
-                self.notification.app_icon,
-                configuration.get_property("notification_app_icon_size"),
-                Gtk.IconLookupFlags.FORCE_SIZE,
-            )
-            if self.notification.app_icon
-            else Gtk.IconTheme()
-            .get_default()
-            .load_icon(
-                "image-missing",
-                configuration.get_property("notification_app_icon_size"),
-                Gtk.IconLookupFlags.FORCE_SIZE,
-            ),
+            pixbuf=pixbuf,
         )
 
         app_details = Box(
@@ -353,31 +377,35 @@ class NotificationWidget(Revealer):
 
             self.main_contianer.add(actions_container)
 
+        self.notification.connect("action-invoked", lambda *_: self.close())
+
         timeout = self.notification.timeout
         if timeout == -1:
             timeout = configuration.get_property(
                 f"notification_{URGENCY[self.notification.urgency]}_timeout"
             )
 
-        self.notification.connect("action-invoked", lambda *_: self.close())
-
-        self.reveal()
-        self.hidden = False
-
         if self.autohide and timeout > 0:
             self.start_hiding(timeout)
 
+        self.hidden = False
+        self.main_contianer.remove_style_class("hidden")
+        self.main_contianer.remove_style_class("special")
+        self.main_contianer.add_style_class(URGENCY[self.notification.urgency])
+        self.reveal()
+
     def start_hiding(self, timeout):
-        def hide(self, timeout):
+        def hide(notif: NotificationWidget, timeout):
             sleep(timeout)
-            if self.hidden:
+
+            if notif.hidden:
                 return
 
-            if self.hovored:
-                self.do_hide = True
+            if notif.hovored:
+                notif.do_hide = True
             else:
-                idle_add(self.reset)
+                idle_add(notif.reset)
                 sleep(0.2)
-                idle_add(self.notification.close)
+                idle_add(notif.notification.close)
 
         GLib.Thread.new("notification_hide", hide, self, timeout)

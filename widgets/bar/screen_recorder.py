@@ -5,11 +5,11 @@ import signal
 import time
 
 from widgets.buttons import ToggleButton, CycleToggleButton
+from widgets.revealer import Revealer
 
 from fabric.utils.helpers import exec_shell_command, exec_shell_command_async
 
 from fabric.widgets.box import Box
-from fabric.widgets.revealer import Revealer
 
 
 class ScreenRecorder(Box):

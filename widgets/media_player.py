@@ -10,10 +10,10 @@ from widgets.interactable_slider import Slider
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 from widgets.helpers.str import UpperToPascal
 from widgets.helpers.mpris_service import get_mpris_service
+from widgets.revealer import Revealer
 
 from fabric.widgets.box import Box
 from fabric.widgets.stack import Stack
-from fabric.widgets.revealer import Revealer
 from fabric.widgets.label import Label
 from fabric.core.service import Signal
 from fabric.utils import idle_add, get_enum_member, get_enum_member_name
@@ -27,7 +27,13 @@ class MediaPlayer(Revealer):
     def on_show_hide(self, shown: bool): ...
 
     def __init__(
-        self, transition_type="slide-down", transition_duration=200, *args, **kwargs
+        self,
+        transition_type="slide-down",
+        transition_duration=configuration.get_property(
+            "pill_revealer_animation_duration"
+        ),
+        *args,
+        **kwargs,
     ):
         super().__init__(
             transition_type=transition_type, transition_duration=transition_duration
@@ -276,6 +282,13 @@ class MediaPlayer(Revealer):
         self.media_controls_stack.set_visible_child(
             list(self.player_controllers.values())[self.selected_player][1]
         )
+
+    def try_reveal(self):
+        if self.can_reveal:
+            self.add_style("revealed")
+            self.reveal()
+            return True
+        return False
 
     def add_style(self, style):
         self.main_container.add_style_class(style)

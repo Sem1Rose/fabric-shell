@@ -3,10 +3,10 @@ from config import configuration
 
 from widgets.buttons import MarkupButton
 from widgets.system_tray import SystemTray
+from widgets.revealer import Revealer
 
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
-from fabric.widgets.revealer import Revealer
 
 
 class Tray(EventBox):

@@ -100,6 +100,7 @@ class NotificationsContainer(Box):
             logger.debug(f"notification {notification_id} added")
 
         self.notification_widgets[index].build_from_notification(notification)
+
         if self.hidden:
             self.notification_widgets[index].reset()
 
@@ -111,8 +112,8 @@ class NotificationsContainer(Box):
 
         index = self.notification_ids.index(notification_id)
 
-        if not self.notification_widgets[index].hidden:
-            self.notification_widgets[index].reset()
+        # if not self.notification_widgets[index].hidden:
+        self.notification_widgets[index].reset()
         self.notification_shown[index] = False
         self.notification_ids[index] = -1
 

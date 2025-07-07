@@ -37,7 +37,7 @@ power_menu_shutdown_commands = [
 ]
 
 pill_stack_transition_duration = 400
-pill_revealer_animation_duration = 300
+pill_revealer_animation_duration = 250
 osd_revealer_animation_duration = 250
 bar_revealer_animation_duration = 250
 
@@ -97,7 +97,7 @@ auto_brightness_stop_command = "systemctl --user stop wluma"
 notification_low_timeout = 2
 notification_low_icon = "&#xf6d8;"
 notification_low_icon_color = "blue"
-notification_normal_timeout = 5
+notification_normal_timeout = 4
 notification_normal_icon = "&#xf6d9;"
 notification_normal_icon_color = "green"
 notification_urgent_timeout = 0

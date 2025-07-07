@@ -83,17 +83,40 @@ class Pill(EventBox):
         )
         self.main_container = Box(name="pill_box", children=[self.stack])
 
-        if self.dashboard.media_player.can_reveal:
-            self.inc_num_large_widgets()
+        match list(self.dashboard.widgets.keys())[-1]:
+            case "calendar":
+                self.dashboard.calendar_revealer.connect(
+                    "on-revealed",
+                    lambda *_: self.inc_num_large_widgets(),
+                )
+                self.dashboard.calendar_revealer.connect(
+                    "on-unrevealed",
+                    lambda *_: self.dec_num_large_widgets(),
+                )
+            case "media-player":
+                self.dashboard.media_player.connect(
+                    "on-show-hide",
+                    lambda _, v: self.inc_num_large_widgets()
+                    if v
+                    else self.dec_num_large_widgets(),
+                )
+
+                if self.dashboard.media_player.can_reveal:
+                    self.inc_num_large_widgets()
+
+        # if self.dashboard.media_player:
+        #     self.dashboard.media_player.connect(
+        #         "on-show-hide",
+        #         lambda _, v: self.inc_num_large_widgets()
+        #         if v
+        #         else self.dec_num_large_widgets(),
+        #     )
+
+        #     if self.dashboard.media_player.can_reveal:
+        #         self.inc_num_large_widgets()
 
         self.connect("enter-notify-event", self.mouse_enter)
         self.connect("leave-notify-event", self.mouse_leave)
-        self.dashboard.media_player.connect(
-            "on-show-hide",
-            lambda _, v: self.inc_num_large_widgets()
-            if v
-            else self.dec_num_large_widgets(),
-        )
 
         if self.dashboard.quick_settings_widget.volume_chevron:
             self.dashboard.quick_settings_widget.volume_slider.chevron.connect(

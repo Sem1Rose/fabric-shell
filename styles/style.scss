@@ -155,7 +155,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	#date,
 	#time,
 	#day {
-		transition: all 0.2s ease-out;
+		transition: all 0.4s $transition_function;
 
 		min-width: 40px;
 		padding: 0px settings.$pill_padding;
@@ -199,7 +199,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #pill_dashboard {
-	transition: all 0.3s ease-out;
+	transition: all 0.2s ease-out, min-width 0.3s ease-in;
 
 	min-width: 0px;
 	padding: 0px;
@@ -219,11 +219,13 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	&.peeking {
-		transition: all 0.3s ease-out, padding 0.3s $transition_function,
-			min-width 0.5s linear;
+		transition: all 0.2s ease-out, min-width 0.4s ease-out,
+			padding 0.2s ease-out;
 		padding: settings.$pill_expanded_padding;
+		min-width: 0px;
 
 		&.media_player {
+			transition: all 0.5s $transition_function;
 			min-width: calc(
 				settings.$pill_expanded_width - 2 *
 					settings.$pill_expanded_padding
@@ -250,8 +252,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	}
 
 	&.expanded {
-		transition: all 0.3s ease-out, padding 0.3s $transition_function,
-			min-width 0.5s linear;
+		transition: all 0.5s $transition_function;
 
 		min-width: calc(
 			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
@@ -703,13 +704,15 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #quick_settings_container {
-	transition: margin 0.1s ease-out;
+	transition: margin 0.1s cubic-bezier(1, 0, 1, 0);
+	// transition: margin 0.5s ease-out;
 
-	margin: 0px -25px;
+	margin: 0px -5px;
 
 	&.revealed {
 		// transition: margin 0.5s ease-in-out;
-		// transition: margin 0.1s cubic-bezier(0, 1, 0, 1);
+		transition: all 0.3s ease-out, margin 0.1s cubic-bezier(0, 1, 0, 1);
+
 		margin: settings.$pill_expanded_padding 0px
 			calc(settings.$pill_expanded_padding / -4) 0px;
 
@@ -927,11 +930,11 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #calendar_widget {
-	transition: all 0.3s ease-in;
+	transition: margin 0.02s cubic-bezier(1, 0, 1, 0);
 	margin: 0px -100px;
 
 	&.revealed {
-		transition: all 0.3s ease-out;
+		transition: margin 0.2s ease-out;
 		margin: settings.$pill_expanded_padding 0px 0px 0px;
 
 		#calendar_padded_container {
@@ -972,7 +975,9 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 		#calendar_corners_container {
 			margin: 0 calc(settings.$pill_expanded_padding * -1);
-			margin-bottom: calc($corner_radius * -1 + settings.$pill_expanded_padding);
+			margin-bottom: calc(
+				$corner_radius * -1 + settings.$pill_expanded_padding
+			);
 
 			#calendar_corner_container {
 				min-height: $corner_radius;
@@ -1072,7 +1077,6 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 	margin: 0px -50px;
 
 	&.empty {
-		min-width: 0px;
 		margin: 0px -50px;
 		background-color: transparent;
 
@@ -1081,7 +1085,6 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		}
 
 		&.revealed {
-			min-width: 0px;
 			margin: 0px;
 			background-color: transparent;
 
@@ -1403,7 +1406,8 @@ $notification_special_item_radius: calc(
 	$notification_special_radius - $notification_window_padding
 );
 .notification {
-	transition: all 0.4s $transition_function;
+	transition: all 0.2s cubic-bezier(0, 1, 0.5, 1);
+	// transition: all 0.4s $transition_function;
 
 	background-color: colors.$surface_container_low;
 	border-radius: $notification_window_radius;
@@ -1411,6 +1415,7 @@ $notification_special_item_radius: calc(
 
 	&.hidden {
 		transition: all 0.2s ease-out;
+		// transition: all 0.2s ease-out;
 		min-width: 0px;
 		padding: 0px;
 		margin: 0px -20px;

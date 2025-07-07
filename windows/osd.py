@@ -1,28 +1,21 @@
-import gi
-
 from enum import Enum
-from time import sleep
 from fabric.utils import idle_add
 from loguru import logger
 from config import configuration
 
+from widgets.revealer import Revealer
+from widgets.brightness_slider import BrightnessSlider
+from widgets.volume_slider import VolumeSlider
+from widgets.buttons import MarkupButton
+
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.label import Label
 from fabric.widgets.box import Box
-from fabric.widgets.revealer import Revealer
 from fabric.widgets.stack import Stack
-from fabric.core.fabricator import Fabricator
 from fabric.utils.helpers import exec_shell_command_async, cooldown
-from fabric.audio import Audio
-
 # from fabric.widgets.eventbox import EventBox
 # from fabric.widgets.shapes.corner import Corner
 
-from widgets import volume_slider
-from widgets.brightness_slider import BrightnessSlider
-from widgets.volume_slider import VolumeSlider
-from widgets.interactable_slider import Slider
-from widgets.buttons import ToggleButton, MarkupButton
 # from widgets.helpers.brightness import get_brightness_service
 
 from gi.repository import GLib
