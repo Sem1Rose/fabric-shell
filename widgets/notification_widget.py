@@ -1,3 +1,4 @@
+import random
 import gi
 from time import sleep
 import os.path
@@ -43,6 +44,7 @@ class NotificationWidget(Revealer):
             self.main_contianer.add_style_class("hidden")
 
         self.hidden = True
+        self.hide_ticket = 0
         self.hovored = False
         self.do_hide = False
 
@@ -135,6 +137,9 @@ class NotificationWidget(Revealer):
 
         image = self.notification.image_pixbuf
         app_name = self.notification.app_name
+        # logger.error(image)
+        # logger.error(self.notification.app_name)
+        # logger.error(self.notification.app_icon)
         try:
             if self.notification.app_icon and self.notification.app_icon != "":
                 if os.path.isfile(self.notification.app_icon) and not image:
@@ -385,6 +390,7 @@ class NotificationWidget(Revealer):
                 f"notification_{URGENCY[self.notification.urgency]}_timeout"
             )
 
+        self.hide_ticket = random.getrandbits(32)
         if self.autohide and timeout > 0:
             self.start_hiding(timeout)
 
@@ -395,10 +401,10 @@ class NotificationWidget(Revealer):
         self.reveal()
 
     def start_hiding(self, timeout):
-        def hide(notif: NotificationWidget, timeout):
+        def hide(notif: NotificationWidget, timeout, ticket):
             sleep(timeout)
 
-            if notif.hidden:
+            if notif.hidden or notif.hide_ticket != ticket:
                 return
 
             if notif.hovored:
@@ -408,4 +414,4 @@ class NotificationWidget(Revealer):
                 sleep(0.2)
                 idle_add(notif.notification.close)
 
-        GLib.Thread.new("notification_hide", hide, self, timeout)
+        GLib.Thread.new("notification_hide", hide, self, timeout, self.hide_ticket)

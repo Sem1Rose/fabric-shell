@@ -182,7 +182,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 	label {
 		margin-left: 8px;
-		font-size: 10px;
+		font-size: 13px;
 		color: colors.$on_primary_container;
 	}
 }
@@ -601,6 +601,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		.thick_toggle {
 			margin: settings.$thick_slider_padding;
 			min-height: settings.$thick_slider_thickness;
+			min-width: settings.$thick_slider_thickness;
 		}
 		.thick_slider_toggle_spacing {
 			min-height: settings.$thick_slider_toggle_spacing;
@@ -631,6 +632,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 		.thick_toggle {
 			margin: settings.$thick_slider_padding;
 			min-width: settings.$thick_slider_thickness;
+			min-height: settings.$thick_slider_thickness;
 		}
 		.thick_slider_toggle_spacing {
 			min-width: settings.$thick_slider_toggle_spacing;
@@ -697,7 +699,7 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 
 		label {
 			// font-family: settings.$icon_font_family;
-			font-size: 24px;
+			font-size: 26px;
 			font-weight: normal;
 		}
 	}
@@ -732,51 +734,81 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 				calc(settings.$pill_expanded_padding / -3);
 		}
 
+		$qs-toggle-padding: calc(settings.$pill_padding - 3px);
 		.qs_toggle {
 			transition: all 0.2s ease-out;
 
 			border-radius: calc(settings.$qs_row_height / 2);
 			background-color: colors.$surface_container_low;
-			color: colors.$on_surface;
-			padding: calc(
-				settings.$qs_row_height / 2 - $pill_expanded_ui_radius
-			);
+			// color: colors.$on_surface;
+			color: colors.$primary;
+			padding: $qs-toggle-padding;
 			margin: 0px calc(settings.$pill_expanded_padding / 3);
 
 			&.toggled {
 				color: colors.$background;
 				background-color: colors.$primary;
+				border-radius: calc(settings.$qs_row_height / 3);
 
-				.qs_tile_chevron_button {
-					background-color: colors.$surface;
+				&.menu_button {
 					color: colors.$primary;
+					background-color: colors.$surface_container_high;
 				}
+
+				// .qs_tile_chevron_button {
+				// 	background-color: colors.$surface;
+				// 	color: colors.$primary;
+				// }
 			}
 
 			#qs_tile_icon {
 				font-size: 24px;
 				font-weight: normal;
 				margin-right: settings.$pill_padding;
+				min-width: calc(settings.$qs_row_height - $qs-toggle-padding * 2);
 			}
 
-			.qs_tile_chevron_button {
+			#qs_menu_button {
 				transition: all 0.2s ease-out;
-
-				background-color: colors.$surface;
-				color: colors.$surface_container_highest;
-				// min-width: calc(settings.$qs_row_height - 1.75 * settings.$pill_expanded_padding);
-				min-width: calc($pill_expanded_ui_radius * 2 + 1px);
-				border-radius: $pill_expanded_ui_radius;
-				margin-left: settings.$pill_padding;
+				margin-right: settings.$pill_padding;
+				min-width: calc(settings.$qs_row_height - $qs-toggle-padding * 2);
+				border-radius: calc(settings.$qs_row_height / 2 - $qs-toggle-padding);
+				background-color: colors.$surface_bright;
 
 				label {
-					font-size: larger;
+					font-size: 24px;
+					font-weight: normal;
+				}
+
+				&.toggled {
+					color: colors.$background;
+					background-color: colors.$primary;
+					border-radius: calc(settings.$qs_row_height / 3 - $qs-toggle-padding);
 				}
 			}
+
+			// .qs_tile_chevron_button {
+			// 	transition: all 0.2s ease-out;
+
+			// 	background-color: colors.$surface;
+			// 	color: colors.$surface_container_highest;
+			// 	// min-width: calc(settings.$qs_row_height - 1.75 * settings.$pill_expanded_padding);
+			// 	min-width: calc($pill_expanded_ui_radius * 2 + 1px);
+			// 	border-radius: $pill_expanded_ui_radius;
+			// 	margin-left: settings.$pill_padding;
+
+			// 	label {
+			// 		font-size: larger;
+			// 	}
+			// }
 
 			&:disabled {
 				background-color: colors.$surface_container_lowest;
 				color: colors.$surface_variant;
+
+				#qs_menu_button {
+					background-color: colors.$surface_container_low;
+				}
 			}
 		}
 
@@ -1406,16 +1438,15 @@ $notification_special_item_radius: calc(
 	$notification_special_radius - $notification_window_padding
 );
 .notification {
-	transition: all 0.2s cubic-bezier(0, 1, 0.5, 1);
-	// transition: all 0.4s $transition_function;
+	transition: min-width 0.2s cubic-bezier(0, 1, 0.5, 1);
 
 	background-color: colors.$surface_container_low;
 	border-radius: $notification_window_radius;
 	padding: $notification_window_padding;
 
 	&.hidden {
-		transition: all 0.2s ease-out;
-		// transition: all 0.2s ease-out;
+		transition: min-width 0.2s ease-out, padding 0.3s ease-out, margin 0.3s ease-out;
+
 		min-width: 0px;
 		padding: 0px;
 		margin: 0px -20px;
@@ -1423,7 +1454,7 @@ $notification_special_item_radius: calc(
 
 	&.urgent {
 		// background-color: color.color-mix(in oklab, colors.$surface_container_low 80%, colors.$on_error 20%);
-		background-color: color.scale(colors.$on_error, $lightness: -60%);
+		background-color: color.scale(colors.$on_error, $lightness: -70%);
 	}
 
 	&.special {
@@ -1475,8 +1506,8 @@ $notification_special_item_radius: calc(
 		border-radius: $notification_item_radius;
 
 		#icon {
-			font-size: 44px;
-			font-weight: lighter;
+			font-size: 64px;
+			font-weight: normal;
 		}
 
 		&.accent {
@@ -1986,7 +2017,8 @@ $bar_widget_radius: calc(settings.$bar_radius - settings.$bar_padding);
 }
 
 #workspaces_widget {
-	min-width: calc(6 * 2 * 3px + 5 * 10px + 30px + 2px);
+	min-width: calc(6 * 2 * 3px + 5 * 10px + 30px + 4px);
+	padding-left: settings.$bar_padding + 2px;
 	// $center_margin: calc((settings.$bar_height - settings.$bar_padding * 2 - 14px) / 2);
 	#workspace_button {
 		padding: 0 3px;

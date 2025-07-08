@@ -1,7 +1,8 @@
+from curses import meta
+import gi
 import random
 from time import sleep
 from fabric.widgets.label import Label
-import gi
 import os.path as path
 from loguru import logger
 from config import configuration
@@ -66,13 +67,22 @@ class MusicTicker(Box):
     def add_player(self, player):
         player = player
 
-        if player.props.player_name not in ["spotify"]:
+        if player.props.player_name not in configuration.get_property(
+            "music_ticker_players"
+        ):
             return
 
-        player.connect("metadata", lambda _, metadata: self.update_metadata(metadata))
+        player.connect(
+            "metadata",
+            lambda player, metadata: self.update_metadata(
+                player.props.player_name, metadata
+            ),
+        )
         player.connect(
             "playback-status",
-            lambda _, status: (self.music_tick() or self.hide_music_ticker())
+            lambda player, status: self.update_metadata(
+                player.props.player_name, player.props.metadata
+            )
             if status == Playerctl.PlaybackStatus.PLAYING
             else (),
         )
@@ -149,9 +159,9 @@ class MusicTicker(Box):
         else:
             return default
 
-    def update_metadata(self, metadata):
+    def update_metadata(self, player, metadata):
         label = (
-            f"spotify - {title}"
+            f"{player} - {title}"
             if (title := self.metadata_get(metadata, "xesam:title", ""))
             else "unknown"
         )
@@ -167,7 +177,7 @@ class MusicTicker(Box):
 
     def hide_music_ticker(self):
         def hide_thread(ticker, ticket):
-            sleep(4)
+            sleep(configuration.get_property("music_ticker_timeout"))
 
             if ticker.ticket == ticket:
                 self.do_hide()

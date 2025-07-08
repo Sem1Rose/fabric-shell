@@ -73,12 +73,12 @@ class MPRISService(Service):
             # else:
             #     logger.warning(f"Player {name} is available but won't be managed")
         elif player:
-            self._player_names.remove(player.props.player_name)
-            logger.debug(f'Removing "{player.props.player_name}" from media players')
+            if player.props.player_name in self._player_names:
+                self._player_names.remove(player.props.player_name)
+                logger.debug(f'Removing "{player.props.player_name}" from media players')
 
-            self.emit("player-removed", player)
-            self.notifier("players")
-
+                self.emit("player-removed", player)
+                self.notifier("players")
             # self.remove_player(player)
         else:
             logger.error("THIS SHALL NOT BE REACHED")

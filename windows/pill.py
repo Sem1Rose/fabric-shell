@@ -1,6 +1,7 @@
 from loguru import logger
 
 from config import configuration
+from widgets import notification_widget
 from widgets.pill.pill import Pill, PillApplets
 from widgets.pill.popup_notifications import NotificationsContainer
 from widgets.buttons import MarkupButton
@@ -54,6 +55,19 @@ class PillWindow(Window):
         #     name="hover_listener",
         #     child=self.pill,
         # )
+
+        if self.pill.dashboard.quick_settings_widget.do_not_disturb:
+            self.pill.dashboard.quick_settings_widget.do_not_disturb.connect(
+                "on-toggled",
+                lambda toggle, *_: (
+                    self.notifications_container.do_not_disturb() if toggle.toggled else self.notifications_container.do_disturb(),
+                    toggle.set_icon(
+                        configuration.get_property(
+                            "dnd_on_icon" if toggle.toggled else "dnd_off_icon"
+                        )
+                    ),
+                ),
+            )
 
         self.left_button = MarkupButton(
             style_classes="floating_buttons",

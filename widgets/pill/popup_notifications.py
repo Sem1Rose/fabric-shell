@@ -17,6 +17,12 @@ class NotificationsContainer(Box):
             **kwargs,
         )
 
+        self.hidden = False
+        self.dnd = False
+        self.new_notification_from_bottom = configuration.get_property(
+            "popup_notification_new_notification_pos"
+        ) == "bottom"
+
         self.daemon = Notifications(
             on_notification_added=lambda _, id: self.handle_incoming_notification(id),
             on_notification_removed=lambda _, id: self.handle_removed_notification(id),
@@ -53,8 +59,6 @@ class NotificationsContainer(Box):
         for widget in self.notification_widgets:
             self.add(widget)
 
-        self.hidden = False
-
     def get_empty_widget_index(self):
         for i in self.notification_pos:
             if not self.notification_shown[i]:
@@ -71,10 +75,11 @@ class NotificationsContainer(Box):
         ):
             index = self.notification_ids.index(notification.replaces_id)
 
-            indx = self.notification_pos.index(index)
-            self.reorder_child(self.notification_widgets[index], 0)
-            self.notification_pos.pop(indx)
-            self.notification_pos.insert(0, index)
+            if not self.new_notification_from_bottom:
+                indx = self.notification_pos.index(index)
+                self.reorder_child(self.notification_widgets[index], 0)
+                self.notification_pos.pop(indx)
+                self.notification_pos.insert(0, index)
 
             self.notification_ids[index] = notification_id
             self.notification_shown[index] = True
@@ -89,10 +94,11 @@ class NotificationsContainer(Box):
                 self.notification_queue.append(notification_id)
                 return
 
-            indx = self.notification_pos.index(index)
-            self.reorder_child(self.notification_widgets[index], 0)
-            self.notification_pos.pop(indx)
-            self.notification_pos.insert(0, index)
+            if not self.new_notification_from_bottom:
+                indx = self.notification_pos.index(index)
+                self.reorder_child(self.notification_widgets[index], 0)
+                self.notification_pos.pop(indx)
+                self.notification_pos.insert(0, index)
 
             self.notification_ids[index] = notification_id
             self.notification_shown[index] = True
@@ -101,7 +107,7 @@ class NotificationsContainer(Box):
 
         self.notification_widgets[index].build_from_notification(notification)
 
-        if self.hidden:
+        if self.hidden or self.dnd:
             self.notification_widgets[index].reset()
 
     def handle_removed_notification(self, notification_id):
@@ -118,10 +124,14 @@ class NotificationsContainer(Box):
         self.notification_ids[index] = -1
 
         indx = self.notification_pos.index(index)
-        if indx != 0:
+        # # if indx != 0:
+        # #     self.notification_pos.pop(indx)
+        # #     self.notification_pos.insert(0, index)
+        # #     self.reorder_child(self.notification_widgets[index], 0)
+        if self.new_notification_from_bottom:
             self.notification_pos.pop(indx)
-            self.notification_pos.insert(0, index)
-            self.reorder_child(self.notification_widgets[index], 0)
+            self.notification_pos.insert(-1, index)
+            self.reorder_child(self.notification_widgets[index], self.notification_ids.__len__())
 
         logger.debug(f"notification {notification_id} removed")
 
@@ -142,8 +152,30 @@ class NotificationsContainer(Box):
         if not self.hidden:
             return
 
-        for i in range(self.notification_widgets.__len__()):
-            if self.notification_shown[i]:
-                self.notification_widgets[i].rebuild()
+        logger.error(self.dnd)
+        if not self.dnd:
+            for i in range(self.notification_widgets.__len__()):
+                if self.notification_shown[i]:
+                    self.notification_widgets[i].rebuild()
 
         self.hidden = False
+
+    def do_not_disturb(self):
+        if self.dnd:
+            return
+
+        for notification in self.notification_widgets:
+            notification.reset()
+
+        self.dnd = True
+
+    def do_disturb(self):
+        if not self.dnd:
+            return
+
+        if not self.hidden:
+            for i in range(self.notification_widgets.__len__()):
+                if self.notification_shown[i]:
+                    self.notification_widgets[i].rebuild()
+
+        self.dnd = False

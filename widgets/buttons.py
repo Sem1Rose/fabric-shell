@@ -157,14 +157,14 @@ class QSToggleButton(EventBox):
     @Signal
     def on_toggled(self, modifiers: int): ...
 
-    @Signal
-    def rmb_pressed(self, modifiers: int): ...
+    # @Signal
+    # def rmb_pressed(self, modifiers: int): ...
 
     def __init__(
         self,
         markup: str | None = None,
         icon: str | None = None,
-        add_chevron=False,
+        add_menu_button=False,
         auto_toggle=True,
         *args,
         **kwargs,
@@ -172,44 +172,33 @@ class QSToggleButton(EventBox):
         super().__init__()
 
         self.auto_toggle = auto_toggle
-
-        self.chevron_button = None
-        self.label = Label(
-            name="qs_tile_label",
-            h_expand=not add_chevron,
-            h_align="start" if add_chevron else "fill",
-            ellipsization="end",
-        )
-        self.icon = Label(name="qs_tile_icon", h_expand=False, h_align="start")
+        self.toggled: bool = False
+        self.menu_button: bool = add_menu_button
 
         self.main_container = Box(*args, **kwargs)
         self.main_container.add_style_class("qs_toggle")
 
-        if add_chevron:
-            self.chevron_button = ChevronButton(
-                style_classes="qs_tile_chevron_button",
-                # markup=configuration.get_property("chevron_right"),
-            )
-            # self.chevron_button.connect(
-            #     "button-release-event", lambda *_: self.chevron_toggle()
-            # )
+        self.label = Label(
+            name="qs_tile_label",
+            h_expand=not add_menu_button,
+            h_align="start" if add_menu_button else "center",
+            ellipsization="end",
+        )
 
-            # self.chevron_toggled = False
+        if add_menu_button:
+            self.icon = ToggleButton(name="qs_menu_button", auto_toggle=auto_toggle)
+            self.main_container.add_style_class("menu_button")
 
-            container = Box(h_expand=True, v_expand=True)
-            container.pack_start(Box(children=[self.icon, self.label]), False, False, 0)
-            container.pack_end(self.chevron_button, False, False, 0)
-
-            self.main_container.add(container)
+            self.icon.connect("on-toggled", self.handle_button_release)
         else:
-            self.main_container.add(Box(children=[self.icon, self.label]))
+            self.icon = Label(name="qs_tile_icon")
+            self.connect("button-release-event", self.handle_button_release)
 
-        self.toggled = False
+        self.main_container.add(Box(children=[self.icon, self.label]))
 
         self.set_label(markup) if markup else None
         self.set_icon(icon) if icon else None
 
-        self.connect("button-release-event", self.handle_button_release)
         self.connect("enter-notify-event", lambda *_: self.cursor_enter())
         self.connect("leave-notify-event", lambda *_: self.cursor_leave())
 
@@ -226,6 +215,8 @@ class QSToggleButton(EventBox):
     def cursor_enter(self):
         if not self.is_sensitive():
             return
+        if self.menu_button and not self.toggled:
+            return
 
         window = self.get_window()
         if window:
@@ -239,11 +230,16 @@ class QSToggleButton(EventBox):
         if window:
             window.set_cursor(None)
 
-    def handle_button_release(self, button, event):
-        if event.button == 1:
-            self.toggle(event.get_state())
-        elif event.button == 3:
-            self.rmb_pressed(event.get_state())
+    def handle_button_release(self, _, event):
+        if self.menu_button:
+            state = event
+        else:
+            state = event.get_state()
+
+        self.toggle(state)
+        # if event.button == 1:
+        # elif event.button == 3:
+        #     self.rmb_pressed(event.get_state())
 
     def toggle(self, modifiers):
         if self.auto_toggle:
@@ -251,17 +247,128 @@ class QSToggleButton(EventBox):
 
         self.on_toggled(modifiers)
 
-    def set_state(self, state):
+    def set_state(self, state: bool):
         self.toggled = state
+        if self.menu_button:
+            self.icon.set_state(state)
 
         if state:
             self.main_container.add_style_class("toggled")
         else:
             self.main_container.remove_style_class("toggled")
 
-        if self.chevron_button:
-            self.chevron_button.set_sensitive(state)
-            self.chevron_button.toggle() if self.chevron_button.toggled else None
+        # if self.chevron_button:
+        #     self.chevron_button.set_sensitive(state)
+        #     self.chevron_button.toggle() if self.chevron_button.toggled else None
+# class QSToggleButton(EventBox):
+#     @Signal
+#     def on_toggled(self, modifiers: int): ...
+
+#     @Signal
+#     def rmb_pressed(self, modifiers: int): ...
+
+#     def __init__(
+#         self,
+#         markup: str | None = None,
+#         icon: str | None = None,
+#         add_chevron=False,
+#         auto_toggle=True,
+#         *args,
+#         **kwargs,
+#     ):
+#         super().__init__()
+
+#         self.auto_toggle = auto_toggle
+
+#         self.chevron_button = None
+#         self.label = Label(
+#             name="qs_tile_label",
+#             h_expand=not add_chevron,
+#             h_align="start" if add_chevron else "fill",
+#             ellipsization="end",
+#         )
+#         self.icon = Label(name="qs_tile_icon", h_expand=False, h_align="start")
+
+#         self.main_container = Box(*args, **kwargs)
+#         self.main_container.add_style_class("qs_toggle")
+
+#         if add_chevron:
+#             self.chevron_button = ChevronButton(
+#                 style_classes="qs_tile_chevron_button",
+#                 # markup=configuration.get_property("chevron_right"),
+#             )
+#             # self.chevron_button.connect(
+#             #     "button-release-event", lambda *_: self.chevron_toggle()
+#             # )
+
+#             # self.chevron_toggled = False
+
+#             container = Box(h_expand=True, v_expand=True)
+#             container.pack_start(Box(children=[self.icon, self.label]), False, False, 0)
+#             container.pack_end(self.chevron_button, False, False, 0)
+
+#             self.main_container.add(container)
+#         else:
+#             self.main_container.add(Box(children=[self.icon, self.label]))
+
+#         self.toggled: bool = False
+
+#         self.set_label(markup) if markup else None
+#         self.set_icon(icon) if icon else None
+
+#         self.connect("button-release-event", self.handle_button_release)
+#         self.connect("enter-notify-event", lambda *_: self.cursor_enter())
+#         self.connect("leave-notify-event", lambda *_: self.cursor_leave())
+
+#         self.set_state(self.toggled)
+
+#         self.add(self.main_container)
+
+#     def set_label(self, new_markup):
+#         self.label.set_markup(new_markup)
+
+#     def set_icon(self, new_icon):
+#         self.icon.set_markup(new_icon)
+
+#     def cursor_enter(self):
+#         if not self.is_sensitive():
+#             return
+
+#         window = self.get_window()
+#         if window:
+#             window.set_cursor(Gdk.Cursor(Gdk.CursorType.HAND2))
+
+#     def cursor_leave(self):
+#         if not self.is_sensitive():
+#             return
+
+#         window = self.get_window()
+#         if window:
+#             window.set_cursor(None)
+
+#     def handle_button_release(self, button, event):
+#         if event.button == 1:
+#             self.toggle(event.get_state())
+#         elif event.button == 3:
+#             self.rmb_pressed(event.get_state())
+
+#     def toggle(self, modifiers):
+#         if self.auto_toggle:
+#             self.set_state(not self.toggled)
+
+#         self.on_toggled(modifiers)
+
+#     def set_state(self, state: bool):
+#         self.toggled = state
+
+#         if state:
+#             self.main_container.add_style_class("toggled")
+#         else:
+#             self.main_container.remove_style_class("toggled")
+
+#         if self.chevron_button:
+#             self.chevron_button.set_sensitive(state)
+#             self.chevron_button.toggle() if self.chevron_button.toggled else None
 
 
 class QSTileButton(Button):

@@ -179,9 +179,22 @@ class VolumeSlider(Box):
             lambda *_: self.connect_toggle(),
         )
 
+        toggle_box = Box(
+            orientation="v" if orientation == "horizontal" else "h",
+            children=[
+                Box(v_expand=True)
+                if orientation == "horizontal"
+                else Box(h_expand=True),
+                self.toggle_overlay if self.device_selection_added else self.toggle,
+                Box(v_expand=True)
+                if orientation == "horizontal"
+                else Box(h_expand=True),
+            ],
+        )
+
         self.children = (
             [
-                self.toggle_overlay if self.device_selection_added else self.toggle,
+                toggle_box,
                 Box(vexpand=True, style_classes="thick_slider_toggle_spacing")
                 if orientation == "horizontal"
                 else Box(hexpand=True, style_classes="thick_slider_toggle_spacing"),
@@ -193,7 +206,7 @@ class VolumeSlider(Box):
                 Box(vexpand=True, style_classes="thick_slider_toggle_spacing")
                 if orientation == "horizontal"
                 else Box(hexpand=True, style_classes="thick_slider_toggle_spacing"),
-                self.toggle_overlay if self.device_selection_added else self.toggle,
+                toggle_box,
             ]
         )
 

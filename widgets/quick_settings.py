@@ -15,6 +15,7 @@ from fabric.utils.helpers import (
 )
 from fabric.bluetooth import BluetoothClient
 
+
 class QuickSettings(Box):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -25,6 +26,7 @@ class QuickSettings(Box):
         )
 
         self.volume_chevron = False
+        self.do_not_disturb = None
 
         self.rows = []
         self.chevrons = []
@@ -57,8 +59,8 @@ class QuickSettings(Box):
                             self.wifi_toggle = QSToggleButton(
                                 name="wifi_qs_toggle",
                                 h_expand=True,
-                                add_chevron=True,
-                                auto_toggle=False,
+                                add_menu_button=True,
+                                auto_toggle=True,
                             )
 
                             if self.adapter_name:
@@ -70,7 +72,8 @@ class QuickSettings(Box):
                                     on_changed=lambda _, v: self.wifi_update(v.strip()),
                                 )
                             else:
-                                self.wifi_toggle.set_sensitive(False)
+                                # self.wifi_toggle.set_sensitive(False)
+                                # self.wifi_toggle.icon.set_sensitive(False)
                                 self.wifi_toggle.set_label("Disabled")
                                 self.wifi_toggle.set_icon(
                                     configuration.get_property(
@@ -79,14 +82,14 @@ class QuickSettings(Box):
                                 )
 
                             qs_row.add(self.wifi_toggle)
-                            self.chevrons.append(self.wifi_toggle.chevron_button)
+                            # self.chevrons.append(self.wifi_toggle.chevron_button)
                         case "bluetooth":
                             self.bluetooth_client = BluetoothClient()
 
                             self.bluetooth_toggle = QSToggleButton(
                                 name="bluetooth_qs_toggle",
                                 h_expand=True,
-                                add_chevron=True,
+                                add_menu_button=True,
                                 auto_toggle=False,
                             )
                             self.bluetooth_toggle.connect(
@@ -101,7 +104,22 @@ class QuickSettings(Box):
                             )
 
                             qs_row.add(self.bluetooth_toggle)
-                            self.chevrons.append(self.bluetooth_toggle.chevron_button)
+                            # self.chevrons.append(self.bluetooth_toggle.chevron_button)
+                        case "dnd":
+                            self.do_not_disturb = QSToggleButton(
+                                name="dnd_qs_toggle",
+                                h_expand=True,
+                                add_menu_button=False,
+                                auto_toggle=True,
+                            )
+
+                            self.do_not_disturb.set_label("Do not disturb")
+                            self.do_not_disturb.set_state(False)
+                            self.do_not_disturb.set_icon(
+                                configuration.get_property("dnd_off_icon")
+                            )
+
+                            qs_row.add(self.do_not_disturb)
                         case "empty":
                             qs_row.add(Box())
                         case _:
@@ -259,6 +277,7 @@ class QuickSettings(Box):
     def bluetooth_update(self, client):
         if client.state == "absent":
             self.bluetooth_toggle.set_sensitive(False)
+            self.bluetooth_toggle.icon.set_sensitive(False)
             self.bluetooth_toggle.set_state(False)
             self.bluetooth_toggle.set_label("Disabled")
             self.bluetooth_toggle.set_icon(
