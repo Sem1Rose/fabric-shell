@@ -10,11 +10,32 @@
 	font-size: settings.$text_font_size;
 }
 
-#pill_window,
-#bar_window,
-#urgent_osd_window,
-#osd_window {
-	background-color: transparent;
+// #pill_window,
+// #bar_window,
+// #urgent_osd_window,
+// #osd_window,
+// #corners_window {
+// 	background-color: transparent;
+// }
+
+#corners_window {
+	#main_container {
+		#corner_container {
+			transition: all 0.2s ease-out;
+
+			min-width: 28px;
+			min-height: 26px;
+
+			&.hidden {
+				min-width: 0px;
+				min-height: 0px;
+			}
+
+			#corner {
+				background-color: colors.$background;
+			}
+		}
+	}
 }
 
 #pill_window {
@@ -1825,14 +1846,19 @@ $notification_special_item_radius: calc(
 
 #popup_notifications_container {
 	.notification {
+		// transition: min-width 0.1s ease-out;
+
 		margin-top: 6px;
 		min-width: calc(
 			settings.$pill_expanded_width - $notification_window_padding * 2
 		);
 
 		&.hidden {
+			transition: min-width 0.2s ease-out, padding 0.3s ease-out, margin 0.2s ease-out;
+
 			min-width: 0px;
 			padding: 0px;
+			margin: 0px calc(settings.$pill_expanded_width / -2 + $notification_window_padding * 2);
 		}
 	}
 }

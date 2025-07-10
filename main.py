@@ -8,8 +8,9 @@ from fabric.utils import monitor_file, get_relative_path, idle_add
 from widgets.helpers.formatted_exec import formatted_exec_shell_command
 
 from windows.pill import PillWindow, PillApplets
-from windows.osd import OSDWindow, UrgentOSDWindow
+from windows.osd import OSDWindow
 from windows.bar import BarWindow
+from windows.corners import CornersWindow
 
 # import sdbus
 # from sdbus_block.networkmanager import (
@@ -38,7 +39,6 @@ from gi.repository import Gtk, GLib  # noqa: E402, F401
 logger.disable("fabric.audio")
 logger.disable("fabric.widgets.wayland")
 logger.disable("fabric.hyprland.widgets")
-
 
 def apply_styles():
     if os.path.exists("style.css"):
@@ -71,6 +71,9 @@ if __name__ == "__main__":
     # global urgent_osd
     # urgent_osd = UrgentOSDWindow()
 
+    global corners_window
+    corners_window = CornersWindow()
+
     global bar_window
     bar_window = BarWindow()
 
@@ -81,6 +84,7 @@ if __name__ == "__main__":
         configuration.get_property("app_name"),
         osd_window,
         # urgent_osd,
+        corners_window,
         pill_window,
         bar_window,
         open_inspector=configuration.get_property("debug"),

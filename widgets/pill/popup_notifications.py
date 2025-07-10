@@ -152,7 +152,6 @@ class NotificationsContainer(Box):
         if not self.hidden:
             return
 
-        logger.error(self.dnd)
         if not self.dnd:
             for i in range(self.notification_widgets.__len__()):
                 if self.notification_shown[i]:

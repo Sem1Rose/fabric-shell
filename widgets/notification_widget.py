@@ -34,14 +34,14 @@ class NotificationWidget(Revealer):
     ):
         super().__init__(**kwargs)
 
-        self.main_contianer = Box(orientation="v", style_classes="notification")
+        self.main_container = Box(orientation="v", style_classes="notification")
 
         self.autohide = autohide
 
         if not self.autohide:
             self.reveal()
         else:
-            self.main_contianer.add_style_class("hidden")
+            self.main_container.add_style_class("hidden")
 
         self.hidden = True
         self.hide_ticket = 0
@@ -56,7 +56,7 @@ class NotificationWidget(Revealer):
                 "enter-notify",
                 "leave-notify",
             ],
-            child=self.main_contianer,
+            child=self.main_container,
         )
 
         self.event_box.connect("enter-notify-event", lambda *_: self.on_hover())
@@ -92,7 +92,7 @@ class NotificationWidget(Revealer):
         if self.autohide:
             self.hidden = True
             self.unreveal()
-            self.main_contianer.add_style_class("hidden")
+            self.main_container.add_style_class("hidden")
 
         self.hovored = False
         self.do_hide = False
@@ -110,7 +110,7 @@ class NotificationWidget(Revealer):
             self.start_hiding(timeout)
 
         self.hidden = False
-        self.main_contianer.remove_style_class("hidden")
+        self.main_container.remove_style_class("hidden")
         self.reveal()
 
     def build_from_notification(self, notification: Notification):
@@ -118,7 +118,7 @@ class NotificationWidget(Revealer):
 
         self.notification = notification
         for i in URGENCY.values():
-            self.main_contianer.remove_style_class(i)
+            self.main_container.remove_style_class(i)
 
         hints = {}
         for hint in CUSTOM_HINTS:
@@ -144,23 +144,31 @@ class NotificationWidget(Revealer):
             if self.notification.app_icon and self.notification.app_icon != "":
                 if os.path.isfile(self.notification.app_icon) and not image:
                     image = GdkPixbuf.Pixbuf.new_from_file(self.notification.app_icon)
-                    pixbuf = Gtk.IconTheme().load_icon(
-                        "action-unavailable",
-                        configuration.get_property("notification_app_icon_size"),
-                        Gtk.IconLookupFlags.FORCE_SIZE,
+                    pixbuf = (
+                        Gtk.IconTheme()
+                        .get_default()
+                        .load_icon(
+                            "error",
+                            configuration.get_property("notification_app_icon_size"),
+                            Gtk.IconLookupFlags.FORCE_SIZE,
+                        )
                     )
                 else:
-                    pixbuf = Gtk.IconTheme().load_icon(
-                        self.notification.app_icon,
-                        configuration.get_property("notification_app_icon_size"),
-                        Gtk.IconLookupFlags.FORCE_SIZE,
+                    pixbuf = (
+                        Gtk.IconTheme()
+                        .get_default()
+                        .load_icon(
+                            self.notification.app_icon,
+                            configuration.get_property("notification_app_icon_size"),
+                            Gtk.IconLookupFlags.FORCE_SIZE,
+                        )
                     )
             else:
                 pixbuf = (
                     Gtk.IconTheme()
                     .get_default()
                     .load_icon(
-                        "action-unavailable",
+                        "error",
                         configuration.get_property("notification_app_icon_size"),
                         Gtk.IconLookupFlags.FORCE_SIZE,
                     )
@@ -172,7 +180,7 @@ class NotificationWidget(Revealer):
                 Gtk.IconTheme()
                 .get_default()
                 .load_icon(
-                    "action-unavailable",
+                    "error",
                     configuration.get_property("notification_app_icon_size"),
                     Gtk.IconLookupFlags.FORCE_SIZE,
                 )
@@ -199,13 +207,14 @@ class NotificationWidget(Revealer):
             ]
         )
 
-        dismiss_button = MarkupButton(
-            name="dismiss_button",
-            markup=configuration.get_property("notification_dismiss_icon"),
-            vexpand=True,
-        )
-        dismiss_button.connect("button-release-event", lambda *_: self.close())
-        dismiss_button.connect("enter-notify-event", lambda *_: self.on_hover())
+        if self.autohide:
+            dismiss_button = MarkupButton(
+                name="dismiss_button",
+                markup=configuration.get_property("notification_dismiss_icon"),
+                vexpand=True,
+            )
+            dismiss_button.connect("button-release-event", lambda *_: self.close())
+            dismiss_button.connect("enter-notify-event", lambda *_: self.on_hover())
 
         image_container = Box(orientation="v")
         if image:
@@ -258,42 +267,51 @@ class NotificationWidget(Revealer):
 
         image_container.add(Box(v_expand=True))
 
+        summary = Label(
+                    self.notification.summary,
+                    name="summary",
+                    justification="left",
+                    h_align="start",
+                    line_wrap="none" if self.autohide else "word-char",
+                    h_expand=True,
+                    # max_chars_width=50,
+                    # chars_width=1,
+                    ellipsization="end" if self.autohide else "none",
+                )
+        body = Label(
+                    self.notification.body,
+                    name="body",
+                    justification="left",
+                    h_align="start",
+                    line_wrap="word-char",
+                    h_expand=True,
+                    # v_expand=True,
+                    # max_chars_width=300,
+                    # chars_width=1,
+                    ellipsization="end" if self.autohide else "none",
+                )
+
+        if self.autohide:
+            body.set_lines(4)
+
         notification_body = Box(
             orientation="v",
             name="body_container",
             v_expand=True,
             h_expand=True,
             children=[
-                Label(
-                    self.notification.summary,
-                    name="summary",
-                    justification="fill",
-                    h_align="start",
-                    line_wrap="`word",
-                    h_expand=True,
-                    max_chars_width=50,
-                    chars_width=1,
-                ),
-                Label(
-                    self.notification.body,
-                    name="body",
-                    justification="fill",
-                    h_align="start",
-                    line_wrap="word",
-                    h_expand=True,
-                    max_chars_width=300,
-                    chars_width=1,
-                ),
-                Box(v_expand=True),
+                summary,
+                body,
+                # Box(v_expand=True),
             ],
         )
 
-        self.main_contianer.children = [
+        self.main_container.children = [
             Box(
                 children=[
                     Box(orientation="v", children=[app_details, Box(v_expand=True)]),
                     Box(h_expand=True),
-                    dismiss_button,
+                    dismiss_button if self.autohide else (),
                 ],
             ),
             Box(
@@ -320,8 +338,8 @@ class NotificationWidget(Revealer):
             progress_bar.set_fraction(progress / 100.0)
             progress_bar.show()
 
-            self.main_contianer.add_style_class("special")
-            self.main_contianer.add(progress_bar)
+            self.main_container.add_style_class("special")
+            self.main_container.add(progress_bar)
 
         if actions:
             action_buttons = []
@@ -359,7 +377,7 @@ class NotificationWidget(Revealer):
                 actions_container.add(action_button)
 
             if action_buttons.__len__() > 0:
-                self.main_contianer.add_style_class("special")
+                self.main_container.add_style_class("special")
 
             if actions_overflow:
                 overflow_actions_combo = Gtk.ComboBoxText()
@@ -380,7 +398,7 @@ class NotificationWidget(Revealer):
 
                 actions_container.add(overflow_actions_combo)
 
-            self.main_contianer.add(actions_container)
+            self.main_container.add(actions_container)
 
         self.notification.connect("action-invoked", lambda *_: self.close())
 
@@ -395,9 +413,9 @@ class NotificationWidget(Revealer):
             self.start_hiding(timeout)
 
         self.hidden = False
-        self.main_contianer.remove_style_class("hidden")
-        self.main_contianer.remove_style_class("special")
-        self.main_contianer.add_style_class(URGENCY[self.notification.urgency])
+        self.main_container.remove_style_class("hidden")
+        self.main_container.remove_style_class("special")
+        self.main_container.add_style_class(URGENCY[self.notification.urgency])
         self.reveal()
 
     def start_hiding(self, timeout):
@@ -410,8 +428,12 @@ class NotificationWidget(Revealer):
             if notif.hovored:
                 notif.do_hide = True
             else:
+                def clear_children(container):
+                    container.main_container.children = []
+
                 idle_add(notif.reset)
                 sleep(0.2)
+                idle_add(clear_children, notif)
                 idle_add(notif.notification.close)
 
         GLib.Thread.new("notification_hide", hide, self, timeout, self.hide_ticket)

@@ -42,6 +42,7 @@ class BarWindow(Window):
             anchor="left top right",
             exclusivity="auto",
             layer="top",
+            style="background-color: transparent;",
             # pass_through=True,
             visible=False,
             # margin="-1px 0px 0px 0px",

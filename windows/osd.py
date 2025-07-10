@@ -29,6 +29,7 @@ class OSDWindow(Window):
             exclusivity="normal",
             layer="overlay",
             visible=False,
+            style="background-color: transparent;",
             *args,
             **kwargs,
         )

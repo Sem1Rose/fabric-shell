@@ -24,6 +24,7 @@ class PillWindow(Window):
             anchor="top",
             exclusivity="normal",
             layer="top",
+            style="background-color: transparent;",
             margin=f"-{configuration.get_property('pill_height', 'css_settings')} 0px 0px 0px",
             visible=False,
             *args,

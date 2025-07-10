@@ -133,6 +133,9 @@ microphone_muted_icon = "&#xed16;"
 dnd_on_icon = "&#xf684;"
 dnd_off_icon = "&#xf162;"
 
+caffeine_on_icon = "&#xef28;"
+caffeine_off_icon = "&#xf10d;"
+
 workspaces_widget_num_workspaces = 6
 
 resource_monitor_poll_interval = 2000
@@ -232,7 +235,7 @@ power_menu_action_size = "100px"
 
 osd_padding = "8px"
 osd_height = "350px"
-osd_pos_vertical = "200px"
+osd_pos_vertical = "170px"
 
 thick_slider_length = "250px"
 thick_slider_thickness = "52px"

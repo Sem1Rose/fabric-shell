@@ -120,6 +120,56 @@ class QuickSettings(Box):
                             )
 
                             qs_row.add(self.do_not_disturb)
+                        case "caffeine":
+                            self.caffeine = QSToggleButton(
+                                name="caffeine_qs_toggle",
+                                h_expand=True,
+                                add_menu_button=False,
+                                auto_toggle=True,
+                            ).build(
+                                lambda toggle, _: Fabricator(
+                                    poll_from=lambda *_: exec_shell_command(
+                                        "pidof hypridle"
+                                    ),
+                                    interval=1000,
+                                    on_changed=lambda _, value: (
+                                        toggle.set_state(value == ""),
+                                        toggle.set_icon(
+                                            configuration.get_property(
+                                                "caffeine_on_icon"
+                                            )
+                                            if toggle.toggled
+                                            else configuration.get_property(
+                                                "caffeine_off_icon"
+                                            )
+                                        ),
+                                    ),
+                                )
+                            )
+
+                            self.caffeine.connect(
+                                "on-toggled",
+                                lambda toggle, _: (
+                                    exec_shell_command_async("sh -c 'pkill hypridle || uwsm app -- hypridle'"),
+                                    toggle.set_icon(
+                                        configuration.get_property("caffeine_on_icon")
+                                        if toggle.toggled
+                                        else configuration.get_property(
+                                            "caffeine_off_icon"
+                                        )
+                                    ),
+                                ),
+                            )
+
+                            self.caffeine.set_state(exec_shell_command("pidof hypridle") == "")
+                            self.caffeine.set_label("Caffeine")
+                            self.caffeine.set_icon(
+                                configuration.get_property("caffeine_on_icon")
+                                if self.caffeine.toggled
+                                else configuration.get_property("caffeine_off_icon")
+                            )
+
+                            qs_row.add(self.caffeine)
                         case "empty":
                             qs_row.add(Box())
                         case _:
