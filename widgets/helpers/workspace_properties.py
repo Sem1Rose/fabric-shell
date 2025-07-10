@@ -57,12 +57,12 @@ class WorkspaceProperties(Service):
         if count == 0:
             if not self._empty:
                 self._empty = True
-                logger.error("empty")
+                # logger.error("empty")
                 self.on_empty(self._empty)
 
             if self._fullscreen:
                 self._fullscreen = False
-                logger.error("no fullscreen")
+                # logger.error("no fullscreen")
                 self.on_fullscreen(self._fullscreen)
         else:
             floating = 0
@@ -78,33 +78,33 @@ class WorkspaceProperties(Service):
             if non_floating == 0:
                 if not self._empty:
                     self._empty = True
-                    logger.error("empty")
+                    # logger.error("empty")
                     self.on_empty(self._empty)
 
                 if self._fullscreen:
                     self._fullscreen = False
-                    logger.error("no fullscreen")
+                    # logger.error("no fullscreen")
                     self.on_fullscreen(self._fullscreen)
             else:
                 if self._empty:
                     self._empty = False
-                    logger.error("no empty")
+                    # logger.error("no empty")
                     self.on_empty(self._empty)
 
                 if non_floating == 1:
                     if not self._fullscreen:
                         self._fullscreen = True
-                        logger.error("fullscreen")
+                        # logger.error("fullscreen")
                         self.on_fullscreen(self._fullscreen)
                 else:
                     if fullscreen > 0:
                         if not self._fullscreen:
                             self._fullscreen = True
-                            logger.error("fullscreen")
+                            # logger.error("fullscreen")
                             self.on_fullscreen(self._fullscreen)
                     elif self._fullscreen:
                         self._fullscreen = False
-                        logger.error("no fullscreen")
+                        # logger.error("no fullscreen")
                         self.on_fullscreen(self._fullscreen)
 
     def get_clients_overlap_rect(self, rect) -> bool:

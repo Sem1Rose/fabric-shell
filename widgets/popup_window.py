@@ -12,7 +12,6 @@ class PopupWindow(WaylandWindow):
     def __init__(
         self,
         parent: WaylandWindow,
-        style="background-color: transparent;",
         pointing_to: Gtk.Widget | None = None,
         margin: tuple[int, ...] | str = "0px 0px 0px 0px",
         **kwargs,

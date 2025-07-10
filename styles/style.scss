@@ -10,14 +10,6 @@
 	font-size: settings.$text_font_size;
 }
 
-// #pill_window,
-// #bar_window,
-// #urgent_osd_window,
-// #osd_window,
-// #corners_window {
-// 	background-color: transparent;
-// }
-
 #corners_window {
 	#main_container {
 		#corner_container {
@@ -532,30 +524,156 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 }
 
 #pill_app_launcher {
-	min-width: 500px;
-	min-height: 400px;
+	transition: all 0.5s $transition_function;
+
+	min-width: 575px;
+	min-height: 380px;
 
 	padding: settings.$pill_expanded_padding;
 
 	&.hidden {
-		margin: -200px -160px;
+		transition: all 0.2s ease-out;
+
+		padding: 0px;
+		min-width: 0px;
+		min-height: 0px;
+
+		#app_launcher_entry {
+			transition: all 0.2s ease-out;
+			min-height: 0px;
+			margin: -10px;
+			padding: 0px;
+		}
 
 		#grid_item {
-			margin: 0;
+			transition: all 0.1s ease-out;
+			margin: -10px;
+
+			#grid_item_label {
+				transition: all 0.1s ease-out;
+				margin: -10px;
+				padding: 0px;
+				font-size: 0px;
+			}
+
+			#grid_item_icon {
+				transition: all 0.1s ease-out;
+				margin: -10px;
+				padding: 0px;
+
+				min-width: 0px;
+				min-height: 0px;
+			}
+		}
+	}
+
+	#app_launcher_entry {
+		transition: all 0.3s ease-out;
+
+		min-height: 36px;
+		margin: -2px;
+		margin-bottom: 6px;
+		padding: 0px 12px;
+
+		border-radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
+		background-color: colors.$surface_container_highest;
+		border: 2px solid colors.$inverse_primary;
+
+		label {
+			font-size: 14px;
+			font-weight: bold;
+			font-style: normal;
+
+			color: colors.$secondary;
 		}
 	}
 
 	#grid_item {
-		margin: 5px;
+		transition: all 0.2s ease-out;
 
-		background-color: green;
+		margin-top: 5px;
+		margin-right: 5px;
 
-		&.active {
-			background-color: red;
+		border-radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
+		background-color: colors.$surface_container_low;
+
+		&:hover {
+			background-color: colors.$surface_container_high;
+
+			#grid_item_label {
+				color: colors.$secondary_fixed_dim;
+				background-color: colors.$surface_container_low;
+			}
+
+			#grid_item_icon {
+				background-color: colors.$surface_container;
+			}
 		}
 
 		&.empty {
 			background-color: transparent;
+
+			#grid_item_label {
+				background-color: transparent;
+			}
+
+			#grid_item_icon {
+				background-color: transparent;
+			}
+		}
+
+		&:last-child {
+			margin-right: 0px;
+		}
+
+
+		&.active {
+			background-color: colors.$primary;
+
+			#grid_item_label {
+				color: colors.$on_surface_variant;
+				background-color: colors.$surface_bright;
+
+				font-weight: bold;
+			}
+
+			#grid_item_icon {
+				background-color: colors.$on_primary;
+			}
+
+			&:hover {
+				background-color: colors.$secondary;
+				#grid_item_icon {
+					background-color: colors.$on_secondary;
+				}
+			}
+		}
+
+		#grid_item_icon {
+			transition: all 0.2s ease-out;
+
+			margin: 8px;
+			padding: 4px;
+
+			min-width: 40px;
+			min-height: 40px;
+
+			border-radius: 8px;
+			background-color: transparent;
+		}
+
+		#grid_item_label {
+			margin: 4px;
+			padding: 5px;
+			margin-top: 0px;
+			font-size: 11px;
+
+			font-weight: normal;
+			font-style: normal;
+
+			color: colors.$secondary_fixed_dim;
+			background-color: colors.$surface_container_lowest;
+			border-radius: 12px;
 		}
 	}
 }

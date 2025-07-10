@@ -11,6 +11,7 @@ from windows.pill import PillWindow, PillApplets
 from windows.osd import OSDWindow
 from windows.bar import BarWindow
 from windows.corners import CornersWindow
+# import windows.dock
 
 # import sdbus
 # from sdbus_block.networkmanager import (

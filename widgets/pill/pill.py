@@ -167,7 +167,7 @@ class Pill(EventBox):
             case _:
                 return
 
-    def select_pill_applet(self, applet, expand=False):
+    def select_pill_applet(self, applet: PillApplets, expand=False):
         if applet not in self.applets.keys():
             logger.error(f"Invalid pill applet: {applet}")
             return False
