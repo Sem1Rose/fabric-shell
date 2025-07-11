@@ -1,15 +1,19 @@
+from typing import Self
 from loguru import logger
 
 from config import configuration
-from widgets import notification_widget
+
+# from widgets import notification_widget
 from widgets.pill.pill import Pill, PillApplets
 from widgets.pill.popup_notifications import NotificationsContainer
 from widgets.buttons import MarkupButton
+from widgets.helpers.workspace_properties import get_service
 
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.button import Button
+from fabric.widgets.revealer import Revealer
 # from fabric.widgets.eventbox import EventBox
 
 import gi
@@ -19,12 +23,15 @@ from gi.repository import Gtk  # noqa: E402
 
 
 class PillWindow(Window):
+    instances: list[Self] = []
+
     def __init__(self, *args, **kwargs):
         super().__init__(
+            name="pill_window",
             anchor="top",
             exclusivity="normal",
-            layer="top",
-            style="background-color: transparent;",
+            layer="overlay",
+            # style="background-color: transparent;",
             margin=f"-{configuration.get_property('pill_height', 'css_settings')} 0px 0px 0px",
             visible=False,
             *args,
@@ -45,31 +52,8 @@ class PillWindow(Window):
             box.connect("clicked", lambda *_: on_click())
             return box
 
-        self.pill = Pill()
-        self.pill.connect("on_peeked", self.on_peeked)
-        self.pill.connect("on_unpeeked", self.on_unpeeked)
-        self.pill.connect("on_expanded", self.on_expanded)
-
         self.notifications_container = NotificationsContainer()
-
-        # self.hover_listener = EventBox(
-        #     name="hover_listener",
-        #     child=self.pill,
-        # )
-
-        if self.pill.dashboard.quick_settings_widget.do_not_disturb:
-            self.pill.dashboard.quick_settings_widget.do_not_disturb.connect(
-                "on-toggled",
-                lambda toggle, *_: (
-                    self.notifications_container.do_not_disturb() if toggle.toggled else self.notifications_container.do_disturb(),
-                    toggle.set_icon(
-                        configuration.get_property(
-                            "dnd_on_icon" if toggle.toggled else "dnd_off_icon"
-                        )
-                    ),
-                ),
-            )
-
+        self.pill = Pill()
         self.left_button = MarkupButton(
             style_classes="floating_buttons",
             markup=configuration.get_property("wallpaper_selector_icon"),
@@ -84,11 +68,11 @@ class PillWindow(Window):
         self.right_button.set_can_focus(False)
         self.right_button.set_focus_on_click(False)
 
-        self.center_box = CenterBox(name="pill_window", orientation="h")
+        self.center_box = CenterBox(name="pill_center_box", orientation="h")
         self.center_box.center_container.set_orientation(Gtk.Orientation.VERTICAL)
+        self.center_box.center_container.set_h_expand(True)
         self.center_box.center_children = [
             self.pill,
-            self.notifications_container,
             create_spacings(),
         ]
         self.center_box.start_children = [
@@ -101,6 +85,10 @@ class PillWindow(Window):
         ]
 
         self.pill_widgets = [self.left_button, self.right_button]
+
+        self.pill.connect("on_peeked", self.on_peeked)
+        self.pill.connect("on_unpeeked", self.on_unpeeked)
+        self.pill.connect("on_expanded", self.on_expanded)
 
         self.left_button.connect("clicked", lambda *_: self.change_applet("wallpaper"))
         self.right_button.connect("clicked", lambda *_: self.change_applet("powermenu"))
@@ -130,8 +118,34 @@ class PillWindow(Window):
             lambda _, event_key: self.handle_arrow_keys(event_key),
         )
 
-        self.add(self.center_box)
+        get_service().connect(
+            "on-fullscreen",
+            lambda _, state: self.unreveal_pill() if state == 2 else self.reveal_pill()
+        )
+
+        self.revealer_hidden = False
+        self.pill_revealer = Revealer(
+            child=self.center_box,
+            child_revealed=True,
+            transition_type="slide-down",
+            transition_duration=300,
+        )
+
+        self.add(Box(orientation="v", children=[self.pill_revealer, self.notifications_container]))
         self.show_all()
+
+        PillWindow.instances.append(self)
+
+    def unreveal_pill(self):
+        # logger.error("unrevealing pill")
+        self.revealer_hidden = True
+        if self.pill.state == "unpeeked":
+            self.pill_revealer.unreveal()
+
+    def reveal_pill(self):
+        # logger.warning("revealing pill")
+        self.revealer_hidden = False
+        self.pill_revealer.reveal()
 
     def handle_esc(self, _):
         match self.pill.active_applet:
@@ -170,6 +184,7 @@ class PillWindow(Window):
             child.add_style_class("expanded")
             child.add_style_class("peeking")
 
+        self.pill_revealer.reveal()
         if applet != PillApplets.DASHBOARD:
             self.steal_input()
         else:
@@ -190,6 +205,9 @@ class PillWindow(Window):
             child.remove_style_class("peeking")
 
         self.return_input()
+
+        if self.revealer_hidden:
+            self.pill_revealer.unreveal()
 
         self.notifications_container.unhide()
 

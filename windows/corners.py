@@ -69,10 +69,10 @@ class CornersWindow(Window):
         self.service = get_service()
         self.service.connect(
             "on-fullscreen",
-            lambda _, fullscreen: self.hide() if fullscreen else self.unhide(),
+            lambda _, state: self.hide() if state > 0 else self.unhide(),
         )
 
-        if self.service._fullscreen:
+        if self.service.fullscreen_state > 0:
             self.hide()
 
         self.add(self.main_container)

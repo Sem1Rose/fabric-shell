@@ -1,3 +1,4 @@
+from typing import Self
 from config import configuration
 
 import config
@@ -37,6 +38,8 @@ def default_workspace_button_factory(id):
 
 
 class BarWindow(Window):
+    instances: list[Self] = []
+
     def __init__(self, *args, **kwargs):
         super().__init__(
             anchor="left top right",
@@ -95,6 +98,8 @@ class BarWindow(Window):
         # self.set_default_size(10, 50)
         # self.set_resizable(False)
         # logger.error(self.get_default_size())
+
+        BarWindow.instances.append(self)
 
 
 # class BarWindowLeft(Window):

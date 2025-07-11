@@ -1,3 +1,4 @@
+from typing import Self
 from loguru import logger
 
 from config import configuration
@@ -8,6 +9,8 @@ from fabric.widgets.box import Box
 
 
 class NotificationsContainer(Box):
+    instances: list[Self] = []
+
     def __init__(self, **kwargs) -> None:
         super().__init__(
             name="popup_notifications_container",
@@ -58,6 +61,8 @@ class NotificationsContainer(Box):
 
         for widget in self.notification_widgets:
             self.add(widget)
+
+        NotificationsContainer.instances.append(self)
 
     def get_empty_widget_index(self):
         for i in self.notification_pos:

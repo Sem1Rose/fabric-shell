@@ -6,6 +6,7 @@ from widgets.buttons import QSToggleButton
 from widgets.brightness_slider import BrightnessSlider
 from widgets.volume_slider import VolumeSlider
 from widgets.microphone_slider import MicrophoneSlider
+from widgets.pill.popup_notifications import NotificationsContainer
 
 from fabric.widgets.box import Box
 from fabric.core.fabricator import Fabricator
@@ -26,7 +27,6 @@ class QuickSettings(Box):
         )
 
         self.volume_chevron = False
-        self.do_not_disturb = None
 
         self.rows = []
         self.chevrons = []
@@ -117,6 +117,21 @@ class QuickSettings(Box):
                             self.do_not_disturb.set_state(False)
                             self.do_not_disturb.set_icon(
                                 configuration.get_property("dnd_off_icon")
+                            )
+
+                            popup_notifications = NotificationsContainer.instances[0]
+                            self.do_not_disturb.connect(
+                                "on-toggled",
+                                lambda toggle, *_: (
+                                    popup_notifications.do_not_disturb()
+                                    if toggle.toggled
+                                    else popup_notifications.do_disturb(),
+                                    toggle.set_icon(
+                                        configuration.get_property(
+                                            "dnd_on_icon" if toggle.toggled else "dnd_off_icon"
+                                        )
+                                    ),
+                                ),
                             )
 
                             qs_row.add(self.do_not_disturb)

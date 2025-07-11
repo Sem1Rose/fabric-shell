@@ -194,9 +194,9 @@ microphones_header_text = "Select Input Device:"
 microphones_icon = "&#xeaf0;"
 microphones_tab_icon = "&#xef2c;"
 
-app_launcher_columns = 8
-app_launcher_rows = 5
-app_launcher_icon_size = 32
+app_launcher_columns = 6
+app_launcher_rows = 3
+app_launcher_icon_size = 36
 
 music_ticker_timeout = 5
 music_ticker_players = ["spotify"]

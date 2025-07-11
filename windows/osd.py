@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Self
 from fabric.utils import idle_add
 from loguru import logger
 from config import configuration
@@ -22,6 +23,8 @@ from gi.repository import GLib
 
 
 class OSDWindow(Window):
+    instances: list[Self] = []
+
     def __init__(self, *args, **kwargs):
         super().__init__(
             name="osd_window",
@@ -127,6 +130,8 @@ class OSDWindow(Window):
         self.hide_volume_slider()
         # self.on_show_hide()
 
+        OSDWindow.instances.append(self)
+
     def on_mouse_enter(self):
         # if self.brightness_handle:
         #     self.brightness_handle.force_exit()
@@ -205,7 +210,7 @@ class OSDWindow(Window):
                 self.main_container.add_style_class("revealed")
                 logger.debug("Showing OSD window")
 
-    @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
+    @cooldown(0.05, lambda *_: logger.error("cooldown reached"))
     def inc_volume(self):
         if not self.volume_slider.controller.speaker:
             return
@@ -215,7 +220,7 @@ class OSDWindow(Window):
         )
         self.show_volume_slider()
 
-    @cooldown(0.1, lambda *_: logger.error("cooldown reached"))
+    @cooldown(0.05, lambda *_: logger.error("cooldown reached"))
     def dec_volume(self):
         if not self.volume_slider.controller.speaker:
             return

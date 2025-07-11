@@ -9,19 +9,20 @@ from fabric.utils.helpers import bulk_connect
 
 class WorkspaceProperties(Service):
     @Signal
-    def on_fullscreen(self, state: bool): ...
+    def on_fullscreen(self, state: int): ...
 
     @Signal
-    def on_empty(self, state: bool): ...
+    def on_empty(self, empty: bool): ...
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.hyprland = get_hyprland_connection()
 
-        self._current_workspace = -1
-        self._fullscreen: bool = False
-        self._empty: bool = False
+        self.current_workspace = -1
+        # self.fullscreen: bool = False
+        self.fullscreen_state: int = 0
+        self.empty: bool = False
 
         bulk_connect(
             self.hyprland,
@@ -42,70 +43,87 @@ class WorkspaceProperties(Service):
         return [
             client
             for client in clients
-            if client["workspace"]["id"] == self._current_workspace
+            if client["workspace"]["id"] == self.current_workspace
             and not client["pinned"]
             and not client["hidden"]
         ]
 
     def recalculate_props(self, *_):
-        self._current_workspace = json.loads(
+        self.current_workspace = json.loads(
             self.hyprland.send_command("j/activeworkspace").reply
         )["id"]
 
         clients = self.get_workspace_clients()
         count = clients.__len__()
         if count == 0:
-            if not self._empty:
-                self._empty = True
+            # logger.error("no windows")
+            if not self.empty:
+                self.empty = True
                 # logger.error("empty")
-                self.on_empty(self._empty)
+                self.on_empty(self.empty)
 
-            if self._fullscreen:
-                self._fullscreen = False
-                # logger.error("no fullscreen")
-                self.on_fullscreen(self._fullscreen)
+            if self.fullscreen_state != 0:
+                self.fullscreen_state = 0
+                # logger.error(f"no fullscreen {self.fullscreen_state}")
+                self.on_fullscreen(self.fullscreen_state)
+                # self.fullscreen = False
         else:
-            floating = 0
-            fullscreen = 0
+            floating_count: int = 0
+            fullscreen_state: int = 0
             for client in clients:
                 if client["floating"] and client["fullscreen"] != 2:
-                    floating += 1
+                    floating_count += 1
                 elif client["fullscreen"] > 0:
-                    fullscreen += 1
+                    fullscreen_state = client["fullscreen"]
 
-            non_floating = count - floating
+            non_floating = count - floating_count
 
             if non_floating == 0:
-                if not self._empty:
-                    self._empty = True
+                # logger.error("all floating")
+                if not self.empty:
+                    self.empty = True
                     # logger.error("empty")
-                    self.on_empty(self._empty)
+                    self.on_empty(self.empty)
 
-                if self._fullscreen:
-                    self._fullscreen = False
-                    # logger.error("no fullscreen")
-                    self.on_fullscreen(self._fullscreen)
+                if self.fullscreen_state != fullscreen_state:
+                    self.fullscreen_state = fullscreen_state
+                    # logger.error(f"no fullscreen {self.fullscreen_state}")
+                    self.on_fullscreen(0)
+                    # self.fullscreen = False
             else:
-                if self._empty:
-                    self._empty = False
+                if self.empty:
+                    self.empty = False
                     # logger.error("no empty")
-                    self.on_empty(self._empty)
+                    self.on_empty(self.empty)
 
+                logger.warning(fullscreen_state)
                 if non_floating == 1:
-                    if not self._fullscreen:
-                        self._fullscreen = True
-                        # logger.error("fullscreen")
-                        self.on_fullscreen(self._fullscreen)
+                    # logger.error("only one window")
+                    if fullscreen_state == 0:
+                        fullscreen_state = 1
+                    if self.fullscreen_state != fullscreen_state:
+                        self.fullscreen_state =fullscreen_state
+                        # logger.warning(f"fullscreen {self.fullscreen_state}")
+                        self.on_fullscreen(self.fullscreen_state)
+                        # self.fullscreen = True
                 else:
-                    if fullscreen > 0:
-                        if not self._fullscreen:
-                            self._fullscreen = True
-                            # logger.error("fullscreen")
-                            self.on_fullscreen(self._fullscreen)
-                    elif self._fullscreen:
-                        self._fullscreen = False
-                        # logger.error("no fullscreen")
-                        self.on_fullscreen(self._fullscreen)
+                    # if fullscreen_state > 0:
+                    #     logger.error("at lease one fullscreen")
+                    #     if not self.fullscreen:
+                    #         self.fullscreen = True
+                    #         # logger.error("fullscreen")
+                    #         self.on_fullscreen(self.fullscreen, fullscreen_state)
+                    if self.fullscreen_state != fullscreen_state:
+                        self.fullscreen_state = fullscreen_state
+                        # logger.error(f"no fullscreen {self.fullscreen_state}")
+                        self.on_fullscreen(self.fullscreen_state)
+
+                        # if fullscreen_state > 0:
+                        #     logger.error("at lease one fullscreen")
+                        # else:
+                        #     logger.error("none fullscreen")
+
+                        # self.fullscreen = False
 
     def get_clients_overlap_rect(self, rect) -> bool:
         rectl = [rect.x, rect.y]

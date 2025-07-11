@@ -53,6 +53,7 @@ class Pill(EventBox):
         super().__init__(*args, **kwargs)
 
         self._num_large_widgets = 0
+        self.state = "unpeeked"
 
         self.dashboard = Dashboard()
         self.powermenu = PowerMenu()
@@ -214,6 +215,7 @@ class Pill(EventBox):
             # case _:
             #     return
 
+        self.state = "expanded"
         self.on_expanded(self.active_applet)
 
     def peek(self):
@@ -228,6 +230,7 @@ class Pill(EventBox):
             # case _:
             #     return
 
+        self.state = "peeked"
         self.on_peeked(self.active_applet)
 
     def unpeek(self):
@@ -242,6 +245,7 @@ class Pill(EventBox):
             # case _:
             #     return
 
+        self.state = "unpeeked"
         self.on_unpeeked(self.active_applet)
 
     def current_applet_add_style_class(self, style_class):

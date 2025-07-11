@@ -30,10 +30,6 @@
 	}
 }
 
-#pill_window {
-	padding: calc(settings.$pill_padding / 2);
-}
-
 $pill_window_radius: calc((settings.$pill_height - settings.$pill_padding) / 2);
 // settings.$pill_padding: calc(settings.$pill_height - 2 * settings.$pill_window_radius);
 $pill_ui_radius: calc($pill_window_radius - settings.$pill_padding);
@@ -56,6 +52,9 @@ $urgent_osd_padding: calc(
 	settings.$pill_expanded_window_radius - $pill_expanded_ui_radius
 );
 $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
+#pill_center_box {
+	padding: calc(settings.$pill_padding / 2);
+}
 #pill_box {
 	transition: all 0.3s ease-out;
 	// margin-top: 10px;
@@ -794,6 +793,8 @@ $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
 				// }
 
 				highlight {
+					transition: background-color 0.2s ease-out;
+
 					background-color: colors.$primary;
 					border-radius: 100px;
 
@@ -1963,8 +1964,13 @@ $notification_special_item_radius: calc(
 }
 
 #popup_notifications_container {
+	min-height: 1px; // needed so that if the pill revealer is hidden, the window would still be visible, otherwise the entire window will be hidden forever
+	// weird af imo gtk is ass
+
+	margin: 0px calc($pill_window_radius * 2 + settings.$pill_padding * 2);
+
 	.notification {
-		// transition: min-width 0.1s ease-out;
+		transition: min-width 0.45s $transition_function;
 
 		margin-top: 6px;
 		min-width: calc(
@@ -2147,6 +2153,8 @@ $notification_special_item_radius: calc(
 $bar_widget_height: calc(settings.$bar_height - 2 * settings.$bar_padding);
 $bar_widget_radius: calc(settings.$bar_radius - settings.$bar_padding);
 .bar_widget {
+	transition: background-color 0.2s ease-out;
+
 	background-color: colors.$primary_container;
 	border-radius: $bar_widget_radius;
 	min-height: $bar_widget_height;
