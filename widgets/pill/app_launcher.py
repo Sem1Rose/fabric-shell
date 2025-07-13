@@ -98,14 +98,12 @@ class AppLauncher(Applet, Box):
 
     def select_app(self):
         app = self.app_grid.items[self.app_grid.selected_item]
-        logger.error(app._app.get_executable())
 
         terminal = False
         desktop_app_properties = DesktopEntry(app._app.get_filename())
         if desktop_app_properties.getTerminal():
             terminal = True
             if (e:=desktop_app_properties.getTryExec()):
-                logger.error(f"TryExec: {e}")
                 exec = (
                     e
                     .replace("%u", "")
@@ -118,7 +116,6 @@ class AppLauncher(Applet, Box):
                     .strip()
                 )
             else:
-                logger.error(f"Exec: {desktop_app_properties.getExec()}")
                 exec = (
                     desktop_app_properties.getExec()
                     .replace("%u", "")
@@ -132,6 +129,9 @@ class AppLauncher(Applet, Box):
                 )
         try:
             logger.info(f"Launching {app.name}...")
+            logger.debug(
+                f"[NAME] {app.name} [GENERIC NAME] {app.generic_name} [DISPLAY NAME] {app.display_name} [EXECUTABLE] {app.executable} [COMMAND LINE] {app.command_line} [WINDOW CLASS] {app.window_class}"
+            )
             if terminal:
                 exec_shell_command_async(f"uwsm app -- kitty -d ~ --detach {exec}")
             else:

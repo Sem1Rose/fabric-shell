@@ -268,28 +268,29 @@ class NotificationWidget(Revealer):
         image_container.add(Box(v_expand=True))
 
         summary = Label(
-                    self.notification.summary,
-                    name="summary",
-                    justification="left",
-                    h_align="start",
-                    line_wrap="none" if self.autohide else "word-char",
-                    h_expand=True,
-                    # max_chars_width=50,
-                    # chars_width=1,
-                    ellipsization="end" if self.autohide else "none",
-                )
+            self.notification.summary.splitlines()[0],
+            # self.notification.summary,
+            name="summary",
+            justification="left",
+            h_align="start",
+            line_wrap="none" if self.autohide else "word-char",
+            h_expand=True,
+            max_chars_width=50,
+            # chars_width=1,
+            ellipsization="end" if self.autohide else "none",
+        )
         body = Label(
-                    self.notification.body,
-                    name="body",
-                    justification="left",
-                    h_align="start",
-                    line_wrap="word-char",
-                    h_expand=True,
-                    # v_expand=True,
-                    # max_chars_width=300,
-                    # chars_width=1,
-                    ellipsization="end" if self.autohide else "none",
-                )
+            '\n'.join(self.notification.body.splitlines()[0:4]),
+            name="body",
+            justification="left",
+            h_align="start",
+            line_wrap="word-char",
+            h_expand=True,
+            # v_expand=True,
+            # max_chars_width=10,
+            # chars_width=1,
+            ellipsization="end" if self.autohide else "none",
+        )
 
         if self.autohide:
             body.set_lines(4)

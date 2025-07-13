@@ -36,7 +36,7 @@ power_menu_shutdown_commands = [
     "systemctl poweroff",
 ]
 
-pill_stack_transition_duration = 400
+pill_stack_transition_duration = 300
 pill_revealer_animation_duration = 250
 osd_revealer_animation_duration = 250
 bar_revealer_animation_duration = 250
@@ -204,6 +204,11 @@ music_ticker_players = ["spotify"]
 dashboard_widgets = ["calendar", "media-player"]
 dashboard_qs = { "tiles" = [ [ "bluetooth", "wifi"] ], "sliders" = [ "volume-d", "brightness" ] }
 
+dock_icon_size = 32
+dock_visibility_rule = "hide when obstructed" # always visible - auto hide - hide when obstructed
+dock_flash_on_app_added = true
+dock_hide_delay = 0.3
+
 [css_settings]
 text_font_family = "Lexend"
 text_font_size = "14px"
@@ -234,7 +239,7 @@ wallpaper_file = "\"\""
 power_menu_action_size = "100px"
 
 osd_padding = "8px"
-osd_height = "350px"
+osd_height = "300px"
 osd_pos_vertical = "170px"
 
 thick_slider_length = "250px"

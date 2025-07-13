@@ -33,6 +33,9 @@ class PowerMenu(Applet, Box):
     @Signal
     def on_action(self): ...
 
+    @Signal
+    def on_confirmation_changed(self, shown: bool): ...
+
     def __init__(self, *args, **kwargs):
         Box.__init__(
             self,
@@ -239,10 +242,12 @@ class PowerMenu(Applet, Box):
     def show_confirmation_popup(self):
         self.confirmation_popup_revealer.reveal()
         self.select_action()
+        self.on_confirmation_changed(True)
 
     def hide_confirmation_popup(self):
         self.confirmation_popup_revealer.unreveal()
         self.select_action(self.selected_action)
+        self.on_confirmation_changed(False)
 
     def execute_action(self, action: Actions | None = None):
         action = action if action is not None else self.selected_action
@@ -334,6 +339,11 @@ class PowerMenu(Applet, Box):
                 GLib.Thread.new("shutdown", shutdown)
 
         self.on_action()
+
+    def hide(self, *args):
+        Applet.hide(self, *args)
+
+        self.hide_confirmation_popup()
 
     def unhide(self, *args):
         Applet.unhide(self, *args)

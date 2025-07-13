@@ -122,7 +122,8 @@ class Config:
         logger.info("Applying css settings...")
 
         settings = ""
-        # for setting in self.config["css_settings"]:
+        for setting in self.get_property("css_settings", [], False):
+            settings += f"${setting}: {self.get_property(setting, 'css_settings')};\n"
         for setting in self.get_property("css_settings", [], True):
             settings += f"${setting}: {self.get_property(setting, 'css_settings')};\n"
 

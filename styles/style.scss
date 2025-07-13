@@ -4,2078 +4,2135 @@
 @use "sass:math";
 
 * {
-	all: unset;
-	font-family: settings.$text_font_family, settings.$icon_font_family;
-	font-weight: settings.$text_font_weight;
-	font-size: settings.$text_font_size;
+    all: unset;
+    font-family: settings.$text_font_family, settings.$icon_font_family;
+    font-weight: settings.$text_font_weight;
+    font-size: settings.$text_font_size;
 }
 
 #corners_window {
-	#main_container {
-		#corner_container {
-			transition: all 0.2s ease-out;
+    #main_container {
+        #corner_container {
+            transition: all 0.2s ease-out;
 
-			min-width: 28px;
-			min-height: 26px;
+            min-width: 28px;
+            min-height: 26px;
 
-			&.hidden {
-				min-width: 0px;
-				min-height: 0px;
-			}
+            &.hidden {
+                min-width: 0px;
+                min-height: 0px;
+            }
 
-			#corner {
-				background-color: colors.$background;
-			}
-		}
-	}
+            #corner {
+                background-color: colors.$background;
+            }
+        }
+    }
 }
 
 $pill_window_radius: calc((settings.$pill_height - settings.$pill_padding) / 2);
 // settings.$pill_padding: calc(settings.$pill_height - 2 * settings.$pill_window_radius);
 $pill_ui_radius: calc($pill_window_radius - settings.$pill_padding);
-$pill_expanded_ui_radius: calc(
-	settings.$pill_expanded_window_radius - settings.$pill_expanded_padding
-);
-$wallpaper_padding: calc(
-	settings.$wallpaper_selector_wallpaper_border_radius -
-		$pill_expanded_ui_radius
-);
-$pill_large_ui_radius: calc(
-	$pill_window_radius + settings.$pill_expanded_padding
-);
-$pill_large_radius: calc(
-	$pill_large_ui_radius + settings.$pill_expanded_padding
-);
+$pill_expanded_ui_radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
+$wallpaper_padding: calc(settings.$wallpaper_selector_wallpaper_border_radius - $pill_expanded_ui_radius);
+$pill_large_ui_radius: calc($pill_window_radius + settings.$pill_expanded_padding);
+$pill_large_radius: calc($pill_large_ui_radius + settings.$pill_expanded_padding);
 // $pill_large_ui_padding: calc($pill_large_ui_radius - $pill_window_radius);
 // $pill_large_ui_margin: calc($pill_large_ui_padding - settings.$pill_expanded_padding);
-$urgent_osd_padding: calc(
-	settings.$pill_expanded_window_radius - $pill_expanded_ui_radius
-);
+$urgent_osd_padding: calc(settings.$pill_expanded_window_radius - $pill_expanded_ui_radius);
 $transition_function: cubic-bezier(0.2, 1.8, 0.5, 0.8);
+
+$power_menu_large_radius: calc((1px * settings.$power_menu_action_size + 2px * settings.$pill_expanded_padding) / 2px);
+$power_menu_small_radius: 48px;
+
 #pill_center_box {
-	padding: calc(settings.$pill_padding / 2);
+    padding: calc(settings.$pill_padding / 2);
 }
+
 #pill_box {
-	transition: all 0.3s ease-out;
-	// margin-top: 10px;
+    transition: all 0.3s ease-out;
+    // margin-top: 10px;
 
-	background-color: colors.$background;
-	border-radius: $pill_window_radius;
-	min-width: 100px;
-	// min-height: calc($pill_window_radius * 2);
-	background-clip: border-box;
+    background-color: colors.$background;
+    border-radius: $pill_window_radius;
+    min-width: 100px;
+    // min-height: calc($pill_window_radius * 2);
+    background-clip: border-box;
 
-	&.dashboard {
-		&.peeking {
-			border-radius: settings.$pill_expanded_window_radius;
-			// settings.$pill_expanded_window_radius
-			// calc(
-			// 	settings.$pill_expanded_window_radius +
-			// 		$pill_expanded_ui_radius
-			// )
-			// calc(
-			// 	settings.$pill_expanded_window_radius +
-			// 		$pill_expanded_ui_radius
-			// );
+    &.dashboard {
+        &.peeking {
+            border-radius: settings.$pill_expanded_window_radius;
+            // settings.$pill_expanded_window_radius
+            // calc(
+            // 	settings.$pill_expanded_window_radius +
+            // 		$pill_expanded_ui_radius
+            // )
+            // calc(
+            // 	settings.$pill_expanded_window_radius +
+            // 		$pill_expanded_ui_radius
+            // );
 
-			&.large_widget {
-				border-radius: settings.$pill_expanded_window_radius
-					settings.$pill_expanded_window_radius $pill_large_radius
-					$pill_large_radius;
+            &.large_widget {
+                border-radius: settings.$pill_expanded_window_radius settings.$pill_expanded_window_radius $pill_large_radius $pill_large_radius;
 
-				#pill_dashboard {
-					#quick_settings_container {
-						transition: margin 0.3s cubic-bezier(1, 0, 1, 0);
+                #pill_dashboard {
+                    #quick_settings_container {
+                        transition: margin 0.3s cubic-bezier(1, 0, 1, 0);
 
-						&.revealed {
-							// transition: margin 0.5s ease-in-out;
-							transition: margin 0.1s cubic-bezier(0, 1, 0, 1);
-						}
-					}
-				}
+                        &.revealed {
+                            // transition: margin 0.5s ease-in-out;
+                            transition: margin 0.1s cubic-bezier(0, 1, 0, 1);
+                        }
+                    }
+                }
 
-				// #qs_speakers_container {
-				// 	border-radius: $pill_large_ui_radius;
-				// 	padding: settings.$pill_expanded_padding;
-				// 	padding-bottom: calc(
-				// 		settings.$pill_expanded_padding * 3 / 4
-				// 	);
+                // #qs_speakers_container {
+                // 	border-radius: $pill_large_ui_radius;
+                // 	padding: settings.$pill_expanded_padding;
+                // 	padding-bottom: calc(
+                // 		settings.$pill_expanded_padding * 3 / 4
+                // 	);
 
-				// 	#header_label {
-				// 		margin-bottom: calc(
-				// 			settings.$pill_expanded_padding / 2
-				// 		);
-				// 	}
+                // 	#header_label {
+                // 		margin-bottom: calc(
+                // 			settings.$pill_expanded_padding / 2
+                // 		);
+                // 	}
 
-				// 	.qs_tile {
-				// 		border-radius: $pill_window_radius;
-				// 		min-height: calc($pill_window_radius * 2.5);
-				// 		margin: calc(settings.$pill_expanded_padding / 4) 0px;
+                // 	.qs_tile {
+                // 		border-radius: $pill_window_radius;
+                // 		min-height: calc($pill_window_radius * 2.5);
+                // 		margin: calc(settings.$pill_expanded_padding / 4) 0px;
 
-				// 		#qs_tile_label {
-				// 			font-size: 14px;
-				// 			font-weight: bold;
-				// 		}
+                // 		#qs_tile_label {
+                // 			font-size: 14px;
+                // 			font-weight: bold;
+                // 		}
 
-				// 		#qs_tile_icon {
-				// 			font-size: 22px;
-				// 		}
-				// 	}
-				// }
-			}
-		}
-	}
+                // 		#qs_tile_icon {
+                // 			font-size: 22px;
+                // 		}
+                // 	}
+                // }
+            }
+        }
+    }
 
-	&.powermenu {
-		border-radius: calc(
-			(
-					1px * settings.$power_menu_action_size + 2px *
-						settings.$pill_expanded_padding
-				) / 2px
-		);
-	}
+    &.powermenu {
+        border-radius: $power_menu_large_radius;
 
-	&.wallpaper {
-		border-radius: settings.$wallpaper_selector_wallpaper_border_radius
-			settings.$wallpaper_selector_wallpaper_border_radius
-			calc(
-				settings.$wallpaper_selector_wallpaper_border_radius +
-					settings.$pill_expanded_padding
-			)
-			calc(
-				settings.$wallpaper_selector_wallpaper_border_radius +
-					settings.$pill_expanded_padding
-			);
-	}
+        &.confirmation_popup {
+            border-radius: $power_menu_large_radius $power_menu_large_radius $power_menu_small_radius $power_menu_small_radius;
+        }
+    }
 
-	&.launcher {
-		border-radius: settings.$pill_expanded_window_radius;
-	}
+    &.wallpaper {
+        border-radius: settings.$wallpaper_selector_wallpaper_border_radius settings.$wallpaper_selector_wallpaper_border_radius calc(settings.$wallpaper_selector_wallpaper_border_radius + settings.$pill_expanded_padding) calc(settings.$wallpaper_selector_wallpaper_border_radius + settings.$pill_expanded_padding);
+    }
+
+    &.launcher {
+        border-radius: settings.$pill_expanded_window_radius;
+    }
 }
 
 #pill_quick_glance {
-	// margin: calc(-1 * settings.$pill_padding);
+    // margin: calc(-1 * settings.$pill_padding);
 }
 
 .quick_glance_widget {
-	min-height: calc($pill_ui_radius * 2);
-	padding: settings.$pill_padding;
-	transition: all 0.2s ease-out;
+    min-height: calc($pill_ui_radius * 2);
+    padding: settings.$pill_padding;
+    transition: all 0.2s ease-out;
 }
 
 #date_time_widget {
-	#date,
-	#time,
-	#day {
-		transition: all 0.4s $transition_function;
 
-		min-width: 40px;
-		padding: 0px settings.$pill_padding;
+    #date,
+    #time,
+    #day {
+        transition: all 0.4s $transition_function;
 
-		background-color: colors.$surface_container;
-		color: colors.$secondary;
-		border-radius: $pill_ui_radius;
+        min-width: 40px;
+        padding: 0px settings.$pill_padding;
 
-		font-size: 13px;
-	}
+        background-color: colors.$surface_container;
+        color: colors.$secondary;
+        border-radius: $pill_ui_radius;
 
-	#time {
-		margin: 0px settings.$pill_padding;
-	}
+        font-size: 13px;
+    }
+
+    #time {
+        margin: 0px settings.$pill_padding;
+    }
 }
 
 #music_ticker_widget {
-	padding: calc(settings.$pill_padding - 8px) settings.$pill_padding
-		calc(settings.$pill_padding - 8px) calc(settings.$pill_padding - 4px);
+    padding: calc(settings.$pill_padding - 8px) settings.$pill_padding calc(settings.$pill_padding - 8px) calc(settings.$pill_padding - 4px);
 
-	#media_artwork {
-		border-radius: 14px;
-	}
+    #media_artwork {
+        border-radius: 14px;
+    }
 
-	label {
-		margin-left: 8px;
-		font-size: 13px;
-		color: colors.$on_primary_container;
-	}
+    label {
+        margin-left: 8px;
+        font-size: 13px;
+        color: colors.$on_primary_container;
+    }
 }
 
 .pill_applet {
-	transition: all 0.5s $transition_function;
+    transition: all 0.5s $transition_function;
 
-	&.hidden {
-		transition: all 0.3s linear;
-		min-width: 0px;
-		min-height: 0px;
-		padding: 0px;
-	}
+    &.hidden {
+        transition: all 0.3s linear;
+        min-width: 0px;
+        min-height: 0px;
+        padding: 0px;
+    }
 }
 
 #pill_dashboard {
-	transition: all 0.2s ease-out, min-width 0.3s ease-in;
+    transition: all 0.2s ease-out, min-width 0.3s ease-in;
 
-	min-width: 0px;
-	padding: 0px;
-	margin: 0px;
-	// padding: settings.$pill_padding;
+    min-width: 0px;
+    padding: 0px;
+    margin: 0px;
+    // padding: settings.$pill_padding;
 
-	&.hidden {
-		transition: all 0s linear;
-		// transition: opacity 5s ease-out;
-		padding: 0px;
-		margin: -20px;
+    &.hidden {
+        transition: all 0s linear;
+        // transition: opacity 5s ease-out;
+        padding: 0px;
+        margin: -20px;
 
-		.quick_glance_widget {
-			min-height: 0px;
-			padding: 0px;
-		}
-	}
+        .quick_glance_widget {
+            min-height: 0px;
+            padding: 0px;
+        }
+    }
 
-	&.peeking {
-		transition: all 0.2s ease-out, min-width 0.4s ease-out,
-			padding 0.2s ease-out;
-		padding: settings.$pill_expanded_padding;
-		min-width: 0px;
+    &.peeking {
+        transition: all 0.2s ease-out, min-width 0.4s ease-out,
+            padding 0.2s ease-out;
+        padding: settings.$pill_expanded_padding;
+        min-width: 0px;
 
-		&.media_player {
-			transition: all 0.5s $transition_function;
-			min-width: calc(
-				settings.$pill_expanded_width - 2 *
-					settings.$pill_expanded_padding
-			);
-		}
+        &.media_player {
+            transition: all 0.5s $transition_function;
+            min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
+        }
 
-		#pill_quick_glance {
-			// margin: calc(-1 * settings.$pill_expanded_padding);
-			// padding: settings.$pill_expanded_padding;
+        #pill_quick_glance {
+            // margin: calc(-1 * settings.$pill_expanded_padding);
+            // padding: settings.$pill_expanded_padding;
 
-			.quick_glance_widget {
-				padding: 0px;
+            .quick_glance_widget {
+                padding: 0px;
 
-				#date,
-				#time,
-				#day {
-					padding: 0px settings.$pill_expanded_padding;
-					border-radius: $pill_expanded_ui_radius;
-					min-height: calc($pill_expanded_ui_radius * 2);
-					font-size: 15px;
-				}
-			}
-		}
-	}
+                #date,
+                #time,
+                #day {
+                    padding: 0px settings.$pill_expanded_padding;
+                    border-radius: $pill_expanded_ui_radius;
+                    min-height: calc($pill_expanded_ui_radius * 2);
+                    font-size: 15px;
+                }
+            }
+        }
+    }
 
-	&.expanded {
-		transition: all 0.5s $transition_function;
+    &.expanded {
+        transition: all 0.5s $transition_function;
 
-		min-width: calc(
-			settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
-		);
-	}
+        min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
+    }
 }
 
 // $wallpaper_scroll_button_small_radius: 10px;
 #pill_wallpaper_selector {
-	// (2 * 8px + 2 * (settings.$wallpaper_selector_wallpaper_border_radius + $wallpaper_scroll_button_small_radius))
-	$width: calc(
-		(
-			(
-					settings.$wallpaper_selector_wallpaper_height + 2 *
-						$wallpaper_padding
-				) * 16 / 9 * 2 + $wallpaper_padding * 2
-		)
-	);
-	padding: $wallpaper_padding;
-	// min-width: $width;
+    // (2 * 8px + 2 * (settings.$wallpaper_selector_wallpaper_border_radius + $wallpaper_scroll_button_small_radius))
+    $width: calc(((settings.$wallpaper_selector_wallpaper_height + 2 * $wallpaper_padding) * 16 / 9 * 2 + $wallpaper_padding * 2));
+    padding: $wallpaper_padding;
+    // min-width: $width;
 
-	&.hidden {
-		margin: -60px calc($width / -2);
-		// margin: -1000;
+    &.hidden {
+        margin: -60px calc($width / -2);
+        // margin: -1000;
 
-		#wallpaper_view {
-			transition: all 0.2s ease-in;
-			min-height: 0px;
-		}
-	}
+        #wallpaper_view {
+            transition: all 0.2s ease-in;
+            min-height: 0px;
+        }
+    }
 
-	#title {
-		font-size: 18px;
-		// background-color: colors.$secondary_container;
-		color: colors.$primary;
-		padding: 0 settings.$pill_padding;
-		// border-radius: $pill_expanded_ui_radius;
-	}
+    #title {
+        font-size: 18px;
+        // background-color: colors.$secondary_container;
+        color: colors.$primary;
+        padding: 0 settings.$pill_padding;
+        // border-radius: $pill_expanded_ui_radius;
+    }
 
-	#matugen_scheme_combo {
-		background-color: colors.$primary_container;
-		color: colors.$primary;
-		padding: calc(settings.$pill_padding / 2) settings.$pill_padding;
-		border-radius: $pill_expanded_ui_radius;
+    #matugen_scheme_combo {
+        background-color: colors.$primary_container;
+        color: colors.$primary;
+        padding: calc(settings.$pill_padding / 2) settings.$pill_padding;
+        border-radius: $pill_expanded_ui_radius;
 
-		arrow {
-			border-style: solid;
-			border-color: colors.$secondary transparent transparent transparent;
-			margin-top: settings.$bar_padding;
-			border-width: 6px 5px 0px 5px;
-			margin-left: calc(settings.$pill_padding / 2);
-		}
-	}
+        arrow {
+            border-style: solid;
+            border-color: colors.$secondary transparent transparent transparent;
+            margin-top: settings.$bar_padding;
+            border-width: 6px 5px 0px 5px;
+            margin-left: calc(settings.$pill_padding / 2);
+        }
+    }
 
-	#wallpaper_view {
-		transition: all 0.1s linear;
+    #wallpaper_view {
+        transition: all 0.1s linear;
 
-		// margin: 0px 8px;
-		margin-top: $wallpaper_padding;
-		border-radius: settings.$wallpaper_selector_wallpaper_border_radius;
-		background-color: colors.$surface_container_lowest;
-		padding: $wallpaper_padding 0px; // calc($wallpaper_padding * 3 / 4);
-		min-height: calc(
-			settings.$wallpaper_selector_wallpaper_height + 2 *
-				$wallpaper_padding
-		);
-		min-width: calc(
-			(
-					settings.$wallpaper_selector_wallpaper_height + 2 *
-						$wallpaper_padding
-				) * 16 / 9 * 2 + $wallpaper_padding * 3 - 5px
-		);
+        // margin: 0px 8px;
+        margin-top: $wallpaper_padding;
+        border-radius: settings.$wallpaper_selector_wallpaper_border_radius;
+        background-color: colors.$surface_container_lowest;
+        padding: $wallpaper_padding 0px; // calc($wallpaper_padding * 3 / 4);
+        min-height: calc(settings.$wallpaper_selector_wallpaper_height + 2 * $wallpaper_padding);
+        min-width: calc((settings.$wallpaper_selector_wallpaper_height + 2 * $wallpaper_padding) * 16 / 9 * 2 + $wallpaper_padding * 3 - 5px);
 
-		#wallpaper_item {
-			transition: all 0.25s linear;
+        #wallpaper_item {
+            transition: all 0.25s linear;
 
-			min-width: calc(
-				(
-						settings.$wallpaper_selector_wallpaper_height + 2 *
-							$wallpaper_padding
-					) * 16 / 9
-			);
-			margin: 0px calc($wallpaper_padding / 4);
-			border-radius: $pill_expanded_ui_radius;
-			// background-size: auto 110%;
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			opacity: 1;
+            min-width: calc((settings.$wallpaper_selector_wallpaper_height + 2 * $wallpaper_padding) * 16 / 9);
+            margin: 0px calc($wallpaper_padding / 4);
+            border-radius: $pill_expanded_ui_radius;
+            // background-size: auto 110%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 1;
 
-			&.left {
-				background-position: left;
-			}
+            &.left {
+                background-position: left;
+            }
 
-			&.right {
-				background-position: right;
-			}
+            &.right {
+                background-position: right;
+            }
 
-			&.edge {
-				min-width: calc(
-					(
-							settings.$wallpaper_selector_wallpaper_height + 2 *
-								$wallpaper_padding
-						) * 8 / 9
-				);
-			}
+            &.edge {
+                min-width: calc((settings.$wallpaper_selector_wallpaper_height + 2 * $wallpaper_padding) * 8 / 9);
+            }
 
-			&.empty {
-				min-width: 0px;
-				margin: 0px;
-				opacity: 0;
-			}
-		}
-	}
+            &.empty {
+                min-width: 0px;
+                margin: 0px;
+                opacity: 0;
+            }
+        }
+    }
 }
 
 #pill_power_menu {
-	// transition: all 0.45s $transition_function;
+    // transition: all 0.45s $transition_function;
 
-	&.hidden {
-		margin: calc(
-				(
-						-1px * settings.$power_menu_action_size - 2px * settings.$pill_expanded_padding
-					) / 2px
-			)
-			calc(
-				(
-						-4px * settings.$power_menu_action_size - 5px * settings.$pill_expanded_padding
-					) / 2px
-			);
-	}
+    &.hidden {
+        margin: calc((-1px * settings.$power_menu_action_size - 2px * settings.$pill_expanded_padding) / 2px) calc((-4px * settings.$power_menu_action_size - 5px * settings.$pill_expanded_padding) / 2px);
+    }
 
-	#power_menu_actions {
-		padding: settings.$pill_expanded_padding
-			calc(settings.$pill_expanded_padding / 2);
+    #power_menu_actions {
+        padding: settings.$pill_expanded_padding calc(settings.$pill_expanded_padding / 2);
 
-		.power_menu_action {
-			transition: all 0.1s ease-out;
+        .power_menu_action {
+            transition: all 0.1s ease-out;
 
-			min-width: settings.$power_menu_action_size;
-			min-height: settings.$power_menu_action_size;
-			background-color: colors.$surface_container_lowest;
-			color: colors.$surface_variant;
-			margin: 0px calc(settings.$pill_expanded_padding / 2);
-			// border-radius: (settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
-			border-radius: 50%;
+            min-width: settings.$power_menu_action_size;
+            min-height: settings.$power_menu_action_size;
+            background-color: colors.$surface_container_lowest;
+            color: colors.$surface_variant;
+            margin: 0px calc(settings.$pill_expanded_padding / 2);
+            // border-radius: (settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
+            border-radius: 50%;
 
-			&.focused {
-				background-color: colors.$on_primary;
-				color: colors.$on_primary_container;
-			}
+            &.focused {
+                background-color: colors.$on_primary;
+                color: colors.$on_primary_container;
+            }
 
-			&:hover {
-				background-color: colors.$primary_container;
-				color: colors.$primary;
-				box-shadow: 0px 0px 15px 0px colors.$on_primary;
-			}
+            &:hover {
+                background-color: colors.$primary_container;
+                color: colors.$primary;
+                box-shadow: 0px 0px 15px 0px colors.$on_primary;
+            }
 
-			label {
-				// font-family: settings.$icon_font_family;
-				font-size: 36px;
-				font-weight: normal;
-			}
-		}
-	}
+            label {
+                // font-family: settings.$icon_font_family;
+                font-size: 36px;
+                font-weight: normal;
+            }
+        }
+    }
 
-	#power_menu_confirmation_revealer {
-		padding: settings.$pill_expanded_padding;
-		padding-top: 0px;
+    #power_menu_confirmation_revealer {
+        padding: settings.$pill_expanded_padding;
+        padding-top: 0px;
 
-		#power_menu_confirmation_container {
-			background-color: colors.$surface_container_low;
-			color: colors.$on_surface_variant;
-			// padding: settings.$pill_expanded_padding;
-			padding: (
-				calc(
-						(
-								settings.$power_menu_action_size + 2 *
-									settings.$pill_expanded_padding
-							) / 2 - settings.$pill_expanded_padding
-					) - $pill_window_radius
-			);
-			// border-radius: $pill_window_radius;
-			border-radius: calc(
-				(
-						1px * settings.$power_menu_action_size + 2px *
-							settings.$pill_expanded_padding
-					) / 2px - settings.$pill_expanded_padding
-			);
-			// min-height: (settings.$power_menu_action_size + 2 * settings.$pill_expanded_padding);
+        $power_menu_confirmation_radius: calc($power_menu_small_radius - settings.$pill_expanded_padding);
 
-			#power_menu_confirmation_label {
-				margin-bottom: (settings.$pill_expanded_padding * 2);
-				font-size: large;
-				font-weight: bolder;
-				color: colors.$primary;
-			}
+        #power_menu_confirmation_container {
+            background-color: colors.$surface_container_low;
+            color: colors.$on_surface_variant;
+            padding: settings.$pill_expanded_padding;
+            // padding: (calc((settings.$power_menu_action_size + 2 * settings.$pill_expanded_padding) / 2 - settings.$pill_expanded_padding) - $pill_window_radius);
+            border-radius: $power_menu_confirmation_radius;
+            // border-radius: calc((1px * settings.$power_menu_action_size + 2px * settings.$pill_expanded_padding) / 2px - settings.$pill_expanded_padding);
+            // min-heigpower_menu_small_radiusht: (settings.$power_menu_action_size + 2 * settings.$pill_expanded_padding);
 
-			#power_menu_confirm_button,
-			#power_menu_cancel_button {
-				transition: all 0.2s ease-out;
+            #power_menu_confirmation_label {
+                margin-bottom: (settings.$pill_expanded_padding * 2);
+                font-size: large;
+                font-weight: bolder;
+                color: colors.$primary;
+            }
 
-				padding: 0px settings.$pill_expanded_padding;
-				margin-left: calc(settings.$pill_expanded_padding / 2);
+            #power_menu_confirm_button,
+            #power_menu_cancel_button {
+                transition: all 0.2s ease-out;
 
-				border-radius: $pill_window_radius;
-				min-height: calc($pill_window_radius * 2);
-				min-width: 40px;
-			}
+                padding: 0px settings.$pill_expanded_padding;
+                margin-left: calc(settings.$pill_expanded_padding / 2);
 
-			#power_menu_confirm_button {
-				background-color: colors.$surface_container_lowest;
-				color: colors.$error;
-				// color: color.scale(colors.$error_container, $lightness: +30%, $saturation: -15%);
-				// background-color: colors.$error_container;
+                border-radius: calc($power_menu_confirmation_radius - settings.$pill_expanded_padding);
+                min-height: calc($pill_window_radius * 2);
+                min-width: 40px;
+            }
 
-				&.focused {
-					background-color: colors.$error_container;
-					color: colors.$on_error_container;
-				}
+            #power_menu_confirm_button {
+                background-color: colors.$surface_container_lowest;
+                color: colors.$error;
+                // color: color.scale(colors.$error_container, $lightness: +30%, $saturation: -15%);
+                // background-color: colors.$error_container;
 
-				&:hover {
-					background-color: color.scale(
-						colors.$error_container,
-						$lightness: +15%,
-						$saturation: -10%
-					);
-					color: colors.$on_error_container;
-					box-shadow: 0px 0px 10px 2px colors.$error_container;
-				}
-			}
+                &.focused {
+                    background-color: colors.$error_container;
+                    color: colors.$on_error_container;
+                }
 
-			#power_menu_cancel_button {
-				background-color: colors.$surface_dim;
-				color: colors.$tertiary;
-				// background-color: colors.$tertiary_container;
-				// color: colors.$on_tertiary_container;
+                &:hover {
+                    background-color: colors.$error_container;
+                    color: colors.$on_error_container;
+                    box-shadow: 0px 0px 10px 2px colors.$error_container;
 
-				&.focused {
-					background-color: colors.$secondary_container;
-					color: colors.$on_secondary_container;
-				}
+                    &.focused {
+                        background-color: color.scale(colors.$error_container,
+                                $lightness: +10%,
+                                $saturation: -15%);
+                        color: colors.$on_error_container;
+                    }
+                }
+            }
 
-				&:hover {
-					background-color: color.scale(
-						colors.$secondary_container,
-						$lightness: +5%,
-						$saturation: +10%
-					);
-					color: colors.$on_secondary_container;
-					box-shadow: 0px 0px 10px -3px colors.$secondary_container;
-				}
-			}
-		}
-	}
+            #power_menu_cancel_button {
+                background-color: colors.$surface_dim;
+                color: colors.$tertiary;
+                // background-color: colors.$tertiary_container;
+                // color: colors.$on_tertiary_container;
+
+                &.focused {
+                    background-color: colors.$secondary_container;
+                    color: colors.$on_secondary_container;
+                }
+
+                &:hover {
+                    background-color: colors.$secondary_container;
+                    color: colors.$on_secondary_container;
+                    box-shadow: 0px 0px 10px -3px colors.$secondary_container;
+
+                    &.focused {
+                        background-color: color.scale(colors.$secondary_container,
+                                $lightness: +10%,
+                                $saturation: +10%);
+                        color: colors.$on_secondary_container;
+                    }
+                }
+            }
+        }
+    }
 }
 
 #pill_app_launcher {
-	transition: all 0.5s $transition_function;
+    transition: all 0.5s $transition_function;
 
-	min-width: 575px;
-	min-height: 380px;
+    min-width: 575px;
+    min-height: 380px;
 
-	padding: settings.$pill_expanded_padding;
+    padding: settings.$pill_expanded_padding;
 
-	&.hidden {
-		transition: all 0.2s ease-out;
+    &.hidden {
+        transition: all 0.2s ease-out;
 
-		padding: 0px;
-		min-width: 0px;
-		min-height: 0px;
+        padding: 0px;
+        min-width: 0px;
+        min-height: 0px;
 
-		#app_launcher_entry {
-			transition: all 0.2s ease-out;
-			min-height: 0px;
-			margin: -10px;
-			padding: 0px;
-		}
+        #app_launcher_entry {
+            transition: all 0.2s ease-out;
+            min-height: 0px;
+            margin: -10px;
+            padding: 0px;
+        }
 
-		#grid_item {
-			transition: all 0.1s ease-out;
-			margin: -10px;
+        #grid_item {
+            transition: all 0.1s ease-out;
+            margin: -10px;
 
-			#grid_item_label {
-				transition: all 0.1s ease-out;
-				margin: -10px;
-				padding: 0px;
-				font-size: 0px;
-			}
+            #grid_item_label {
+                transition: all 0.1s ease-out;
+                margin: -10px;
+                padding: 0px;
+                font-size: 0px;
+            }
 
-			#grid_item_icon {
-				transition: all 0.1s ease-out;
-				margin: -10px;
-				padding: 0px;
+            #grid_item_icon {
+                transition: all 0.1s ease-out;
+                margin: -10px;
+                padding: 0px;
 
-				min-width: 0px;
-				min-height: 0px;
-			}
-		}
-	}
+                min-width: 0px;
+                min-height: 0px;
+            }
+        }
+    }
 
-	#app_launcher_entry {
-		transition: all 0.3s ease-out;
+    #app_launcher_entry {
+        transition: all 0.3s ease-out;
 
-		min-height: 36px;
-		margin: -2px;
-		margin-bottom: 6px;
-		padding: 0px 12px;
+        min-height: 36px;
+        margin: -2px;
+        margin-bottom: 6px;
+        padding: 0px 12px;
 
-		border-radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
-		background-color: colors.$surface_container_highest;
-		border: 2px solid colors.$inverse_primary;
+        border-radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
+        background-color: colors.$surface_container_highest;
+        border: 2px solid colors.$inverse_primary;
 
-		label {
-			font-size: 14px;
-			font-weight: bold;
-			font-style: normal;
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            font-style: normal;
 
-			color: colors.$secondary;
-		}
-	}
+            color: colors.$secondary;
+        }
+    }
 
-	#grid_item {
-		transition: all 0.2s ease-out;
+    #grid_item {
+        transition: all 0.2s ease-out;
 
-		margin-top: 5px;
-		margin-right: 5px;
+        margin-top: 5px;
+        margin-right: 5px;
 
-		border-radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
-		background-color: colors.$surface_container_low;
+        border-radius: calc(settings.$pill_expanded_window_radius - settings.$pill_expanded_padding);
+        background-color: colors.$surface_container_low;
 
-		&:hover {
-			background-color: colors.$surface_container_high;
+        &:hover {
+            background-color: colors.$surface_container_high;
 
-			#grid_item_label {
-				color: colors.$secondary_fixed_dim;
-				background-color: colors.$surface_container_low;
-			}
+            #grid_item_label {
+                color: colors.$secondary_fixed_dim;
+                background-color: colors.$surface_container_low;
+            }
 
-			#grid_item_icon {
-				background-color: colors.$surface_container;
-			}
-		}
+            #grid_item_icon {
+                background-color: colors.$surface_container;
+            }
+        }
 
-		&.empty {
-			background-color: transparent;
+        &.empty {
+            background-color: transparent;
 
-			#grid_item_label {
-				background-color: transparent;
-			}
+            #grid_item_label {
+                background-color: transparent;
+            }
 
-			#grid_item_icon {
-				background-color: transparent;
-			}
-		}
+            #grid_item_icon {
+                background-color: transparent;
+            }
+        }
 
-		&:last-child {
-			margin-right: 0px;
-		}
+        &:last-child {
+            margin-right: 0px;
+        }
 
 
-		&.active {
-			background-color: colors.$primary;
+        &.active {
+            background-color: colors.$primary;
 
-			#grid_item_label {
-				color: colors.$on_surface_variant;
-				background-color: colors.$surface_bright;
+            #grid_item_label {
+                color: colors.$on_surface_variant;
+                background-color: colors.$surface_bright;
 
-				font-weight: bold;
-			}
+                font-weight: bold;
+            }
 
-			#grid_item_icon {
-				background-color: colors.$on_primary;
-			}
+            #grid_item_icon {
+                background-color: colors.$on_primary;
+            }
 
-			&:hover {
-				background-color: colors.$secondary;
-				#grid_item_icon {
-					background-color: colors.$on_secondary;
-				}
-			}
-		}
+            &:hover {
+                background-color: colors.$secondary;
 
-		#grid_item_icon {
-			transition: all 0.2s ease-out;
+                #grid_item_icon {
+                    background-color: colors.$on_secondary;
+                }
+            }
+        }
 
-			margin: 8px;
-			padding: 4px;
+        #grid_item_icon {
+            transition: all 0.2s ease-out;
 
-			min-width: 40px;
-			min-height: 40px;
+            margin: 8px;
+            padding: 4px;
 
-			border-radius: 8px;
-			background-color: transparent;
-		}
+            min-width: 40px;
+            min-height: 40px;
 
-		#grid_item_label {
-			margin: 4px;
-			padding: 5px;
-			margin-top: 0px;
-			font-size: 11px;
+            border-radius: 8px;
+            background-color: transparent;
+        }
 
-			font-weight: normal;
-			font-style: normal;
+        #grid_item_label {
+            margin: 4px;
+            padding: 5px;
+            margin-top: 0px;
+            font-size: 11px;
 
-			color: colors.$secondary_fixed_dim;
-			background-color: colors.$surface_container_lowest;
-			border-radius: 12px;
-		}
-	}
+            font-weight: normal;
+            font-style: normal;
+
+            color: colors.$secondary_fixed_dim;
+            background-color: colors.$surface_container_lowest;
+            border-radius: 12px;
+        }
+    }
 }
 
 .floating_buttons {
-	transition: all 0.2s ease-out, color 0.1s linear;
+    transition: all 0.2s ease-out, color 0.1s linear;
 
-	background-color: colors.$background;
-	border-radius: 50%;
-	min-width: ($pill_window_radius * 2);
-	min-height: ($pill_window_radius * 2);
-	// min-width: (settings.$bar_height - settings.$pill_padding);
-	// min-height: (settings.$bar_height - settings.$pill_padding);
-	margin: 0px calc(settings.$pill_padding / 2);
-	padding: 0px;
-	color: colors.$surface_container_highest;
+    background-color: colors.$background;
+    border-radius: 50%;
+    min-width: ($pill_window_radius * 2);
+    min-height: ($pill_window_radius * 2);
+    // min-width: (settings.$bar_height - settings.$pill_padding);
+    // min-height: (settings.$bar_height - settings.$pill_padding);
+    margin: 0px calc(settings.$pill_padding / 2);
+    padding: 0px;
+    color: colors.$surface_container_highest;
 
-	&:hover {
-		color: colors.$secondary;
-	}
+    &:hover {
+        color: colors.$secondary;
+    }
 
-	label {
-		transition: all 0.2s ease-out;
+    label {
+        transition: all 0.2s ease-out;
 
-		font-weight: normal;
-		font-size: 24px;
-	}
+        font-weight: normal;
+        font-size: 24px;
+    }
 
-	&.peeking {
-		// min-width: settings.$bar_height;
-		// min-height: settings.$bar_height;
-		min-width: settings.$pill_height;
-		min-height: settings.$pill_height;
-		margin-top: calc(settings.$pill_padding / 2);
+    &.peeking {
+        // min-width: settings.$bar_height;
+        // min-height: settings.$bar_height;
+        min-width: settings.$pill_height;
+        min-height: settings.$pill_height;
+        margin-top: calc(settings.$pill_padding / 2);
 
-		label {
-			font-size: 28px;
-		}
-	}
+        label {
+            font-size: 28px;
+        }
+    }
 }
 
 .thick_slider_toggle_container {
-	&.vertical {
-		// min-height: settings.$thick_slider_length;
-		min-width: calc(
-			settings.$thick_slider_thickness - settings.$thick_slider_padding *
-				2
-		);
+    &.vertical {
+        // min-height: settings.$thick_slider_length;
+        min-width: calc(settings.$thick_slider_thickness - settings.$thick_slider_padding * 2);
 
-		.thick_slider {
-			contents {
-				trough {
-					min-width: settings.$thick_slider_thickness;
-					padding-bottom: settings.$thick_slider_thickness;
+        .thick_slider {
+            contents {
+                trough {
+                    min-width: settings.$thick_slider_thickness;
+                    padding-bottom: settings.$thick_slider_thickness;
 
-					highlight {
-						margin-bottom: calc(
-							-1 * settings.$thick_slider_thickness
-						);
-					}
-				}
-			}
-		}
-		.thick_toggle {
-			margin: settings.$thick_slider_padding;
-			min-height: settings.$thick_slider_thickness;
-			min-width: settings.$thick_slider_thickness;
-		}
-		.thick_slider_toggle_spacing {
-			min-height: settings.$thick_slider_toggle_spacing;
-		}
-	}
+                    highlight {
+                        margin-bottom: calc(-1 * settings.$thick_slider_thickness);
+                    }
+                }
+            }
+        }
 
-	&.horizontal {
-		min-height: calc(
-			settings.$thick_slider_thickness - settings.$thick_slider_padding *
-				2
-		);
-		// min-width: settings.$thick_slider_length;
+        .thick_toggle {
+            margin: settings.$thick_slider_padding;
+            min-height: settings.$thick_slider_thickness;
+            min-width: settings.$thick_slider_thickness;
+        }
 
-		.thick_slider {
-			contents {
-				trough {
-					padding-left: settings.$thick_slider_thickness;
-					min-height: settings.$thick_slider_thickness;
+        .thick_slider_toggle_spacing {
+            min-height: settings.$thick_slider_toggle_spacing;
+        }
+    }
 
-					highlight {
-						margin-left: calc(
-							-1 * settings.$thick_slider_thickness + 4px
-						);
-					}
-				}
-			}
-		}
-		.thick_toggle {
-			margin: settings.$thick_slider_padding;
-			min-width: settings.$thick_slider_thickness;
-			min-height: settings.$thick_slider_thickness;
-		}
-		.thick_slider_toggle_spacing {
-			min-width: settings.$thick_slider_toggle_spacing;
-		}
-	}
+    &.horizontal {
+        min-height: calc(settings.$thick_slider_thickness - settings.$thick_slider_padding * 2);
+        // min-width: settings.$thick_slider_length;
 
-	.thick_slider {
-		contents {
-			trough {
-				background-color: colors.$surface_container_lowest;
-				border-radius: 100px;
-				padding: settings.$thick_slider_padding;
+        .thick_slider {
+            contents {
+                trough {
+                    padding-left: settings.$thick_slider_thickness;
+                    min-height: settings.$thick_slider_thickness;
 
-				// slider {
-				// 	min-height: settings.$osd_slider_width;
-				// 	min-width: settings.$osd_slider_width;
-				// 	border-radius: 50%;
-				// 	background-color: colors.$primary;
-				// 	margin: settings.$thick_slider_padding;
-				// }
+                    highlight {
+                        margin-left: calc(-1 * settings.$thick_slider_thickness + 4px);
+                    }
+                }
+            }
+        }
 
-				highlight {
-					transition: background-color 0.2s ease-out;
+        .thick_toggle {
+            margin: settings.$thick_slider_padding;
+            min-width: settings.$thick_slider_thickness;
+            min-height: settings.$thick_slider_thickness;
+        }
 
-					background-color: colors.$primary;
-					border-radius: 100px;
+        .thick_slider_toggle_spacing {
+            min-width: settings.$thick_slider_toggle_spacing;
+        }
+    }
 
-					&:disabled {
-						background-color: colors.$surface_container_highest;
-					}
-				}
-			}
-		}
-	}
+    .thick_slider {
+        contents {
+            trough {
+                background-color: colors.$surface_container_lowest;
+                border-radius: 100px;
+                padding: settings.$thick_slider_padding;
 
-	.thick_toggle {
-		transition: all 0.1s ease-out;
+                // slider {
+                // 	min-height: settings.$osd_slider_width;
+                // 	min-width: settings.$osd_slider_width;
+                // 	border-radius: 50%;
+                // 	background-color: colors.$primary;
+                // 	margin: settings.$thick_slider_padding;
+                // }
 
-		color: colors.$secondary;
-		background-color: colors.$surface_container_low;
-		border-radius: 20%;
+                highlight {
+                    transition: background-color 0.2s ease-out;
 
-		&:hover {
-			border-radius: 30%;
-			background-color: colors.$surface_container_high;
-		}
+                    background-color: colors.$primary;
+                    border-radius: 100px;
 
-		&.toggled {
-			color: colors.$secondary;
-			background-color: colors.$on_secondary;
-			border-radius: 50%;
+                    &:disabled {
+                        background-color: colors.$surface_container_highest;
+                    }
+                }
+            }
+        }
+    }
 
-			&:hover {
-				border-radius: 40%;
-				background-color: color.scale(
-					colors.$on_secondary,
-					$lightness: +10%
-				);
-			}
-		}
+    .thick_toggle {
+        transition: all 0.1s ease-out;
 
-		&:disabled {
-			color: colors.$surface_variant;
-			background-color: colors.$surface_container;
-		}
+        color: colors.$secondary;
+        background-color: colors.$surface_container_low;
+        border-radius: 20%;
 
-		label {
-			// font-family: settings.$icon_font_family;
-			font-size: 26px;
-			font-weight: normal;
-		}
-	}
+        &:hover {
+            border-radius: 30%;
+            background-color: colors.$surface_container_high;
+        }
+
+        &.toggled {
+            color: colors.$secondary;
+            background-color: colors.$on_secondary;
+            border-radius: 50%;
+
+            &:hover {
+                border-radius: 40%;
+                background-color: color.scale(colors.$on_secondary,
+                        $lightness: +10%);
+            }
+        }
+
+        &:disabled {
+            color: colors.$surface_variant;
+            background-color: colors.$surface_container;
+        }
+
+        label {
+            // font-family: settings.$icon_font_family;
+            font-size: 26px;
+            font-weight: normal;
+        }
+    }
 }
 
 #quick_settings_container {
-	transition: margin 0.1s cubic-bezier(1, 0, 1, 0);
-	// transition: margin 0.5s ease-out;
+    transition: margin 0.1s cubic-bezier(1, 0, 1, 0);
+    // transition: margin 0.5s ease-out;
 
-	margin: 0px -5px;
+    margin: 0px -5px;
 
-	&.revealed {
-		// transition: margin 0.5s ease-in-out;
-		transition: all 0.3s ease-out, margin 0.1s cubic-bezier(0, 1, 0, 1);
+    &.revealed {
+        // transition: margin 0.5s ease-in-out;
+        transition: all 0.3s ease-out, margin 0.1s cubic-bezier(0, 1, 0, 1);
 
-		margin: settings.$pill_expanded_padding 0px
-			calc(settings.$pill_expanded_padding / -4) 0px;
+        margin: settings.$pill_expanded_padding 0px calc(settings.$pill_expanded_padding / -4) 0px;
 
-		&.empty {
-			margin: 0px;
-		}
-		// min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
-		// padding: calc(settings.$pill_expanded_padding / 2);
-	}
+        &.empty {
+            margin: 0px;
+        }
 
-	.qs_row {
-		margin: calc(settings.$pill_expanded_padding / 4) 0;
-		min-height: settings.$qs_row_height;
+        // min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
+        // padding: calc(settings.$pill_expanded_padding / 2);
+    }
 
-		&.homogeneous {
-			margin: calc(settings.$pill_expanded_padding / 4)
-				calc(settings.$pill_expanded_padding / -3);
-		}
+    .qs_row {
+        margin: calc(settings.$pill_expanded_padding / 4) 0;
+        min-height: settings.$qs_row_height;
 
-		$qs-toggle-padding: calc(settings.$pill_padding - 3px);
-		.qs_toggle {
-			transition: all 0.2s ease-out;
+        &.homogeneous {
+            margin: calc(settings.$pill_expanded_padding / 4) calc(settings.$pill_expanded_padding / -3);
+        }
 
-			border-radius: calc(settings.$qs_row_height / 2);
-			background-color: colors.$surface_container_low;
-			// color: colors.$on_surface;
-			color: colors.$primary;
-			padding: $qs-toggle-padding;
-			margin: 0px calc(settings.$pill_expanded_padding / 3);
+        $qs-toggle-padding: calc(settings.$pill_padding - 3px);
 
-			&.toggled {
-				color: colors.$background;
-				background-color: colors.$primary;
-				border-radius: calc(settings.$qs_row_height / 3);
+        .qs_toggle {
+            transition: all 0.2s ease-out;
 
-				&.menu_button {
-					color: colors.$primary;
-					background-color: colors.$surface_container_high;
-				}
+            border-radius: calc(settings.$qs_row_height / 2);
+            background-color: colors.$surface_container_low;
+            // color: colors.$on_surface;
+            color: colors.$primary;
+            padding: $qs-toggle-padding;
+            margin: 0px calc(settings.$pill_expanded_padding / 3);
 
-				// .qs_tile_chevron_button {
-				// 	background-color: colors.$surface;
-				// 	color: colors.$primary;
-				// }
-			}
+            &.toggled {
+                color: colors.$background;
+                background-color: colors.$primary;
+                border-radius: calc(settings.$qs_row_height / 3);
 
-			#qs_tile_icon {
-				font-size: 24px;
-				font-weight: normal;
-				margin-right: settings.$pill_padding;
-				min-width: calc(settings.$qs_row_height - $qs-toggle-padding * 2);
-			}
+                &.menu_button {
+                    color: colors.$primary;
+                    background-color: colors.$surface_container_high;
+                }
 
-			#qs_menu_button {
-				transition: all 0.2s ease-out;
-				margin-right: settings.$pill_padding;
-				min-width: calc(settings.$qs_row_height - $qs-toggle-padding * 2);
-				border-radius: calc(settings.$qs_row_height / 2 - $qs-toggle-padding);
-				background-color: colors.$surface_bright;
+                // .qs_tile_chevron_button {
+                // 	background-color: colors.$surface;
+                // 	color: colors.$primary;
+                // }
+            }
 
-				label {
-					font-size: 24px;
-					font-weight: normal;
-				}
+            #qs_tile_icon {
+                font-size: 24px;
+                font-weight: normal;
+                margin-right: settings.$pill_padding;
+                min-width: calc(settings.$qs_row_height - $qs-toggle-padding * 2);
+            }
 
-				&.toggled {
-					color: colors.$background;
-					background-color: colors.$primary;
-					border-radius: calc(settings.$qs_row_height / 3 - $qs-toggle-padding);
-				}
-			}
+            #qs_menu_button {
+                transition: all 0.2s ease-out;
+                margin-right: settings.$pill_padding;
+                min-width: calc(settings.$qs_row_height - $qs-toggle-padding * 2);
+                border-radius: calc(settings.$qs_row_height / 2 - $qs-toggle-padding);
+                background-color: colors.$surface_bright;
 
-			// .qs_tile_chevron_button {
-			// 	transition: all 0.2s ease-out;
+                label {
+                    font-size: 24px;
+                    font-weight: normal;
+                }
 
-			// 	background-color: colors.$surface;
-			// 	color: colors.$surface_container_highest;
-			// 	// min-width: calc(settings.$qs_row_height - 1.75 * settings.$pill_expanded_padding);
-			// 	min-width: calc($pill_expanded_ui_radius * 2 + 1px);
-			// 	border-radius: $pill_expanded_ui_radius;
-			// 	margin-left: settings.$pill_padding;
+                &.toggled {
+                    color: colors.$background;
+                    background-color: colors.$primary;
+                    border-radius: calc(settings.$qs_row_height / 3 - $qs-toggle-padding);
+                }
+            }
 
-			// 	label {
-			// 		font-size: larger;
-			// 	}
-			// }
+            // .qs_tile_chevron_button {
+            // 	transition: all 0.2s ease-out;
 
-			&:disabled {
-				background-color: colors.$surface_container_lowest;
-				color: colors.$surface_variant;
+            // 	background-color: colors.$surface;
+            // 	color: colors.$surface_container_highest;
+            // 	// min-width: calc(settings.$qs_row_height - 1.75 * settings.$pill_expanded_padding);
+            // 	min-width: calc($pill_expanded_ui_radius * 2 + 1px);
+            // 	border-radius: $pill_expanded_ui_radius;
+            // 	margin-left: settings.$pill_padding;
 
-				#qs_menu_button {
-					background-color: colors.$surface_container_low;
-				}
-			}
-		}
+            // 	label {
+            // 		font-size: larger;
+            // 	}
+            // }
 
-		#qs_volume_chevron {
-			transition: all 0.2s ease-out;
+            &:disabled {
+                background-color: colors.$surface_container_lowest;
+                color: colors.$surface_variant;
 
-			padding: 1px;
-			background-color: colors.$surface_bright;
-			color: colors.$primary;
-			border-radius: $pill_expanded_ui_radius;
-			min-width: 20px;
-			min-height: 20px;
+                #qs_menu_button {
+                    background-color: colors.$surface_container_low;
+                }
+            }
+        }
 
-			&:disabled {
-				background-color: colors.$surface_container_high;
-				color: colors.$surface_variant;
-			}
-		}
+        #qs_volume_chevron {
+            transition: all 0.2s ease-out;
 
-		#qs_speakers_microphones_container {
-			transition: all 0.2s ease-in-out;
+            padding: 1px;
+            background-color: colors.$surface_bright;
+            color: colors.$primary;
+            border-radius: $pill_expanded_ui_radius;
+            min-width: 20px;
+            min-height: 20px;
 
-			background-color: colors.$surface_container_low;
-			margin-top: calc(settings.$pill_expanded_padding / 2);
+            &:disabled {
+                background-color: colors.$surface_container_high;
+                color: colors.$surface_variant;
+            }
+        }
 
-			border-radius: $pill_large_ui_radius;
-			padding: calc(settings.$pill_expanded_padding / 2);
+        #qs_speakers_microphones_container {
+            transition: all 0.2s ease-in-out;
 
-			$p: calc(2 / 3);
-			#qs_microphones_container,
-			#qs_speakers_container {
-				background-color: colors.$surface_container_lowest;
-				min-height: calc(
-					$pill_large_ui_radius -
-						calc(settings.$pill_expanded_padding / 2)
-				);
+            background-color: colors.$surface_container_low;
+            margin-top: calc(settings.$pill_expanded_padding / 2);
 
-				padding: calc(settings.$pill_expanded_padding * $p * 3 / 4)
-					calc(settings.$pill_expanded_padding * $p);
+            border-radius: $pill_large_ui_radius;
+            padding: calc(settings.$pill_expanded_padding / 2);
 
-				border-radius: calc(
-					$pill_large_ui_radius -
-						calc(settings.$pill_expanded_padding / 2)
-				);
-			}
+            $p: calc(2 / 3);
 
-			.tab_button {
-				transition: all 0.1s ease-in;
+            #qs_microphones_container,
+            #qs_speakers_container {
+                background-color: colors.$surface_container_lowest;
+                min-height: calc($pill_large_ui_radius - calc(settings.$pill_expanded_padding / 2));
 
-				margin: calc(settings.$pill_padding / 2);
-				padding: calc(settings.$pill_padding / 2);
-				margin-bottom: settings.$pill_padding;
+                padding: calc(settings.$pill_expanded_padding * $p * 3 / 4) calc(settings.$pill_expanded_padding * $p);
 
-				background-color: colors.$surface_container_lowest;
-				min-width: 2rem;
-				border-radius: $pill_ui_radius;
+                border-radius: calc($pill_large_ui_radius - calc(settings.$pill_expanded_padding / 2));
+            }
 
-				label {
-					font-weight: normal;
-					font-size: large;
-				}
+            .tab_button {
+                transition: all 0.1s ease-in;
 
-				&:hover {
-					background-color: colors.$surface_dim;
-				}
+                margin: calc(settings.$pill_padding / 2);
+                padding: calc(settings.$pill_padding / 2);
+                margin-bottom: settings.$pill_padding;
 
-				&.active {
-					background-color: colors.$on_secondary;
-					color: colors.$secondary;
+                background-color: colors.$surface_container_lowest;
+                min-width: 2rem;
+                border-radius: $pill_ui_radius;
 
-					&:hover {
-						background-color: colors.$secondary_container;
-						color: colors.$on_secondary_container;
-					}
-				}
-			}
+                label {
+                    font-weight: normal;
+                    font-size: large;
+                }
 
-			#header_label {
-				font-size: 18px;
-				// padding-bottom: 5px;
-				// border-bottom: 1px white solid;
-				margin-bottom: calc(settings.$pill_expanded_padding / 2);
-				// margin-bottom: calc($pill_expanded_ui_radius / 2);
-				margin-left: calc(settings.$pill_padding / 2);
-			}
+                &:hover {
+                    background-color: colors.$surface_dim;
+                }
 
-			$radius: calc(
-				$pill_large_ui_radius -
-					calc($pill_expanded_ui_radius * (1 / 2 + $p))
-			);
-			#speaker_button,
-			#microphone_button {
-				transition: all 0.1s ease-in;
+                &.active {
+                    background-color: colors.$on_secondary;
+                    color: colors.$secondary;
 
-				background-color: colors.$surface_container_low;
-				padding: 0px settings.$pill_padding;
+                    &:hover {
+                        background-color: colors.$secondary_container;
+                        color: colors.$on_secondary_container;
+                    }
+                }
+            }
 
-				border-radius: $radius;
-				min-height: 50px;
-				margin: calc(settings.$pill_expanded_padding / 4) 0px;
-				// border-radius: $radius;
-				// min-height: calc($radius * 2.5);
-				// margin: calc($pill_expanded_ui_radius / 4) 0px;
+            #header_label {
+                font-size: 18px;
+                // padding-bottom: 5px;
+                // border-bottom: 1px white solid;
+                margin-bottom: calc(settings.$pill_expanded_padding / 2);
+                // margin-bottom: calc($pill_expanded_ui_radius / 2);
+                margin-left: calc(settings.$pill_padding / 2);
+            }
 
-				&:hover {
-					background-color: colors.$surface_container;
-				}
+            $radius: calc($pill_large_ui_radius - calc($pill_expanded_ui_radius * (1 / 2 + $p)));
 
-				&.active {
-					background-color: colors.$on_tertiary;
-					color: colors.$tertiary;
+            #speaker_button,
+            #microphone_button {
+                transition: all 0.1s ease-in;
 
-					&:hover {
-						background-color: colors.$tertiary_container;
-						color: colors.$on_tertiary_container;
-					}
-				}
+                background-color: colors.$surface_container_low;
+                padding: 0px settings.$pill_padding;
 
-				#qs_tile_label {
-					font-size: 14px;
-					font-weight: bold;
-					// font-size: 15px;
-					// font-weight: normal;
-				}
+                border-radius: $radius;
+                min-height: 50px;
+                margin: calc(settings.$pill_expanded_padding / 4) 0px;
+                // border-radius: $radius;
+                // min-height: calc($radius * 2.5);
+                // margin: calc($pill_expanded_ui_radius / 4) 0px;
 
-				#qs_tile_icon {
-					font-size: 22px;
-					font-weight: normal;
+                &:hover {
+                    background-color: colors.$surface_container;
+                }
 
-					margin: 0.6rem 0px;
-					min-height: 2rem;
-					margin-right: calc(settings.$pill_padding);
+                &.active {
+                    background-color: colors.$on_tertiary;
+                    color: colors.$tertiary;
 
-					background-color: colors.$surface_container_lowest;
-					min-width: 2rem;
-					border-radius: calc($radius - settings.$pill_padding);
-				}
-			}
-		}
+                    &:hover {
+                        background-color: colors.$tertiary_container;
+                        color: colors.$on_tertiary_container;
+                    }
+                }
 
-		// #wifi_qs_popup {
-		// 	#wifi_qs_popup_container {
-		// 		transition: all 0.2s ease-out;
+                #qs_tile_label {
+                    font-size: 14px;
+                    font-weight: bold;
+                    // font-size: 15px;
+                    // font-weight: normal;
+                }
 
-		// 		background-color: red;
-		// 		// min-width: 100px;
-		// 		// margin: -50px 0px 50px 0px;
-		// 	}
-		// }
-	}
+                #qs_tile_icon {
+                    font-size: 22px;
+                    font-weight: normal;
+
+                    margin: 0.6rem 0px;
+                    min-height: 2rem;
+                    margin-right: calc(settings.$pill_padding);
+
+                    background-color: colors.$surface_container_lowest;
+                    min-width: 2rem;
+                    border-radius: calc($radius - settings.$pill_padding);
+                }
+            }
+        }
+
+        // #wifi_qs_popup {
+        // 	#wifi_qs_popup_container {
+        // 		transition: all 0.2s ease-out;
+
+        // 		background-color: red;
+        // 		// min-width: 100px;
+        // 		// margin: -50px 0px 50px 0px;
+        // 	}
+        // }
+    }
 }
 
 #calendar_widget {
-	transition: margin 0.02s cubic-bezier(1, 0, 1, 0);
-	margin: 0px -100px;
+    transition: margin 0.02s cubic-bezier(1, 0, 1, 0);
+    margin: 0px -100px;
 
-	&.revealed {
-		transition: margin 0.2s ease-out;
-		margin: settings.$pill_expanded_padding 0px 0px 0px;
+    &.revealed {
+        transition: margin 0.2s ease-out;
+        margin: settings.$pill_expanded_padding 0px 0px 0px;
 
-		#calendar_padded_container {
-			padding: settings.$pill_expanded_padding;
-			padding-bottom: 0px;
-		}
-		#calendar_unpadded_container {
-			padding: settings.$pill_expanded_padding;
-			padding-top: 0px;
-		}
-	}
+        #calendar_padded_container {
+            padding: settings.$pill_expanded_padding;
+            padding-bottom: 0px;
+        }
 
-	#calendar_padded_container {
-		border-radius: $pill_large_ui_radius $pill_large_ui_radius 0px 0px;
-		background-color: colors.$on_primary;
+        #calendar_unpadded_container {
+            padding: settings.$pill_expanded_padding;
+            padding-top: 0px;
+        }
+    }
 
-		#calendar_year_label {
-			font-weight: lighter;
-			font-size: 16px;
-			margin-bottom: 6px;
-			margin-left: 6px;
-			color: colors.$on_secondary_container;
-		}
+    #calendar_padded_container {
+        border-radius: $pill_large_ui_radius $pill_large_ui_radius 0px 0px;
+        background-color: colors.$on_primary;
 
-		#calendar_date_label {
-			font-weight: bold;
-			font-size: 24;
-			margin-bottom: calc(settings.$pill_expanded_padding / 1.5);
-			color: colors.$on_primary_container;
-		}
-	}
+        #calendar_year_label {
+            font-weight: lighter;
+            font-size: 16px;
+            margin-bottom: 6px;
+            margin-left: 6px;
+            color: colors.$on_secondary_container;
+        }
 
-	$corner_radius: calc($pill_expanded_ui_radius * 2);
-	$ui_radius: calc($corner_radius - settings.$pill_expanded_padding);
-	#calendar_unpadded_container {
-		border-radius: 0px 0px $pill_large_ui_radius $pill_large_ui_radius;
-		background-color: colors.$surface_container_low;
+        #calendar_date_label {
+            font-weight: bold;
+            font-size: 24;
+            margin-bottom: calc(settings.$pill_expanded_padding / 1.5);
+            color: colors.$on_primary_container;
+        }
+    }
 
-		#calendar_corners_container {
-			margin: 0 calc(settings.$pill_expanded_padding * -1);
-			margin-bottom: calc(
-				$corner_radius * -1 + settings.$pill_expanded_padding
-			);
+    $corner_radius: calc($pill_expanded_ui_radius * 2);
+    $ui_radius: calc($corner_radius - settings.$pill_expanded_padding);
 
-			#calendar_corner_container {
-				min-height: $corner_radius;
-				min-width: $corner_radius;
+    #calendar_unpadded_container {
+        border-radius: 0px 0px $pill_large_ui_radius $pill_large_ui_radius;
+        background-color: colors.$surface_container_low;
 
-				#calendar_corner {
-					background-color: colors.$on_primary;
-				}
-			}
-		}
+        #calendar_corners_container {
+            margin: 0 calc(settings.$pill_expanded_padding * -1);
+            margin-bottom: calc($corner_radius * -1 + settings.$pill_expanded_padding);
 
-		#calendar_navigation_buttons {
-			min-height: 24px;
-			min-width: 32px;
-			background-color: colors.$primary_container;
-			border-radius: $ui_radius;
-			color: colors.$on_primary_container;
+            #calendar_corner_container {
+                min-height: $corner_radius;
+                min-width: $corner_radius;
 
-			label {
-				font-size: 18px;
-			}
-		}
+                #calendar_corner {
+                    background-color: colors.$on_primary;
+                }
+            }
+        }
 
-		#calendar_month_label {
-			font-weight: bold;
-			font-size: 16;
+        #calendar_navigation_buttons {
+            min-height: 24px;
+            min-width: 32px;
+            background-color: colors.$primary_container;
+            border-radius: $ui_radius;
+            color: colors.$on_primary_container;
 
-			color: colors.$secondary;
-		}
+            label {
+                font-size: 18px;
+            }
+        }
 
-		#calendar_day_labels {
-			margin-top: 8px;
-			margin-bottom: 4px;
+        #calendar_month_label {
+            font-weight: bold;
+            font-size: 16;
 
-			label {
-				// font-weight: lighter;
-				&:first-child {
-					margin-left: 4px;
-				}
-				&:last-child {
-					margin-right: 4px;
-				}
+            color: colors.$secondary;
+        }
 
-				font-size: 16;
-				color: colors.$on_secondary_container;
-			}
-		}
+        #calendar_day_labels {
+            margin-top: 8px;
+            margin-bottom: 4px;
 
-		#calendar_month {
-			#calendar_week {
-				margin: 3px 0px;
-				&:first-child {
-					margin-top: 2px;
-				}
-				&:last-child {
-					margin-bottom: 2px;
-				}
+            label {
 
-				#calendar_day {
-					border-radius: 7px;
-					min-width: 48px;
-					min-height: 30px;
-					margin: 0px 3px;
+                // font-weight: lighter;
+                &:first-child {
+                    margin-left: 4px;
+                }
 
-					label {
-						font-size: 16px;
-						font-weight: lighter;
-					}
+                &:last-child {
+                    margin-right: 4px;
+                }
 
-					&.outsider {
-						color: colors.$surface_variant;
-					}
+                font-size: 16;
+                color: colors.$on_secondary_container;
+            }
+        }
 
-					&.today {
-						color: colors.$primary;
-						margin: -2px 1px;
-						border: 2px solid colors.$primary;
-						font-weight: bolder;
-					}
+        #calendar_month {
+            #calendar_week {
+                margin: 3px 0px;
 
-					&.active {
-						color: colors.$on_primary;
-						background-color: colors.$primary;
-						font-weight: bolder;
-					}
-				}
-			}
-		}
-	}
+                &:first-child {
+                    margin-top: 2px;
+                }
+
+                &:last-child {
+                    margin-bottom: 2px;
+                }
+
+                #calendar_day {
+                    border-radius: 7px;
+                    min-width: 48px;
+                    min-height: 30px;
+                    margin: 0px 3px;
+
+                    label {
+                        font-size: 16px;
+                        font-weight: lighter;
+                    }
+
+                    &.outsider {
+                        color: colors.$surface_variant;
+                    }
+
+                    &.today {
+                        color: colors.$primary;
+                        margin: -2px 1px;
+                        border: 2px solid colors.$primary;
+                        font-weight: bolder;
+                    }
+
+                    &.active {
+                        color: colors.$on_primary;
+                        background-color: colors.$primary;
+                        font-weight: bolder;
+                    }
+                }
+            }
+        }
+    }
 }
 
 #media_player_widget {
-	transition: all 0.3s ease-in;
+    transition: all 0.3s ease-in;
 
-	background-color: colors.$surface_container_low;
-	border-radius: $pill_large_ui_radius;
-	margin: 0px -50px;
+    background-color: colors.$surface_container_low;
+    border-radius: $pill_large_ui_radius;
+    margin: 0px -50px;
 
-	&.empty {
-		margin: 0px -50px;
-		background-color: transparent;
+    &.empty {
+        margin: 0px -50px;
+        background-color: transparent;
 
-		.media_controls {
-			padding: 0;
-		}
+        .media_controls {
+            padding: 0;
+        }
 
-		&.revealed {
-			margin: 0px;
-			background-color: transparent;
+        &.revealed {
+            margin: 0px;
+            background-color: transparent;
 
-			.media_controls {
-				padding: 0;
-			}
-		}
-	}
+            .media_controls {
+                padding: 0;
+            }
+        }
+    }
 
-	&.revealed {
-		transition: all 0.3s ease-out;
-		margin: settings.$pill_expanded_padding 0px 0px 0px;
-		// min-width: calc(
-		// 	settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
-		// );
-	}
+    &.revealed {
+        transition: all 0.3s ease-out;
+        margin: settings.$pill_expanded_padding 0px 0px 0px;
+        // min-width: calc(
+        // 	settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding
+        // );
+    }
 
-	.media_controls {
-		padding: settings.$pill_expanded_padding;
+    .media_controls {
+        padding: settings.$pill_expanded_padding;
 
-		#media_play_pause {
-			transition: all 0.2s ease-out, border-radius 0.1s ease-out;
-			background-color: colors.$on_primary;
-			border-radius: 50%;
-			margin-left: settings.$pill_padding;
-			min-height: 60px;
-			min-width: 60px;
-			// padding: 8px 16px;
-			// min-height: 40px;
-			// min-width: 24px;
+        #media_play_pause {
+            transition: all 0.2s ease-out, border-radius 0.1s ease-out;
+            background-color: colors.$on_primary;
+            border-radius: 50%;
+            margin-left: settings.$pill_padding;
+            min-height: 60px;
+            min-width: 60px;
+            // padding: 8px 16px;
+            // min-height: 40px;
+            // min-width: 24px;
 
-			label {
-				transition: color 0.2s ease-out;
-				// font-family: settings.$icon_font_family;
-				font-size: 28px;
-				font-weight: normal;
-				color: colors.$primary;
-			}
+            label {
+                transition: color 0.2s ease-out;
+                // font-family: settings.$icon_font_family;
+                font-size: 28px;
+                font-weight: normal;
+                color: colors.$primary;
+            }
 
-			&:hover {
-				background-color: color.scale(
-					colors.$on_primary,
-					$lightness: 5%
-				);
-				border-radius: 43%;
-				box-shadow: 0px 0px 10px -7px colors.$primary_container;
+            &:hover {
+                background-color: color.scale(colors.$on_primary,
+                        $lightness: 5%);
+                border-radius: 43%;
+                box-shadow: 0px 0px 10px -7px colors.$primary_container;
 
-				&.toggled {
-					border-radius: 33%;
-					box-shadow: 0px 0px 15px -5px color.scale(colors.$primary_container, $lightness:
-								0%);
-				}
+                &.toggled {
+                    border-radius: 33%;
+                    box-shadow: 0px 0px 15px -5px color.scale(colors.$primary_container, $lightness: 0%);
+                }
 
-				label {
-					color: colors.$on_primary_container;
-				}
-			}
+                label {
+                    color: colors.$on_primary_container;
+                }
+            }
 
-			&.toggled {
-				border-radius: 25%;
-				box-shadow: 0px 0px 15px -7px colors.$primary_container;
-			}
-		}
+            &.toggled {
+                border-radius: 25%;
+                box-shadow: 0px 0px 15px -7px colors.$primary_container;
+            }
+        }
 
-		#media_next,
-		#media_previous {
-			transition: all 0.1s ease-out;
-			background-color: transparent;
-			min-width: 2rem;
-			border-radius: 10px;
-			// padding: 6px;
+        #media_next,
+        #media_previous {
+            transition: all 0.1s ease-out;
+            background-color: transparent;
+            min-width: 2rem;
+            border-radius: 10px;
+            // padding: 6px;
 
-			label {
-				// font-family: settings.$icon_font_family;
-				font-size: 20px;
-				font-weight: normal;
-				color: colors.$secondary;
-			}
+            label {
+                // font-family: settings.$icon_font_family;
+                font-size: 20px;
+                font-weight: normal;
+                color: colors.$secondary;
+            }
 
-			&:hover {
-				background-color: colors.$surface_container;
-			}
+            &:hover {
+                background-color: colors.$surface_container;
+            }
 
-			&:disabled {
-				label {
-					color: colors.$surface_bright;
-				}
-			}
-		}
+            &:disabled {
+                label {
+                    color: colors.$surface_bright;
+                }
+            }
+        }
 
-		#media_shuffle,
-		#media_loop {
-			transition: all 0.1s ease-out;
-			background-color: colors.$surface_container_lowest;
-			min-width: 1.75rem;
-			min-height: 1.75rem;
-			// padding: 6px;
-			border-radius: 8px;
-			margin: 0px calc(settings.$pill_padding / 2);
-			// min-width: 17px;
+        #media_shuffle,
+        #media_loop {
+            transition: all 0.1s ease-out;
+            background-color: colors.$surface_container_lowest;
+            min-width: 1.75rem;
+            min-height: 1.75rem;
+            // padding: 6px;
+            border-radius: 8px;
+            margin: 0px calc(settings.$pill_padding / 2);
+            // min-width: 17px;
 
-			label {
-				// font-family: settings.$icon_font_family;
-				font-size: 18px;
-				font-weight: normal;
-				color: colors.$surface_container_highest;
-			}
+            label {
+                // font-family: settings.$icon_font_family;
+                font-size: 18px;
+                font-weight: normal;
+                color: colors.$surface_container_highest;
+            }
 
-			&:hover {
-				background-color: colors.$surface_dim;
-				border-radius: 10px;
-				box-shadow: 0px 0px 12px -2px colors.$surface_container_high;
+            &:hover {
+                background-color: colors.$surface_dim;
+                border-radius: 10px;
+                box-shadow: 0px 0px 12px -2px colors.$surface_container_high;
 
-				&.toggled {
-					background-color: color.scale(
-						colors.$on_secondary,
-						$lightness: 3%
-					);
-					box-shadow: 0px 0px 10px -2px colors.$secondary_container;
-				}
-			}
+                &.toggled {
+                    background-color: color.scale(colors.$on_secondary,
+                            $lightness: 3%);
+                    box-shadow: 0px 0px 10px -2px colors.$secondary_container;
+                }
+            }
 
-			&.toggled {
-				background-color: colors.$on_secondary;
-				color: colors.$on_secondary_container;
-				box-shadow: 0px 0px 10px 1px colors.$on_secondary;
+            &.toggled {
+                background-color: colors.$on_secondary;
+                color: colors.$on_secondary_container;
+                box-shadow: 0px 0px 10px 1px colors.$on_secondary;
 
-				label {
-					color: colors.$secondary;
-				}
-			}
-		}
+                label {
+                    color: colors.$secondary;
+                }
+            }
+        }
 
-		#media_title_label {
-			color: colors.$primary;
-			font-size: settings.$media_title_font_size;
-			font-weight: bolder;
-		}
+        #media_title_label {
+            color: colors.$primary;
+            font-size: settings.$media_title_font_size;
+            font-weight: bolder;
+        }
 
-		#media_artist_album_label {
-			color: colors.$tertiary;
-			font-size: settings.$media_artist_album_font_size;
-			font-weight: lighter;
-		}
+        #media_artist_album_label {
+            color: colors.$tertiary;
+            font-size: settings.$media_artist_album_font_size;
+            font-weight: lighter;
+        }
 
-		#media_progress {
-			margin: 0px calc(settings.$pill_padding / 2);
+        #media_progress {
+            margin: 0px calc(settings.$pill_padding / 2);
 
-			contents {
-				trough {
-					// background-color: color.change(colors.$source, $lightness: 13%, $saturation: 20%);
-					// background-color: rgba(colors.$background, 1.0);
-					background-color: colors.$surface_container_lowest;
-					border-radius: 100px;
-					margin-left: settings.$media_player_slider_padding_left;
-					min-height: 10px;
+            contents {
+                trough {
+                    // background-color: color.change(colors.$source, $lightness: 13%, $saturation: 20%);
+                    // background-color: rgba(colors.$background, 1.0);
+                    background-color: colors.$surface_container_lowest;
+                    border-radius: 100px;
+                    margin-left: settings.$media_player_slider_padding_left;
+                    min-height: 10px;
 
-					slider {
-						transition: all 0.1s ease;
-						min-height: (
-							2 * settings.$media_player_slider_inner_padding +
-								10px
-						);
-						min-width: 9px;
-						border-radius: 5px;
-						background-color: colors.$tertiary;
-						margin: -(settings.$media_player_slider_inner_padding) 0px;
+                    slider {
+                        transition: all 0.1s ease;
+                        min-height: (2 * settings.$media_player_slider_inner_padding + 10px);
+                        min-width: 9px;
+                        border-radius: 5px;
+                        background-color: colors.$tertiary;
+                        margin: -(settings.$media_player_slider_inner_padding) 0px;
 
-						&:hover {
-							background-color: colors.$on_tertiary_container;
-							border-radius: 3px;
-							box-shadow: 0px 0px 8px -3px colors.$tertiary;
-						}
-					}
+                        &:hover {
+                            background-color: colors.$on_tertiary_container;
+                            border-radius: 3px;
+                            box-shadow: 0px 0px 8px -3px colors.$tertiary;
+                        }
+                    }
 
-					highlight {
-						background-color: colors.$tertiary_container;
-						margin-right: 8px;
-						margin-left: -(settings.$media_player_slider_padding_left);
-						border-radius: 100px 50px 50px 100px;
+                    highlight {
+                        background-color: colors.$tertiary_container;
+                        margin-right: 8px;
+                        margin-left: -(settings.$media_player_slider_padding_left);
+                        border-radius: 100px 50px 50px 100px;
 
-						box-shadow: 0px 0px 10px 0px colors.$on_tertiary;
+                        box-shadow: 0px 0px 10px 0px colors.$on_tertiary;
 
-						// animation-name: progress_ambience;
-						// animation-duration: 10s;
-						// animation-direction: alternate;
-						// animation-timing-function: linear;
-						// animation-iteration-count: infinite;
+                        // animation-name: progress_ambience;
+                        // animation-duration: 10s;
+                        // animation-direction: alternate;
+                        // animation-timing-function: linear;
+                        // animation-iteration-count: infinite;
 
-						// @keyframes progress_ambience {
-						//     0% {box-shadow: 0px 0px 8px 2px colors.$on_tertiary;}
-						//     50% {box-shadow: 0px 0px 12px 0px colors.$on_tertiary;}
-						//     100% {box-shadow: 0px 0px 8px 2px colors.$on_tertiary;}
-						// }
-					}
-				}
-			}
-		}
+                        // @keyframes progress_ambience {
+                        //     0% {box-shadow: 0px 0px 8px 2px colors.$on_tertiary;}
+                        //     50% {box-shadow: 0px 0px 12px 0px colors.$on_tertiary;}
+                        //     100% {box-shadow: 0px 0px 8px 2px colors.$on_tertiary;}
+                        // }
+                    }
+                }
+            }
+        }
 
-		#media_artwork_box {
-			margin-right: calc(settings.$pill_expanded_padding / 2);
-			margin-bottom: settings.$pill_expanded_padding;
+        #media_artwork_box {
+            margin-right: calc(settings.$pill_expanded_padding / 2);
+            margin-bottom: settings.$pill_expanded_padding;
 
-			background-color: colors.$surface_container_high;
-			border-radius: $pill_window_radius;
-			min-width: settings.$media_artwork_size;
-			min-height: settings.$media_artwork_size;
+            background-color: colors.$surface_container_high;
+            border-radius: $pill_window_radius;
+            min-width: settings.$media_artwork_size;
+            min-height: settings.$media_artwork_size;
 
-			#media_artwork {
-				border-radius: $pill_window_radius;
-			}
-		}
-	}
+            #media_artwork {
+                border-radius: $pill_window_radius;
+            }
+        }
+    }
 
-	#tabs_holder {
-		margin-top: calc(-1 * settings.$pill_expanded_padding / 1.1);
-		padding-bottom: calc(settings.$pill_expanded_padding / 3);
+    #tabs_holder {
+        margin-top: calc(-1 * settings.$pill_expanded_padding / 1.1);
+        padding-bottom: calc(settings.$pill_expanded_padding / 3);
 
-		.tab_button {
-			// transition: all 0.2s ease-out;
-			transition: all 0.2s ease-out;
+        .tab_button {
+            // transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
 
-			min-width: 1.2rem;
-			min-height: 1.2rem;
-			margin: 0px calc(settings.$pill_padding / 4);
-			color: colors.$surface_bright;
-			// background-color: transparent;
-			background-color: colors.$surface;
-			border-radius: 10px;
-			padding: 1px;
+            min-width: 1.2rem;
+            min-height: 1.2rem;
+            margin: 0px calc(settings.$pill_padding / 4);
+            color: colors.$surface_bright;
+            // background-color: transparent;
+            background-color: colors.$surface;
+            border-radius: 10px;
+            padding: 1px;
 
-			&:hover {
-				color: rgba(colors.$secondary, 0.5);
-				background-color: colors.$surface_container_lowest;
-				border-radius: 8px;
+            &:hover {
+                color: rgba(colors.$secondary, 0.5);
+                background-color: colors.$surface_container_lowest;
+                border-radius: 8px;
 
-				box-shadow: 0px 0px 10px 0px colors.$surface_container_highest;
-			}
+                box-shadow: 0px 0px 10px 0px colors.$surface_container_highest;
+            }
 
-			&.empty {
-				background-color: transparent;
+            &.empty {
+                background-color: transparent;
 
-				label {
-					font-size: 0px;
-				}
-			}
+                label {
+                    font-size: 0px;
+                }
+            }
 
-			&.hidden {
-				min-width: 0px;
-				margin: 0px;
-				background-color: transparent;
+            &.hidden {
+                min-width: 0px;
+                margin: 0px;
+                background-color: transparent;
 
-				label {
-					font-size: 0px;
-				}
-			}
+                label {
+                    font-size: 0px;
+                }
+            }
 
-			&.active {
-				background-color: colors.$inverse_primary;
-				color: colors.$on_primary_container;
-				border-radius: 5px;
-				box-shadow: 0px 0px 10px -2px colors.$primary_container;
+            &.active {
+                background-color: colors.$inverse_primary;
+                color: colors.$on_primary_container;
+                border-radius: 5px;
+                box-shadow: 0px 0px 10px -2px colors.$primary_container;
 
-				label {
-					// transition: font-size 0s linear;
+                label {
+                    // transition: font-size 0s linear;
 
-					font-size: 18px;
-					// text-shadow: 0px 0px 10px colors.$primary;
-				}
+                    font-size: 18px;
+                    // text-shadow: 0px 0px 10px colors.$primary;
+                }
 
-				&:hover {
-					border-radius: 7px;
-					box-shadow: 0px 0px 8px -2px colors.$primary_container;
-					// label {
-					// 	font-size: 24px;
-					// 	text-shadow: 0px 0px 9px colors.$on_primary_container;
-					// }
-				}
-			}
+                &:hover {
+                    border-radius: 7px;
+                    box-shadow: 0px 0px 8px -2px colors.$primary_container;
+                    // label {
+                    // 	font-size: 24px;
+                    // 	text-shadow: 0px 0px 9px colors.$on_primary_container;
+                    // }
+                }
+            }
 
-			label {
-				// transition: all 0s ease-out;
-				// transition: all 0.1s linear;
+            label {
+                // transition: all 0s ease-out;
+                // transition: all 0.1s linear;
 
-				font-size: 16px;
-				margin: -5px 0px -5px -5px;
-			}
-		}
-	}
+                font-size: 16px;
+                margin: -5px 0px -5px -5px;
+            }
+        }
+    }
 }
 
 #calendar_container {
-	transition: all 0.4s linear;
-	background-color: colors.$surface_container_low;
-	border-radius: $pill_window_radius;
-	margin: 0px -100px;
+    transition: all 0.4s linear;
+    background-color: colors.$surface_container_low;
+    border-radius: $pill_window_radius;
+    margin: 0px -100px;
 
-	&.revealed {
-		margin: settings.$pill_expanded_padding 0px 0px 0px;
-		padding: settings.$pill_expanded_padding;
-		padding-bottom: 0px;
-	}
+    &.revealed {
+        margin: settings.$pill_expanded_padding 0px 0px 0px;
+        padding: settings.$pill_expanded_padding;
+        padding-bottom: 0px;
+    }
 
-	#calendar_widget {
-		padding: 6px;
-		color: colors.$on_primary_container;
-		border-radius: $pill_ui_radius;
-	}
+    #calendar_widget {
+        padding: 6px;
+        color: colors.$on_primary_container;
+        border-radius: $pill_ui_radius;
+    }
+}
+
+#dock_window {
+    // background-color: red;
+}
+
+#dock {
+    transition: margin 0.2s ease-out;
+
+    margin-bottom: -66px;
+    margin-top: 4px;
+
+    background-color: colors.$background;
+    border-radius: settings.$dock_rounding;
+    min-height: 65px;
+    min-width: 45px;
+    padding: 0px settings.$dock_padding;
+
+    &.shown {
+        transition: margin 0.4s $transition_function;
+
+        margin-top: 14px;
+        margin-bottom: 4px;
+    }
+
+    #dock_item {
+        transition: margin 0.2s ease-out;
+        padding: 0px 0px;
+        margin: 24px -24px -24px -24px;
+
+        #dock_item_icon {
+            transition: all 0.1s ease-out;
+
+            opacity: 0;
+        }
+
+        &.shown {
+            transition: margin 0.2s ease-out;
+
+            margin: 0px 0px;
+            padding-left: 5px;
+
+            &:first-child {
+                padding-left: 0px;
+            }
+
+            &:hover {
+                #dock_item_main_container {
+                    margin-top: -12px;
+                    // margin-bottom: 12px;
+                }
+
+                #dock_item_icon {
+                    opacity: 1;
+                    background-color: colors.$surface_variant;
+                }
+
+                #dock_item_indicator {
+                    min-width: 22px;
+
+                    margin-top: 16px;
+                }
+            }
+
+            &.semi_hovered {
+                #dock_item_main_container {
+                    margin-top: -7px;
+                    // margin-bottom: 7px;
+                }
+
+                #dock_item_indicator {
+                    margin-top: 11px;
+                }
+            }
+
+            &.activated {
+                &:hover {
+                    #dock_item_main_container {
+                        margin-top: -12px;
+                        // margin-bottom: 12px;
+                    }
+
+                    #dock_item_icon {
+                        background-color: color.scale(colors.$primary_container, $lightness: +5%);
+                    }
+
+                    #dock_item_indicator {
+                        margin-top: 16px;
+                    }
+                }
+
+                #dock_item_main_container {
+                    margin-top: -4px;
+                }
+
+                #dock_item_icon {
+                    opacity: 1;
+                    background-color: colors.$primary_container;
+                }
+
+                #dock_item_indicator {
+                    min-width: 26px;
+
+                    margin-top: 8px;
+                    background-color: colors.$primary;
+                }
+
+                &.semi_hovered {
+                    #dock_item_main_container {
+                        margin-top: -7px;
+                        // margin-bottom: 7px;
+                    }
+
+                    #dock_item_indicator {
+                        margin-top: 11px;
+                    }
+                }
+            }
+
+            #dock_item_main_container {
+                transition: all 0.15s ease-out;
+            }
+
+            #dock_item_icon {
+                transition: all 0.15s ease-out;
+
+                background-color: colors.$surface_container_highest;
+                border-radius: calc(settings.$dock_rounding - settings.$dock_padding);
+                opacity: 0.7;
+                padding: 5px;
+            }
+
+            #dock_item_indicator {
+                transition: all 0.15s ease-out;
+
+                margin-top: 4px;
+                min-height: 4px;
+                min-width: 16px;
+
+                border-radius: 4px;
+                background-color: color.scale(colors.$inverse_primary, $lightness: +20%, $saturation: -100%);
+            }
+        }
+    }
 }
 
 $notification_window_radius: 32px;
 $notification_window_padding: 16px;
 $notification_item_padding: 6px;
-$notification_item_radius: calc(
-	$notification_window_radius - $notification_window_padding
-);
+$notification_item_radius: calc($notification_window_radius - $notification_window_padding);
 $notification_special_radius: 23px;
-$notification_special_item_radius: calc(
-	$notification_special_radius - $notification_window_padding
-);
+$notification_special_item_radius: calc($notification_special_radius - $notification_window_padding);
+
 .notification {
-	transition: min-width 0.2s cubic-bezier(0, 1, 0.5, 1);
+    transition: min-width 0.2s cubic-bezier(0, 1, 0.5, 1);
 
-	background-color: colors.$surface_container_low;
-	border-radius: $notification_window_radius;
-	padding: $notification_window_padding;
+    background-color: colors.$surface_container_low;
+    border-radius: $notification_window_radius;
+    padding: $notification_window_padding;
 
-	&.hidden {
-		transition: min-width 0.2s ease-out, padding 0.3s ease-out, margin 0.3s ease-out;
+    &.hidden {
+        transition: min-width 0.2s ease-out, padding 0.3s ease-out, margin 0.3s ease-out;
 
-		min-width: 0px;
-		padding: 0px;
-		margin: 0px -20px;
-	}
+        min-width: 0px;
+        padding: 0px;
+        margin: 0px -20px;
+    }
 
-	&.urgent {
-		// background-color: color.color-mix(in oklab, colors.$surface_container_low 80%, colors.$on_error 20%);
-		background-color: color.scale(colors.$on_error, $lightness: -70%);
-	}
+    &.urgent {
+        // background-color: color.color-mix(in oklab, colors.$surface_container_low 80%, colors.$on_error 20%);
+        background-color: color.scale(colors.$on_error, $lightness: -70%);
+    }
 
-	&.special {
-		border-radius: $notification_window_radius $notification_window_radius
-			$notification_special_radius $notification_special_radius;
-	}
+    &.special {
+        border-radius: $notification_window_radius $notification_window_radius $notification_special_radius $notification_special_radius;
+    }
 
-	#app_name {
-		font-size: 12;
-		color: colors.$on_background;
-		opacity: 0.4;
-	}
-	#app_icon {
-		border-radius: 100px;
-		background-color: colors.$surface_container_lowest;
-		margin-right: 5px;
-	}
+    #app_name {
+        font-size: 12;
+        color: colors.$on_background;
+        opacity: 0.4;
+    }
 
-	#dismiss_button {
-		transition: all 0.1s ease-out;
+    #app_icon {
+        border-radius: 100px;
+        background-color: colors.$surface_container_lowest;
+        margin-right: 5px;
+    }
 
-		// $size: calc($notification_item_radius * 2);
-		min-width: 24px;
-		min-height: 24px;
-		border-radius: $notification_item_radius;
-		background-color: colors.$surface_container_lowest;
-		// margin-bottom: $notification_item_padding;
-		color: colors.$error;
+    #dismiss_button {
+        transition: all 0.1s ease-out;
 
-		label {
-			font-size: larger;
-			font-weight: lighter;
-		}
+        // $size: calc($notification_item_radius * 2);
+        min-width: 24px;
+        min-height: 24px;
+        border-radius: $notification_item_radius;
+        background-color: colors.$surface_container_lowest;
+        // margin-bottom: $notification_item_padding;
+        color: colors.$error;
 
-		&:hover {
-			background-color: colors.$on_error;
-			color: colors.$on_background;
-		}
-	}
+        label {
+            font-size: larger;
+            font-weight: lighter;
+        }
 
-	#image {
-		border-radius: $notification_item_radius;
-	}
+        &:hover {
+            background-color: colors.$on_error;
+            color: colors.$on_background;
+        }
+    }
 
-	#icon_container {
-		min-width: 100px;
-		min-height: 100px;
+    #image {
+        border-radius: $notification_item_radius;
+    }
 
-		border-radius: $notification_item_radius;
+    #icon_container {
+        min-width: 100px;
+        min-height: 100px;
 
-		#icon {
-			font-size: 64px;
-			font-weight: normal;
-		}
+        border-radius: $notification_item_radius;
 
-		&.accent {
-			background-color: colors.$on_primary;
-			color: colors.$primary;
-		}
-		&.green {
-			background-color: colors.$on_green;
-			color: colors.$green;
-		}
-		&.red {
-			background-color: colors.$on_red;
-			color: colors.$red;
-		}
-		&.yellow {
-			background-color: colors.$on_yellow;
-			color: colors.$yellow;
-		}
-		&.blue {
-			background-color: colors.$on_blue;
-			color: colors.$blue;
-		}
-		&.cyan {
-			background-color: colors.$on_cyan;
-			color: colors.$cyan;
-		}
-		&.magenta {
-			background-color: colors.$on_magenta;
-			color: colors.$magenta;
-		}
-	}
+        #icon {
+            font-size: 64px;
+            font-weight: normal;
+        }
 
-	#body_container {
-		margin-left: calc($notification_item_padding * 2);
-		padding-top: calc($notification_item_padding / 2);
+        &.accent {
+            background-color: colors.$on_primary;
+            color: colors.$primary;
+        }
 
-		#summary {
-			font-weight: bolder;
-			font-size: 17px;
-			color: colors.$primary;
+        &.green {
+            background-color: colors.$on_green;
+            color: colors.$green;
+        }
 
-			margin-bottom: $notification_item_padding;
-		}
-		#body {
-			font-weight: lighter;
-			font-size: 12px;
-			color: colors.$on_primary_container;
-		}
-	}
+        &.red {
+            background-color: colors.$on_red;
+            color: colors.$red;
+        }
 
-	#progress_bar {
-		margin-top: calc($notification_item_padding * 1.5);
+        &.yellow {
+            background-color: colors.$on_yellow;
+            color: colors.$yellow;
+        }
 
-		trough {
-			border-radius: $notification_special_item_radius;
-			background-color: colors.$surface_container_lowest;
-			min-height: 20px;
-			padding: 3px;
+        &.blue {
+            background-color: colors.$on_blue;
+            color: colors.$blue;
+        }
 
-			progress {
-				min-height: 20px;
-				border-radius: calc($notification_special_item_radius - 3px);
-			}
-		}
+        &.cyan {
+            background-color: colors.$on_cyan;
+            color: colors.$cyan;
+        }
 
-		&.accent {
-			progress {
-				background-color: color.scale(
-					colors.$on_primary,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-		&.green {
-			progress {
-				background-color: color.scale(
-					colors.$on_green,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-		&.red {
-			progress {
-				background-color: color.scale(
-					colors.$on_red,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-		&.yellow {
-			progress {
-				background-color: color.scale(
-					colors.$on_yellow,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-		&.blue {
-			progress {
-				background-color: color.scale(
-					colors.$on_blue,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-		&.cyan {
-			progress {
-				background-color: color.scale(
-					colors.$on_cyan,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-		&.magenta {
-			progress {
-				background-color: color.scale(
-					colors.$on_magenta,
-					$lightness: +20%,
-					$saturation: +5%
-				);
-			}
-		}
-	}
+        &.magenta {
+            background-color: colors.$on_magenta;
+            color: colors.$magenta;
+        }
+    }
 
-	#actions_container {
-		min-height: 24px;
-		margin-top: $notification_item_padding;
+    #body_container {
+        margin-left: calc($notification_item_padding * 2);
+        padding-top: calc($notification_item_padding / 2);
 
-		&.accent {
-			// background-color: color.scale(colors.$on_primary, $lightness: -10%, $saturation: -40%);
-			#action_button {
-				background-color: colors.$on_primary;
-				color: colors.$primary;
+        #summary {
+            font-weight: bolder;
+            font-size: 17px;
+            color: colors.$primary;
 
-				&:hover {
-					background-color: colors.$primary_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_primary;
-				color: colors.$primary;
+            margin-bottom: $notification_item_padding;
+        }
 
-				&:hover {
-					background-color: colors.$primary_container;
-					color: colors.$on_background;
-				}
-			}
-		}
-		&.green {
-			#action_button {
-				background-color: colors.$on_green;
-				color: colors.$green;
+        #body {
+            font-weight: lighter;
+            font-size: 12px;
+            color: colors.$on_primary_container;
+        }
+    }
 
-				&:hover {
-					background-color: colors.$green_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_green;
-				color: colors.$green;
+    #progress_bar {
+        margin-top: calc($notification_item_padding * 1.5);
 
-				&:hover {
-					background-color: colors.$green_container;
-					color: colors.$on_background;
-				}
-			}
-		}
-		&.red {
-			#action_button {
-				background-color: colors.$on_red;
-				color: colors.$red;
+        trough {
+            border-radius: $notification_special_item_radius;
+            background-color: colors.$surface_container_lowest;
+            min-height: 20px;
+            padding: 3px;
 
-				&:hover {
-					background-color: colors.$red_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_red;
-				color: colors.$red;
+            progress {
+                min-height: 20px;
+                border-radius: calc($notification_special_item_radius - 3px);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$red_container;
-					color: colors.$on_background;
-				}
-			}
-		}
-		&.yellow {
-			#action_button {
-				background-color: colors.$on_yellow;
-				color: colors.$yellow;
+        &.accent {
+            progress {
+                background-color: color.scale(colors.$on_primary,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$yellow_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_yellow;
-				color: colors.$yellow;
+        &.green {
+            progress {
+                background-color: color.scale(colors.$on_green,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$yellow_container;
-					color: colors.$on_background;
-				}
-			}
-		}
-		&.blue {
-			#action_button {
-				background-color: colors.$on_blue;
-				color: colors.$blue;
+        &.red {
+            progress {
+                background-color: color.scale(colors.$on_red,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$blue_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_blue;
-				color: colors.$blue;
+        &.yellow {
+            progress {
+                background-color: color.scale(colors.$on_yellow,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$blue_container;
-					color: colors.$on_background;
-				}
-			}
-		}
-		&.cyan {
-			#action_button {
-				background-color: colors.$on_cyan;
-				color: colors.$cyan;
+        &.blue {
+            progress {
+                background-color: color.scale(colors.$on_blue,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$cyan_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_cyan;
-				color: colors.$cyan;
+        &.cyan {
+            progress {
+                background-color: color.scale(colors.$on_cyan,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
 
-				&:hover {
-					background-color: colors.$cyan_container;
-					color: colors.$on_background;
-				}
-			}
-		}
-		&.magenta {
-			#action_button {
-				background-color: colors.$on_magenta;
-				color: colors.$magenta;
+        &.magenta {
+            progress {
+                background-color: color.scale(colors.$on_magenta,
+                        $lightness: +20%,
+                        $saturation: +5%);
+            }
+        }
+    }
 
-				&:hover {
-					background-color: colors.$magenta_container;
-					color: colors.$on_background;
-				}
-			}
-			#overflow_actions_combo {
-				background-color: colors.$on_magenta;
-				color: colors.$magenta;
+    #actions_container {
+        min-height: 24px;
+        margin-top: $notification_item_padding;
 
-				&:hover {
-					background-color: colors.$magenta_container;
-					color: colors.$on_background;
-				}
-			}
-		}
+        &.accent {
 
-		#action_button {
-			transition: all 0.1s ease-out;
+            // background-color: color.scale(colors.$on_primary, $lightness: -10%, $saturation: -40%);
+            #action_button {
+                background-color: colors.$on_primary;
+                color: colors.$primary;
 
-			background-color: colors.$surface_container_highest;
-			border-radius: $notification_special_item_radius;
-			padding: 0px $notification_special_item_radius;
-			margin-right: $notification_item_padding;
-			color: colors.$secondary;
+                &:hover {
+                    background-color: colors.$primary_container;
+                    color: colors.$on_background;
+                }
+            }
 
-			&:last-child {
-				margin-right: 0px;
-			}
+            #overflow_actions_combo {
+                background-color: colors.$on_primary;
+                color: colors.$primary;
 
-			label {
-				font-size: 12px;
-				font-weight: 500;
-			}
-		}
+                &:hover {
+                    background-color: colors.$primary_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
 
-		#overflow_actions_combo {
-			transition: all 0.1s ease-out;
+        &.green {
+            #action_button {
+                background-color: colors.$on_green;
+                color: colors.$green;
 
-			background-color: colors.$surface_container_highest;
-			border-radius: $notification_special_item_radius;
-			padding: 0px $notification_special_item_radius;
-			color: colors.$secondary;
+                &:hover {
+                    background-color: colors.$green_container;
+                    color: colors.$on_background;
+                }
+            }
 
-			arrow {
-				border-style: solid;
-				border-color: colors.$secondary transparent transparent
-					transparent;
-				margin-top: 10px;
-				border-width: 6px 5px 0px 5px;
-				margin-left: calc(settings.$pill_padding / 2);
-			}
-		}
-	}
+            #overflow_actions_combo {
+                background-color: colors.$on_green;
+                color: colors.$green;
+
+                &:hover {
+                    background-color: colors.$green_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
+
+        &.red {
+            #action_button {
+                background-color: colors.$on_red;
+                color: colors.$red;
+
+                &:hover {
+                    background-color: colors.$red_container;
+                    color: colors.$on_background;
+                }
+            }
+
+            #overflow_actions_combo {
+                background-color: colors.$on_red;
+                color: colors.$red;
+
+                &:hover {
+                    background-color: colors.$red_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
+
+        &.yellow {
+            #action_button {
+                background-color: colors.$on_yellow;
+                color: colors.$yellow;
+
+                &:hover {
+                    background-color: colors.$yellow_container;
+                    color: colors.$on_background;
+                }
+            }
+
+            #overflow_actions_combo {
+                background-color: colors.$on_yellow;
+                color: colors.$yellow;
+
+                &:hover {
+                    background-color: colors.$yellow_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
+
+        &.blue {
+            #action_button {
+                background-color: colors.$on_blue;
+                color: colors.$blue;
+
+                &:hover {
+                    background-color: colors.$blue_container;
+                    color: colors.$on_background;
+                }
+            }
+
+            #overflow_actions_combo {
+                background-color: colors.$on_blue;
+                color: colors.$blue;
+
+                &:hover {
+                    background-color: colors.$blue_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
+
+        &.cyan {
+            #action_button {
+                background-color: colors.$on_cyan;
+                color: colors.$cyan;
+
+                &:hover {
+                    background-color: colors.$cyan_container;
+                    color: colors.$on_background;
+                }
+            }
+
+            #overflow_actions_combo {
+                background-color: colors.$on_cyan;
+                color: colors.$cyan;
+
+                &:hover {
+                    background-color: colors.$cyan_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
+
+        &.magenta {
+            #action_button {
+                background-color: colors.$on_magenta;
+                color: colors.$magenta;
+
+                &:hover {
+                    background-color: colors.$magenta_container;
+                    color: colors.$on_background;
+                }
+            }
+
+            #overflow_actions_combo {
+                background-color: colors.$on_magenta;
+                color: colors.$magenta;
+
+                &:hover {
+                    background-color: colors.$magenta_container;
+                    color: colors.$on_background;
+                }
+            }
+        }
+
+        #action_button {
+            transition: all 0.1s ease-out;
+
+            background-color: colors.$surface_container_highest;
+            border-radius: $notification_special_item_radius;
+            padding: 0px $notification_special_item_radius;
+            margin-right: $notification_item_padding;
+            color: colors.$secondary;
+
+            &:last-child {
+                margin-right: 0px;
+            }
+
+            label {
+                font-size: 12px;
+                font-weight: 500;
+            }
+        }
+
+        #overflow_actions_combo {
+            transition: all 0.1s ease-out;
+
+            background-color: colors.$surface_container_highest;
+            border-radius: $notification_special_item_radius;
+            padding: 0px $notification_special_item_radius;
+            color: colors.$secondary;
+
+            arrow {
+                border-style: solid;
+                border-color: colors.$secondary transparent transparent transparent;
+                margin-top: 10px;
+                border-width: 6px 5px 0px 5px;
+                margin-left: calc(settings.$pill_padding / 2);
+            }
+        }
+    }
 }
 
 #popup_notifications_container {
-	min-height: 1px; // needed so that if the pill revealer is hidden, the window would still be visible, otherwise the entire window will be hidden forever
-	// weird af imo gtk is ass
+    min-height: 1px; // needed so that if the pill revealer is hidden, the window would still be visible, otherwise the entire window will be hidden forever
+    // weird af imo gtk is ass
 
-	margin: 0px calc($pill_window_radius * 2 + settings.$pill_padding * 2);
+    margin: 0px calc($pill_window_radius * 2 + settings.$pill_padding * 2);
 
-	.notification {
-		transition: min-width 0.45s $transition_function;
+    .notification {
+        transition: min-width 0.45s $transition_function;
 
-		margin-top: 6px;
-		min-width: calc(
-			settings.$pill_expanded_width - $notification_window_padding * 2
-		);
+        margin-top: 6px;
+        min-width: calc(settings.$pill_expanded_width - $notification_window_padding * 2);
 
-		&.hidden {
-			transition: min-width 0.2s ease-out, padding 0.3s ease-out, margin 0.2s ease-out;
+        &.hidden {
+            transition: min-width 0.2s ease-out, padding 0.3s ease-out, margin 0.2s ease-out;
 
-			min-width: 0px;
-			padding: 0px;
-			margin: 0px calc(settings.$pill_expanded_width / -2 + $notification_window_padding * 2);
-		}
-	}
+            min-width: 0px;
+            padding: 0px;
+            margin: 0px calc(settings.$pill_expanded_width / -2 + $notification_window_padding * 2);
+        }
+    }
 }
 
-#osd_window {
-	#osd_container {
-		transition: all 0.1s ease-in;
+#osd_window {}
 
-		min-height: settings.$osd_height;
+#osd_container {
+    transition: all 0.2s ease-out;
 
-		padding: settings.$osd_padding;
-		// border-radius: calc(
-		// 	(settings.$osd_slider_width + 2 * settings.$osd_slider_padding) / 2 +
-		// 		settings.$osd_padding
-		// );
-		border-radius: calc(
-			settings.$thick_slider_thickness + 2 * settings.$osd_padding
-		);
-		background-color: colors.$background;
-		margin-top: settings.$osd_pos_vertical;
+    min-height: settings.$osd_height;
+    margin-top: settings.$osd_pos_vertical;
+    margin-left: 100px;
+    margin-right: -100px;
 
-		margin-left: 100px;
-		margin-right: -100px;
+    padding: settings.$osd_padding;
+    border-radius: calc(settings.$thick_slider_thickness + 2 * settings.$osd_padding);
+    background-color: colors.$background;
 
-		&.revealed {
-			transition: all 0.4s $transition_function;
+    &.revealed {
+        transition: all 0.4s $transition_function;
 
-			margin: 0px 16px;
-			margin-top: settings.$osd_pos_vertical;
-		}
+        margin: 0px 16px;
+        margin-top: settings.$osd_pos_vertical;
+    }
 
-		.osd_slider_container {
-			padding: 0px calc(settings.$osd_padding / 2);
-		}
+    .osd_slider_container {
+        padding: 0px calc(settings.$osd_padding / 2);
+    }
 
-		#osd_icon_container {
-			// padding: settings.$osd_slider_padding;
-			// margin-top: settings.$osd_slider_padding;
-		}
-	}
-	// }
+    #osd_icon_container {}
 }
 
 #urgent_osd_window {
-	#urgent_battery_osd {
-		margin: 100px;
-		background-color: colors.$surface_container_low;
-		color: colors.$secondary;
-		padding: $urgent_osd_padding;
-		border-radius: settings.$pill_expanded_window_radius;
-		border: 5px colors.$surface_container_high solid;
-		box-shadow: 0px 0px 30px 20px black;
+    #urgent_battery_osd {
+        margin: 100px;
+        background-color: colors.$surface_container_low;
+        color: colors.$secondary;
+        padding: $urgent_osd_padding;
+        border-radius: settings.$pill_expanded_window_radius;
+        border: 5px colors.$surface_container_high solid;
+        box-shadow: 0px 0px 30px 20px black;
 
-		min-width: 450px;
-		min-height: 250px;
+        min-width: 450px;
+        min-height: 250px;
 
-		#battery_osd_title {
-			font-weight: bolder;
-			font-size: xx-large;
-			margin: settings.$pill_padding;
-			color: colors.$error;
-		}
+        #battery_osd_title {
+            font-weight: bolder;
+            font-size: xx-large;
+            margin: settings.$pill_padding;
+            color: colors.$error;
+        }
 
-		#battery_osd_description {
-			font-size: medium;
-			margin: settings.$pill_padding;
-			margin-top: 0;
-		}
+        #battery_osd_description {
+            font-size: medium;
+            margin: settings.$pill_padding;
+            margin-top: 0;
+        }
 
-		#battery_osd_confirm {
-			transition: all 0.1s ease-out;
-			min-width: 80px;
-			min-height: 50px;
-			background-color: colors.$error_container;
-			border-radius: $pill_expanded_ui_radius;
-			// box-shadow: 0px 0px 10px colors.$on_error;
+        #battery_osd_confirm {
+            transition: all 0.1s ease-out;
+            min-width: 80px;
+            min-height: 50px;
+            background-color: colors.$error_container;
+            border-radius: $pill_expanded_ui_radius;
+            // box-shadow: 0px 0px 10px colors.$on_error;
 
-			label {
-				font-size: x-large;
-				color: colors.$on_error_container;
-			}
+            label {
+                font-size: x-large;
+                color: colors.$on_error_container;
+            }
 
-			&:hover {
-				background-color: color.scale(
-					colors.$error_container,
-					$lightness: +10%,
-					$saturation: -10%
-				);
-				border-radius: $pill_window_radius;
-				box-shadow: 0px 0px 15px colors.$on_error;
-			}
-		}
-	}
+            &:hover {
+                background-color: color.scale(colors.$error_container,
+                        $lightness: +10%,
+                        $saturation: -10%);
+                border-radius: $pill_window_radius;
+                box-shadow: 0px 0px 15px colors.$on_error;
+            }
+        }
+    }
 }
 
 // #bar_window {
@@ -2085,539 +2142,539 @@ $notification_special_item_radius: calc(
 // }
 
 #circular_progress_block {
-	#circular_progress_container {
-		min-width: 16px;
-		min-height: 16px;
+    #circular_progress_container {
+        min-width: 16px;
+        min-height: 16px;
 
-		#circular_progress {
-			color: colors.$surface_container_high;
-			border-color: colors.$tertiary;
+        #circular_progress {
+            color: colors.$surface_container_high;
+            border-color: colors.$tertiary;
 
-			#circular_progress_icon {
-				font-size: 16px;
-				color: colors.$secondary;
-			}
-		}
-	}
+            #circular_progress_icon {
+                font-size: 16px;
+                color: colors.$secondary;
+            }
+        }
+    }
 
-	#circular_progress_label {
-		margin-left: calc(settings.$bar_padding / 1.5);
-	}
+    #circular_progress_label {
+        margin-left: calc(settings.$bar_padding / 1.5);
+    }
 }
 
 .circular_progress_block_spacer {
-	margin: calc(settings.$bar_padding / 1.5) settings.$bar_padding;
-	min-width: 4px;
-	border-radius: 100px;
-	background-color: colors.$on_primary_container;
+    margin: calc(settings.$bar_padding / 1.5) settings.$bar_padding;
+    min-width: 4px;
+    border-radius: 100px;
+    background-color: colors.$on_primary_container;
 }
 
 #bar_window_left,
 #bar_window_right {
-	#corner_container {
-		$size: (settings.$bar_height - settings.$bar_radius + 6);
-		min-width: $size;
-		min-height: $size;
+    #corner_container {
+        $size: (settings.$bar_height - settings.$bar_radius + 6);
+        min-width: $size;
+        min-height: $size;
 
-		#corner {
-			background-color: colors.$background;
-		}
-	}
+        #corner {
+            background-color: colors.$background;
+        }
+    }
 }
 
 #bar_end_container {
-	padding-right: settings.$bar_padding;
-	border-bottom-left-radius: settings.$bar_radius;
+    padding-right: settings.$bar_padding;
+    border-bottom-left-radius: settings.$bar_radius;
 
-	.bar_widget {
-		margin: settings.$bar_padding;
-		margin-right: 0;
-	}
+    .bar_widget {
+        margin: settings.$bar_padding;
+        margin-right: 0;
+    }
 }
+
 #bar_start_container {
-	padding-left: settings.$bar_padding;
-	border-bottom-right-radius: settings.$bar_radius;
+    padding-left: settings.$bar_padding;
+    border-bottom-right-radius: settings.$bar_radius;
 
-	.bar_widget {
-		margin: settings.$bar_padding;
-		margin-left: 0;
-	}
+    .bar_widget {
+        margin: settings.$bar_padding;
+        margin-left: 0;
+    }
 }
+
 #bar_start_container,
 #bar_end_container {
-	background-color: colors.$background;
-	color: colors.$on_primary_container;
-	// min-height: (settings.$bar_height - settings.$bar_padding * 2);
+    background-color: colors.$background;
+    color: colors.$on_primary_container;
+    // min-height: (settings.$bar_height - settings.$bar_padding * 2);
 }
 
 $bar_widget_height: calc(settings.$bar_height - 2 * settings.$bar_padding);
 $bar_widget_radius: calc(settings.$bar_radius - settings.$bar_padding);
+
 .bar_widget {
-	transition: background-color 0.2s ease-out;
+    transition: background-color 0.2s ease-out;
 
-	background-color: colors.$primary_container;
-	border-radius: $bar_widget_radius;
-	min-height: $bar_widget_height;
+    background-color: colors.$primary_container;
+    border-radius: $bar_widget_radius;
+    min-height: $bar_widget_height;
 
-	padding: 0px settings.$bar_padding;
+    padding: 0px settings.$bar_padding;
 
-	&.empty {
-		padding: 0px;
-		margin: 0px;
-		background-color: transparent;
-	}
+    &.empty {
+        padding: 0px;
+        margin: 0px;
+        background-color: transparent;
+    }
 }
 
 #workspaces_widget {
-	min-width: calc(6 * 2 * 3px + 5 * 10px + 30px + 4px);
-	padding-left: settings.$bar_padding + 2px;
-	// $center_margin: calc((settings.$bar_height - settings.$bar_padding * 2 - 14px) / 2);
-	#workspace_button {
-		padding: 0 3px;
+    min-width: calc(6 * 2 * 3px + 5 * 10px + 30px + 4px);
+    padding-left: settings.$bar_padding + 2px;
 
-		#workspace_icon {
-			transition: all 0.2s ease-out;
-			background-color: colors.$secondary;
-			border-radius: 5px;
-			min-width: 10px;
-			min-height: 10px;
-		}
+    // $center_margin: calc((settings.$bar_height - settings.$bar_padding * 2 - 14px) / 2);
+    #workspace_button {
+        padding: 0 3px;
 
-		&:hover {
-			#workspace_icon {
-				margin-top: -4px;
-				margin-bottom: 4px;
-				// min-width: (12px + calc(settings.$bar_padding));
-				// min-height: (12px + calc(settings.$bar_padding));
-				// margin: 0;
-			}
+        #workspace_icon {
+            transition: all 0.2s ease-out;
+            background-color: colors.$secondary;
+            border-radius: 5px;
+            min-width: 10px;
+            min-height: 10px;
+        }
 
-			&.active {
-				// margin: 0;
-				#workspace_icon {
-					// min-width: (30px + calc(settings.$bar_padding * 4 / 5));
-					margin: 0;
-					border-radius: 6px;
-					min-height: 12px;
-				}
+        &:hover {
+            #workspace_icon {
+                margin-top: -4px;
+                margin-bottom: 4px;
+                // min-width: (12px + calc(settings.$bar_padding));
+                // min-height: (12px + calc(settings.$bar_padding));
+                // margin: 0;
+            }
 
-				&.outsider {
-					#workspace_icon {
-						border-radius: 3px;
-					}
-				}
-			}
-		}
+            &.active {
 
-		@keyframes urgent_pop {
-			25% {
-				margin-top: -4px;
-				margin-bottom: 4px;
-			}
-			75% {
-				margin-top: 4px;
-				margin-bottom: -4px;
-			}
-		}
+                // margin: 0;
+                #workspace_icon {
+                    // min-width: (30px + calc(settings.$bar_padding * 4 / 5));
+                    margin: 0;
+                    border-radius: 6px;
+                    min-height: 12px;
+                }
 
-		&.urgent:not(.active) {
-			#workspace_icon {
-				background-color: color.scale(
-					colors.$error_container,
-					$lightness: +40%,
-					$saturation: -10%
-				);
-				animation-name: urgent_pop;
-				animation-duration: 1s;
-				animation-timing-function: linear;
-				animation-iteration-count: infinite;
-			}
+                &.outsider {
+                    #workspace_icon {
+                        border-radius: 3px;
+                    }
+                }
+            }
+        }
 
-			&.outsider {
-				#workspace_icon {
-					background-color: color.scale(
-						colors.$error_container,
-						$lightness: +30%,
-						$saturation: -5%
-					);
-				}
-			}
+        @keyframes urgent_pop {
+            25% {
+                margin-top: -4px;
+                margin-bottom: 4px;
+            }
 
-			&:hover {
-				// padding: 0 calc(settings.$bar_padding / 3.3);
-				#workspace_icon {
-					// min-width: 13px;
-					min-height: 14px;
-					// border-radius: 50px;
-				}
-			}
-		}
+            75% {
+                margin-top: 4px;
+                margin-bottom: -4px;
+            }
+        }
 
-		&.empty {
-			#workspace_icon {
-				background-color: colors.$surface_container;
-			}
-		}
+        &.urgent:not(.active) {
+            #workspace_icon {
+                background-color: color.scale(colors.$error_container,
+                        $lightness: +40%,
+                        $saturation: -10%);
+                animation-name: urgent_pop;
+                animation-duration: 1s;
+                animation-timing-function: linear;
+                animation-iteration-count: infinite;
+            }
 
-		&.active {
-			#workspace_icon {
-				min-width: 30px;
-				background-color: colors.$primary;
-			}
-		}
+            &.outsider {
+                #workspace_icon {
+                    background-color: color.scale(colors.$error_container,
+                            $lightness: +30%,
+                            $saturation: -5%);
+                }
+            }
 
-		&.outsider {
-			#workspace_icon {
-				border-radius: 3px;
-				background-color: colors.$tertiary;
-			}
+            &:hover {
 
-			&.active {
-				#workspace_icon {
-					background-color: colors.$on_tertiary_container;
-				}
-			}
-		}
-	}
+                // padding: 0 calc(settings.$bar_padding / 3.3);
+                #workspace_icon {
+                    // min-width: 13px;
+                    min-height: 14px;
+                    // border-radius: 50px;
+                }
+            }
+        }
+
+        &.empty {
+            #workspace_icon {
+                background-color: colors.$surface_container;
+            }
+        }
+
+        &.active {
+            #workspace_icon {
+                min-width: 30px;
+                background-color: colors.$primary;
+            }
+        }
+
+        &.outsider {
+            #workspace_icon {
+                border-radius: 3px;
+                background-color: colors.$tertiary;
+            }
+
+            &.active {
+                #workspace_icon {
+                    background-color: colors.$on_tertiary_container;
+                }
+            }
+        }
+    }
 }
 
 #keyboard_layout_widget {
-	min-height: 0px;
-	// padding: 0px;
-	padding: 6px 0px;
-	background-color: transparent;
+    min-height: 0px;
+    // padding: 0px;
+    padding: 6px 0px;
+    background-color: transparent;
 
-	label {
-		min-width: 1.5rem;
-		font-size: 11;
-		// margin: -10px 0px;
-		border-radius: ($bar_widget_radius - 2px);
-		background-color: colors.$primary_container;
-	}
+    label {
+        min-width: 1.5rem;
+        font-size: 11;
+        // margin: -10px 0px;
+        border-radius: ($bar_widget_radius - 2px);
+        background-color: colors.$primary_container;
+    }
 }
 
 #wallpaper_widget {
-	min-width: calc($bar_widget_height * 16 / 9);
-	padding: 0px;
+    min-width: calc($bar_widget_height * 16 / 9);
+    padding: 0px;
 
-	background-image: url(settings.$wallpaper_file);
-	background-position: center;
-	background-size: cover;
-	background-repeat: no-repeat;
+    background-image: url(settings.$wallpaper_file);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 #screen_recorder_container {
-	transition: all 0.1s ease-out;
-	min-height: 0px;
-	background-color: transparent;
-	padding: 3px;
-	// margin-left: calc(settings.$bar_padding / 2);
-	// margin-right: 3.5px;
+    transition: all 0.1s ease-out;
+    min-height: 0px;
+    background-color: transparent;
+    padding: 3px;
+    // margin-left: calc(settings.$bar_padding / 2);
+    // margin-right: 3.5px;
 
-	&.toggle_revealed {
-		background-color: colors.$surface_container_high;
-	}
+    &.toggle_revealed {
+        background-color: colors.$surface_container_high;
+    }
 
-	#record_toggle {
-		transition: all 0.1s ease-out;
-		min-width: calc($bar_widget_height - 6px);
-		border-radius: 50%;
-		margin-left: -3px;
+    #record_toggle {
+        transition: all 0.1s ease-out;
+        min-width: calc($bar_widget_height - 6px);
+        border-radius: 50%;
+        margin-left: -3px;
 
-		background-color: white;
-		color: color.scale(colors.$error_container, $lightness: +30%);
+        background-color: white;
+        color: color.scale(colors.$error_container, $lightness: +30%);
 
-		label {
-			// font-family: settings.$icon_font_family;
-			font-size: 16px;
-			font-weight: normal;
-			margin: -10px 5px;
-		}
+        label {
+            // font-family: settings.$icon_font_family;
+            font-size: 16px;
+            font-weight: normal;
+            margin: -10px 5px;
+        }
 
-		&:hover {
-			border-radius: $bar_widget_radius + 1px;
-			background-color: colors.$on_secondary_container;
-			// background-color: colors.$surface_container_low;
-		}
+        &:hover {
+            border-radius: $bar_widget_radius + 1px;
+            background-color: colors.$on_secondary_container;
+            // background-color: colors.$surface_container_low;
+        }
 
-		&.toggled {
-			background-color: color.scale(
-				colors.$error_container,
-				$lightness: +15%
-			);
-			color: colors.$on_primary_container;
-			border-radius: calc($bar_widget_radius - 3px);
+        &.toggled {
+            background-color: color.scale(colors.$error_container,
+                    $lightness: +15%);
+            color: colors.$on_primary_container;
+            border-radius: calc($bar_widget_radius - 3px);
 
-			&:hover {
-				background-color: color.scale(
-					colors.$error_container,
-					$lightness: +10%
-				);
-			}
-		}
-	}
+            &:hover {
+                background-color: color.scale(colors.$error_container,
+                        $lightness: +10%);
+            }
+        }
+    }
 
-	#audio_toggle {
-		transition: all 0.1s ease-out;
+    #audio_toggle {
+        transition: all 0.1s ease-out;
 
-		min-width: calc($bar_widget_height - 6px);
-		border-radius: calc($bar_widget_radius - 3px);
-		margin-left: calc(settings.$bar_padding / 1.5);
+        min-width: calc($bar_widget_height - 6px);
+        border-radius: calc($bar_widget_radius - 3px);
+        margin-left: calc(settings.$bar_padding / 1.5);
 
-		background-color: colors.$surface_container_lowest;
-		color: colors.$surface_container_highest;
+        background-color: colors.$surface_container_lowest;
+        color: colors.$surface_container_highest;
 
-		label {
-			// font-family: settings.$icon_font_family;
-			font-weight: normal;
-			font-size: large;
-			margin: -10px 5px;
-		}
+        label {
+            // font-family: settings.$icon_font_family;
+            font-weight: normal;
+            font-size: large;
+            margin: -10px 5px;
+        }
 
-		&:hover {
-			background-color: colors.$surface_container_low;
-		}
+        &:hover {
+            background-color: colors.$surface_container_low;
+        }
 
-		&.toggled {
-			background-color: colors.$tertiary;
-			color: colors.$on_tertiary;
+        &.toggled {
+            background-color: colors.$tertiary;
+            color: colors.$on_tertiary;
 
-			&:hover {
-				background-color: colors.$on_tertiary_container;
-			}
-		}
-	}
+            &:hover {
+                background-color: colors.$on_tertiary_container;
+            }
+        }
+    }
 }
 
 #network_usage_widget {
-	padding: 0px settings.$bar_padding 0px calc(settings.$bar_padding / 2);
-	min-width: 5.5rem;
+    padding: 0px settings.$bar_padding 0px calc(settings.$bar_padding / 2);
+    min-width: 5.5rem;
 
-	&.empty {
-		min-width: 0px;
-		padding: 0px;
-	}
+    &.empty {
+        min-width: 0px;
+        padding: 0px;
+    }
 
-	#network_usage_icon {
-		background-color: colors.$on_secondary;
-		margin: calc(settings.$bar_padding / 2) 0px;
-		margin-right: calc(settings.$bar_padding / 2);
-		border-radius: calc($bar_widget_radius - settings.$bar_padding / 2);
-		// border-radius: 8px;
+    #network_usage_icon {
+        background-color: colors.$on_secondary;
+        margin: calc(settings.$bar_padding / 2) 0px;
+        margin-right: calc(settings.$bar_padding / 2);
+        border-radius: calc($bar_widget_radius - settings.$bar_padding / 2);
+        // border-radius: 8px;
 
-		// font-family: settings.$icon_font_family;
-		min-width: calc($bar_widget_height - settings.$bar_padding * 1.5);
-		font-size: 20px;
-		font-weight: normal;
-	}
+        // font-family: settings.$icon_font_family;
+        min-width: calc($bar_widget_height - settings.$bar_padding * 1.5);
+        font-size: 20px;
+        font-weight: normal;
+    }
 }
 
 #resource_monitor_widget {
-	border-radius: 100px;
-	padding: 0px 2px;
+    border-radius: 100px;
+    padding: 0px 2px;
 
-	#circular_progress_block {
-		#circular_progress_container {
-			min-width: calc($bar_widget_height - 4px);
-			min-height: calc($bar_widget_height - 4px);
+    #circular_progress_block {
+        #circular_progress_container {
+            min-width: calc($bar_widget_height - 4px);
+            min-height: calc($bar_widget_height - 4px);
 
-			#circular_progress {
-				min-width: 5px;
+            #circular_progress {
+                min-width: 5px;
 
-				#circular_progress_icon {
-					font-family: "Ubuntu Nerd Font";
-					font-size: 14px;
-					margin-left: calc(settings.$bar_padding / 2);
-				}
-			}
-		}
-	}
+                #circular_progress_icon {
+                    font-family: "Ubuntu Nerd Font";
+                    font-size: 14px;
+                    margin-left: calc(settings.$bar_padding / 2);
+                }
+            }
+        }
+    }
 }
 
 #battery_widget {
-	&.compact {
-		border-radius: 100px;
-		padding: 3px;
+    &.compact {
+        border-radius: 100px;
+        padding: 3px;
 
-		&.empty {
-			padding: 0px;
-			margin: 0px;
-		}
-	}
+        &.empty {
+            padding: 0px;
+            margin: 0px;
+        }
+    }
 
-	#circular_progress_block {
-		#circular_progress_container {
-			min-width: 29px;
-			min-height: 29px;
+    #circular_progress_block {
+        #circular_progress_container {
+            min-width: 29px;
+            min-height: 29px;
 
-			#circular_progress {
-				min-width: 5px;
+            #circular_progress {
+                min-width: 5px;
 
-				#circular_progress_icon {
-					font-size: 15px;
+                #circular_progress_icon {
+                    font-size: 15px;
 
-					&.charging {
-						color: #0bd92a;
-					}
-				}
-			}
-		}
-	}
+                    &.charging {
+                        color: #0bd92a;
+                    }
+                }
+            }
+        }
+    }
 }
 
 $tray_margin: 5px;
+
 #tray_container {
-	background-color: transparent;
-	min-height: 0px;
-	padding: $tray_margin 0px;
+    background-color: transparent;
+    min-height: 0px;
+    padding: $tray_margin 0px;
 
-	#tray_container_expander {
-		transition: all 0.2s ease-out;
-		// margin-left: -6px;
+    #tray_container_expander {
+        transition: all 0.2s ease-out;
+        // margin-left: -6px;
 
-		background-color: colors.$secondary_container;
-		// padding: 0px calc(settings.$bar_padding / 4) 0px 0px;
-		border-radius: 8px;
-		min-width: calc($bar_widget_height - $tray_margin * 2);
+        background-color: colors.$secondary_container;
+        // padding: 0px calc(settings.$bar_padding / 4) 0px 0px;
+        border-radius: 8px;
+        min-width: calc($bar_widget_height - $tray_margin * 2);
 
-		&.revealed {
-			border-top-left-radius: 0px;
-			border-bottom-left-radius: 0px;
-			// border-left: 2px solid colors.$primary;
-		}
+        &.revealed {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            // border-left: 2px solid colors.$primary;
+        }
 
-		label {
-			font-size: 20px;
-			margin: -10px 0px;
-		}
-	}
+        label {
+            font-size: 20px;
+            margin: -10px 0px;
+        }
+    }
 
-	#tray_widget {
-		background-color: colors.$secondary_container;
-		border-radius: 8px 0px 0px 8px;
-		padding: calc(settings.$bar_padding / 2);
-		border-right: 2px solid colors.$primary;
+    #tray_widget {
+        background-color: colors.$secondary_container;
+        border-radius: 8px 0px 0px 8px;
+        padding: calc(settings.$bar_padding / 2);
+        border-right: 2px solid colors.$primary;
 
-		// margin-left: -6px;
-		button {
-			padding: 0px calc(settings.$bar_padding / 2.5);
-		}
-	}
+        // margin-left: -6px;
+        button {
+            padding: 0px calc(settings.$bar_padding / 2.5);
+        }
+    }
 }
 
 menu {
-	border-radius: settings.$bar_radius;
-	background-color: colors.$surface_container;
-	padding: settings.$bar_padding;
+    border-radius: settings.$bar_radius;
+    background-color: colors.$surface_container;
+    padding: settings.$bar_padding;
 
-	separator:not(:last-child) {
-		border: 1px solid colors.$surface_bright;
-		margin: 5px 0px;
-	}
+    separator:not(:last-child) {
+        border: 1px solid colors.$surface_bright;
+        margin: 5px 0px;
+    }
 
-	menuitem {
-		transition: all 0.1s ease-out;
+    menuitem {
+        transition: all 0.1s ease-out;
 
-		border-radius: (settings.$bar_radius - settings.$bar_padding);
-		padding: 4px 5px;
-		margin: calc(settings.$bar_padding / 3) 0px;
-		color: colors.$on_surface;
+        border-radius: (settings.$bar_radius - settings.$bar_padding);
+        padding: 4px 5px;
+        margin: calc(settings.$bar_padding / 3) 0px;
+        color: colors.$on_surface;
 
-		&:disabled {
-			opacity: 0.6;
-		}
+        &:disabled {
+            opacity: 0.6;
+        }
 
-		&:hover {
-			background-color: colors.$surface_container_high;
-			color: colors.$primary;
-		}
+        &:hover {
+            background-color: colors.$surface_container_high;
+            color: colors.$primary;
+        }
 
-		image {
-			&:disabled {
-				margin-right: 0px;
-				opacity: 0.6;
-			}
+        image {
+            &:disabled {
+                margin-right: 0px;
+                opacity: 0.6;
+            }
 
-			margin-right: settings.$bar_padding;
-		}
+            margin-right: settings.$bar_padding;
+        }
 
-		check,
-		radio {
-			&:disabled {
-				border-radius: 0%;
-				min-width: 0px;
-				min-height: 0px;
-				margin: 0px;
-				opacity: 0.2;
-			}
+        check,
+        radio {
+            &:disabled {
+                border-radius: 0%;
+                min-width: 0px;
+                min-height: 0px;
+                margin: 0px;
+                opacity: 0.2;
+            }
 
-			&:checked {
-				background-clip: content-box;
-				background-color: colors.$primary;
+            &:checked {
+                background-clip: content-box;
+                background-color: colors.$primary;
 
-				&:disabled {
-					background-color: colors.$surface_variant;
-					border-color: colors.$surface_bright;
-					opacity: 0.2;
-				}
-			}
+                &:disabled {
+                    background-color: colors.$surface_variant;
+                    border-color: colors.$surface_bright;
+                    opacity: 0.2;
+                }
+            }
 
-			border: 2px solid colors.$secondary;
-			padding: 3px;
-			background-color: transparent;
-			/* background-color: colors.$surface_container_lowest; */
-			min-width: 8px;
-			min-height: 8px;
-			margin: 0px settings.$bar_padding 0px 0px;
-		}
+            border: 2px solid colors.$secondary;
+            padding: 3px;
+            background-color: transparent;
+            /* background-color: colors.$surface_container_lowest; */
+            min-width: 8px;
+            min-height: 8px;
+            margin: 0px settings.$bar_padding 0px 0px;
+        }
 
-		check {
-			border-radius: 25%;
-		}
-		radio {
-			border-radius: 50%;
-		}
+        check {
+            border-radius: 25%;
+        }
 
-		arrow {
-			border-style: solid;
-			border-width: 5px 0px 5px 6px;
-			border-color: transparent transparent transparent colors.$on_surface;
-			margin-right: settings.$bar_padding;
+        radio {
+            border-radius: 50%;
+        }
 
-			&.top {
-				border-width: 0px 5px 6px 5px;
-				border-color: transparent transparent colors.$on_surface
-					transparent;
-				margin: 0px;
-			}
-			&.bottom {
-				border-width: 6px 5px 0px 5px;
-				border-color: colors.$on_surface transparent transparent
-					transparent;
-				margin: 0px;
-			}
+        arrow {
+            border-style: solid;
+            border-width: 5px 0px 5px 6px;
+            border-color: transparent transparent transparent colors.$on_surface;
+            margin-right: settings.$bar_padding;
 
-			&:disabled {
-				opacity: 0.6;
-			}
-		}
-	}
+            &.top {
+                border-width: 0px 5px 6px 5px;
+                border-color: transparent transparent colors.$on_surface transparent;
+                margin: 0px;
+            }
+
+            &.bottom {
+                border-width: 6px 5px 0px 5px;
+                border-color: colors.$on_surface transparent transparent transparent;
+                margin: 0px;
+            }
+
+            &:disabled {
+                opacity: 0.6;
+            }
+        }
+    }
 }
 
 tooltip {
-	border-radius: $pill_ui_radius;
-	background-color: rgba(colors.$on_secondary, 0.8);
+    border-radius: $pill_ui_radius;
+    background-color: rgba(colors.$on_secondary, 0.8);
 
-	color: colors.$secondary;
+    color: colors.$secondary;
 
-	box {
-		label {
-			font-size: small;
-			font-weight: bold;
-		}
+    box {
+        label {
+            font-size: small;
+            font-weight: bold;
+        }
 
-		margin: -6px;
-		padding: calc(settings.$pill_padding / 2) settings.$pill_padding;
-		min-height: calc($pill_ui_radius * 2);
-	}
+        margin: -6px;
+        padding: calc(settings.$pill_padding / 2) settings.$pill_padding;
+        min-height: calc($pill_ui_radius * 2);
+    }
 }

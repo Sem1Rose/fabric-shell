@@ -39,20 +39,21 @@ class WorkspaceProperties(Service):
         self.recalculate_props()
 
     def get_workspace_clients(self):
-        clients = json.loads(self.hyprland.send_command("j/clients").reply)
-        return [
-            client
-            for client in clients
-            if client["workspace"]["id"] == self.current_workspace
-            and not client["pinned"]
-            and not client["hidden"]
-        ]
-
-    def recalculate_props(self, *_):
         self.current_workspace = json.loads(
             self.hyprland.send_command("j/activeworkspace").reply
         )["id"]
 
+        clients = json.loads(self.hyprland.send_command("j/clients").reply)
+        return [
+            client
+            for client in clients
+            if not client["hidden"]
+            and (
+                client["workspace"]["id"] == self.current_workspace or client["pinned"]
+            )
+        ]
+
+    def recalculate_props(self, *_):
         clients = self.get_workspace_clients()
         count = clients.__len__()
         if count == 0:
@@ -96,13 +97,12 @@ class WorkspaceProperties(Service):
                     # logger.error("no empty")
                     self.on_empty(self.empty)
 
-                logger.warning(fullscreen_state)
                 if non_floating == 1:
                     # logger.error("only one window")
                     if fullscreen_state == 0:
                         fullscreen_state = 1
                     if self.fullscreen_state != fullscreen_state:
-                        self.fullscreen_state =fullscreen_state
+                        self.fullscreen_state = fullscreen_state
                         # logger.warning(f"fullscreen {self.fullscreen_state}")
                         self.on_fullscreen(self.fullscreen_state)
                         # self.fullscreen = True
@@ -125,9 +125,10 @@ class WorkspaceProperties(Service):
 
                         # self.fullscreen = False
 
-    def get_clients_overlap_rect(self, rect) -> bool:
-        rectl = [rect.x, rect.y]
-        rectr = [rect.x + rect.width, rect.y + rect.height]
+    def get_clients_overlap_rect(self, x, y, width, height) -> bool:
+        rectl = [x, y]
+        rectr = [x + width, y + height]
+
         clients = self.get_workspace_clients()
         for client in clients:
             clientl = client["at"]
@@ -142,11 +143,32 @@ class WorkspaceProperties(Service):
 
         return True
 
+    def get_clients_overlap_rect2(self, lx, ly, rx, ry) -> bool:
+        rectl = [lx, ly]
+        rectr = [rx, ry]
+
+        clients = self.get_workspace_clients()
+        for client in clients:
+            clientl = client["at"]
+            clientr = [
+                client["at"][0] + client["size"][0],
+                client["at"][1] + client["size"][1],
+            ]
+
+            if clientl[0] > rectr[0] or rectl[0] > clientr[0]:
+                continue
+            elif clientl[1] > rectr[1] or rectl[1] > clientr[1]:
+                continue
+            else:
+                return True
+
+        return False
+
 
 service: WorkspaceProperties | None = None
 
 
-def get_service() -> WorkspaceProperties:
+def get_workspace_properties_service() -> WorkspaceProperties:
     global service
     if not service:
         service = WorkspaceProperties()

@@ -133,6 +133,12 @@ class Pill(EventBox):
         self.powermenu.connect(
             "on_action", lambda *_: self.select_pill_applet(PillApplets.DASHBOARD)
         )
+        self.powermenu.connect(
+            "on_confirmation_changed",
+            lambda _, shown: self.main_container.add_style_class("confirmation_popup")
+            if shown
+            else self.main_container.remove_style_class("confirmation_popup"),
+        )
         self.wallpaper_selector.connect(
             "on_selected", lambda *_: self.select_pill_applet(PillApplets.DASHBOARD)
         )
@@ -172,6 +178,13 @@ class Pill(EventBox):
         if applet not in self.applets.keys():
             logger.error(f"Invalid pill applet: {applet}")
             return False
+
+        if (
+            self.active_applet == applet == PillApplets.LAUNCHER
+            or self.active_applet == applet == PillApplets.POWERMENU
+        ):
+            self.select_pill_applet(PillApplets.DASHBOARD)
+            return
 
         logger.debug(f"Changing active pill applet to {applet.name.lower()}: {applet}")
 

@@ -29,10 +29,10 @@ class OSDWindow(Window):
         super().__init__(
             name="osd_window",
             anchor="top right",
-            exclusivity="normal",
+            exclusivity="none",
             layer="overlay",
-            visible=False,
             style="background-color: transparent;",
+            visible=False,
             *args,
             **kwargs,
         )
@@ -86,11 +86,12 @@ class OSDWindow(Window):
             transition_duration=configuration.get_property(
                 "osd_revealer_animation_duration"
             ),
-            child_revealed=True,
+            child_revealed=False,
         )
 
         self.main_container = Box(
             name="osd_container",
+            style="min-width: 1px;",
             children=[
                 self.volume_revealer,
                 # self.brightness_revealer,
@@ -125,10 +126,6 @@ class OSDWindow(Window):
 
         self.add(self.main_container)
         self.show_all()
-
-        # self.hide_brightness_slider()
-        self.hide_volume_slider()
-        # self.on_show_hide()
 
         OSDWindow.instances.append(self)
 
@@ -287,7 +284,6 @@ class OSDWindow(Window):
 
 class UrgentOSDs(Enum):
     BATTERY = 0
-
 
 class UrgentOSDWindow(Window):
     def __init__(self, *args, **kwargs):

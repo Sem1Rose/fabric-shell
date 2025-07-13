@@ -7,7 +7,7 @@ from config import configuration
 from widgets.pill.pill import Pill, PillApplets
 from widgets.pill.popup_notifications import NotificationsContainer
 from widgets.buttons import MarkupButton
-from widgets.helpers.workspace_properties import get_service
+from widgets.helpers.workspace_properties import get_workspace_properties_service
 
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow as Window
@@ -31,7 +31,7 @@ class PillWindow(Window):
             anchor="top",
             exclusivity="normal",
             layer="overlay",
-            # style="background-color: transparent;",
+            style="background-color: transparent;",
             margin=f"-{configuration.get_property('pill_height', 'css_settings')} 0px 0px 0px",
             visible=False,
             *args,
@@ -68,21 +68,36 @@ class PillWindow(Window):
         self.right_button.set_can_focus(False)
         self.right_button.set_focus_on_click(False)
 
-        self.center_box = CenterBox(name="pill_center_box", orientation="h")
-        self.center_box.center_container.set_orientation(Gtk.Orientation.VERTICAL)
-        self.center_box.center_container.set_h_expand(True)
-        self.center_box.center_children = [
-            self.pill,
-            create_spacings(),
-        ]
-        self.center_box.start_children = [
-            create_spacings(),
-            Box(children=[self.left_button, create_spacings()], orientation="v"),
-        ]
-        self.center_box.end_children = [
-            Box(children=[self.right_button, create_spacings()], orientation="v"),
-            create_spacings(),
-        ]
+        self.main_container = Box(name="pill_center_box")
+        self.main_container.add(
+            Box(children=[self.left_button, create_spacings()], orientation="v")
+        )
+        self.main_container.add(
+            Box(
+                children=[
+                    self.pill,
+                    create_spacings(),
+                ],
+                orientation="v",
+            )
+        )
+        self.main_container.add(
+            Box(children=[self.right_button, create_spacings()], orientation="v")
+        )
+        # self.center_box = CenterBox(name="pill_center_box", orientation="h")
+        # self.center_box.center_container.set_orientation(Gtk.Orientation.VERTICAL)
+        # self.center_box.center_children = [
+        #     self.pill,
+        #     create_spacings(),
+        # ]
+        # self.center_box.start_children = [
+        #     create_spacings(),
+        #     Box(children=[self.left_button, create_spacings()], orientation="v"),
+        # ]
+        # self.center_box.end_children = [
+        #     Box(children=[self.right_button, create_spacings()], orientation="v"),
+        #     create_spacings(),
+        # ]
 
         self.pill_widgets = [self.left_button, self.right_button]
 
@@ -118,14 +133,14 @@ class PillWindow(Window):
             lambda _, event_key: self.handle_arrow_keys(event_key),
         )
 
-        get_service().connect(
+        get_workspace_properties_service().connect(
             "on-fullscreen",
             lambda _, state: self.unreveal_pill() if state == 2 else self.reveal_pill()
         )
 
         self.revealer_hidden = False
         self.pill_revealer = Revealer(
-            child=self.center_box,
+            child=self.main_container,
             child_revealed=True,
             transition_type="slide-down",
             transition_duration=300,

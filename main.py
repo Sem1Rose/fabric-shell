@@ -11,6 +11,7 @@ from windows.pill import PillWindow, PillApplets
 from windows.osd import OSDWindow
 from windows.bar import BarWindow
 from windows.corners import CornersWindow
+from windows.dock import DockWindow
 # import windows.dock
 
 # import sdbus
@@ -75,6 +76,9 @@ if __name__ == "__main__":
     global corners_window
     corners_window = CornersWindow()
 
+    global dock_window
+    dock_window = DockWindow()
+
     global bar_window
     bar_window = BarWindow()
 
@@ -88,6 +92,7 @@ if __name__ == "__main__":
         corners_window,
         pill_window,
         bar_window,
+        dock_window,
         open_inspector=configuration.get_property("debug"),
     )
     # apps = {}

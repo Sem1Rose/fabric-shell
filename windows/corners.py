@@ -4,7 +4,7 @@ from config import configuration
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.shapes.corner import Corner
 from fabric.widgets.box import Box
-from widgets.helpers.workspace_properties import get_service
+from widgets.helpers.workspace_properties import get_workspace_properties_service
 
 
 class CornersWindow(Window):
@@ -66,7 +66,7 @@ class CornersWindow(Window):
             )
         )
 
-        self.service = get_service()
+        self.service = get_workspace_properties_service()
         self.service.connect(
             "on-fullscreen",
             lambda _, state: self.hide() if state > 0 else self.unhide(),

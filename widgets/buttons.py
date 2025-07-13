@@ -1,7 +1,7 @@
 from config import configuration
 
 from fabric.widgets.label import Label
-from fabric.widgets.button import Button
+from fabric.widgets.button import Button as GTKButton
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.box import Box
 from fabric.core.service import Signal, Property
@@ -14,22 +14,12 @@ from typing import Literal
 # gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk  # noqa: E402
 
-
-class MarkupButton(Button):
-    def __init__(self, markup: str | None = None, *args, **kwargs):
-        self.label = Label(justification="center", h_align="center", v_align="center")
-        super().__init__(child=self.label, *args, **kwargs)
-
-        self.set_markup(markup) if markup else None
+class Button(GTKButton):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         self.connect("enter-notify-event", lambda *_: self.cursor_enter())
         self.connect("leave-notify-event", lambda *_: self.cursor_leave())
-
-    def set_label(self, new_label):
-        self.label.set_label(new_label)
-
-    def set_markup(self, new_markup):
-        self.label.set_markup(new_markup)
 
     def cursor_enter(self):
         if not self.is_sensitive():
@@ -46,6 +36,20 @@ class MarkupButton(Button):
         window = self.get_window()
         if window:
             window.set_cursor(None)
+
+class MarkupButton(Button):
+    def __init__(self, markup: str | None = None, *args, **kwargs):
+        self.label = Label(justification="center", h_align="center", v_align="center")
+        super().__init__(child=self.label, *args, **kwargs)
+
+        self.set_markup(markup) if markup else None
+
+
+    def set_label(self, new_label):
+        self.label.set_label(new_label)
+
+    def set_markup(self, new_markup):
+        self.label.set_markup(new_markup)
 
 
 class ToggleButton(MarkupButton):
@@ -369,7 +373,6 @@ class QSToggleButton(EventBox):
 #         if self.chevron_button:
 #             self.chevron_button.set_sensitive(state)
 #             self.chevron_button.toggle() if self.chevron_button.toggled else None
-
 
 class QSTileButton(Button):
     def __init__(
