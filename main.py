@@ -1,5 +1,4 @@
 import os
-
 from config import configuration, config_file
 from loguru import logger
 

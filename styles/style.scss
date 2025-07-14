@@ -2106,15 +2106,16 @@ $notification_special_item_radius: calc($notification_special_radius - $notifica
     }
 }
 
-#osd_window {}
+#osd_window {
+}
 
 #osd_container {
     transition: all 0.2s ease-out;
 
     min-height: settings.$osd_height;
     margin-top: settings.$osd_pos_vertical;
-    margin-left: 100px;
-    margin-right: -100px;
+    margin-left: 4px;
+    margin-right: -20px;
 
     padding: settings.$osd_padding;
     border-radius: calc(settings.$thick_slider_thickness + 2 * settings.$osd_padding);
@@ -2123,7 +2124,7 @@ $notification_special_item_radius: calc($notification_special_radius - $notifica
     &.revealed {
         transition: all 0.4s $transition_function;
 
-        margin: 0px 16px;
+        margin: 0px;
         margin-top: settings.$osd_pos_vertical;
     }
 

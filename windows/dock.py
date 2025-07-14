@@ -81,8 +81,8 @@ class DockWindow(Window):
             # self.workspace_props_service.connect(
             #     "props-recalculated", lambda *_: self.check_obstructed()
             # )
-            GLib.timeout_add(100, self.check_obstructed)
             self.check_obstructed()
+            GLib.timeout_add(100, self.check_obstructed)
 
         self.connect("enter-notify-event", lambda *_: self.on_mouse_enter())
         self.connect("leave-notify-event", lambda *_: self.on_mouse_leave())
@@ -99,12 +99,13 @@ class DockWindow(Window):
 
             return
 
-        for identifier in list(set(pinned_identifiers)):
+        for identifier in list(pinned_identifiers):
             app = self.clients_service.find_app_by_identifier(identifier)
             if app:
                 self.add_pinned_item(identifier, app)
 
         with open("dock_pinned_items", "w") as file:
+            # logger.error(list(self.pinned_items.keys()))
             file.write(json.dumps(list(self.pinned_items.keys())))
 
     def add_pinned_item(self, identifier, item: DesktopApp):
@@ -144,6 +145,7 @@ class DockWindow(Window):
             self.pinned_separator.remove_style_class("hidden")
 
         with open("dock_pinned_items", "w") as file:
+            # logger.error(list(self.pinned_items.keys()))
             file.write(json.dumps(list(self.pinned_items.keys())))
 
     def remove_pinned_item(self, item):
@@ -176,6 +178,7 @@ class DockWindow(Window):
             self.pinned_items.pop(identifier)
 
             with open("dock_pinned_items", "w") as file:
+                # logger.error(list(self.pinned_items.keys()))
                 file.write(json.dumps(list(self.pinned_items.keys())))
 
         item.unreveal()
@@ -328,7 +331,7 @@ class DockWindow(Window):
         if obstructed:
             if not self.hovored:
                 self.dock.remove_style_class("shown")
-        elif not self.main_container_empty:
+        elif not self.main_container_empty or not self.pinned_container_empty:
             self.dock.add_style_class("shown")
 
         return True
