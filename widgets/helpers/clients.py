@@ -16,10 +16,10 @@ class Client(Service):
     def __init__(self, glace_client: Glace.Client, desktop_entry: DesktopApp, **kwargs):
         super().__init__(**kwargs)
         self._client: Glace.Client = glace_client
-        self._desktop_entry: DesktopApp = desktop_entry
+        self._desktop_app: DesktopApp = desktop_entry
 
     def update_desktop_entry(self, desktop_entry: DesktopApp):
-        self._desktop_entry = desktop_entry
+        self._desktop_app = desktop_entry
         self.updated()
 
 
@@ -107,7 +107,7 @@ class ClientsService(Service):
         self.client_removed(matches[0]._client)
 
     def build_app_identifiers(self):
-        self.identifiers = {}
+        self.identifiers: dict[str, DesktopApp] = {}
         for app in get_desktop_applications():
             if app.name:
                 self.identifiers[app.name.lower()] = app

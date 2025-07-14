@@ -200,6 +200,7 @@ app_launcher_icon_size = 36
 
 music_ticker_timeout = 5
 music_ticker_players = ["spotify"]
+music_ticker_artwork_rotation_speed = 0.15
 
 dashboard_widgets = ["calendar", "media-player"]
 dashboard_qs = { "tiles" = [ [ "bluetooth", "wifi"] ], "sliders" = [ "volume-d", "brightness" ] }
@@ -251,3 +252,6 @@ wallpaper_selector_wallpaper_height = "75px"
 wallpaper_selector_wallpaper_border_radius = "36px"
 
 notification_image_size = "100px"
+
+dock_padding = "9px"
+dock_rounding = "18px"

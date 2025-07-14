@@ -1,4 +1,5 @@
 from curses import meta
+from typing import Self
 import gi
 import random
 from time import sleep
@@ -10,6 +11,7 @@ from config import configuration
 from fabric.widgets.box import Box
 from fabric.core import Signal
 from fabric.utils import idle_add
+from fabric.utils import PixbufUtils
 
 from widgets.helpers.mpris_service import get_mpris_service
 from widgets.rounded_image import RoundedImage
@@ -32,7 +34,8 @@ class MusicTicker(Box):
 
         self.player_manager = get_mpris_service()
         self.player_controllers = []
-        self.ticket = None
+        self.ticket = 0
+        self.artwork_rotating = False
 
         self.player_manager.connect(
             "player-added",
@@ -45,6 +48,7 @@ class MusicTicker(Box):
 
         self.player_manager.find_connected_players()
 
+        self.artwork_pixbuf = None
         self.artwork_image = RoundedImage(
             name="media_artwork",
             h_expand=True,
@@ -101,15 +105,13 @@ class MusicTicker(Box):
         i = 0
         while i < 4:
             if path.exists(file_path):
-                idle_add(
-                    self.artwork_image.set_from_pixbuf,
-                    GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                        filename=file_path,
-                        width=28,
-                        height=28,
-                        preserve_aspect_ratio=False,
-                    ),
+                self.artwork_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    filename=file_path,
+                    width=28,
+                    height=28,
+                    preserve_aspect_ratio=False,
                 )
+                idle_add(self.artwork_image.set_from_pixbuf, self.artwork_pixbuf)
 
                 return
 
@@ -117,13 +119,14 @@ class MusicTicker(Box):
             i += 1
 
     def update_artwork(self, data):
+        self.artwork_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+            filename=f"{configuration.get_property('icons_dir')}/image-off.svg",
+            width=28,
+            height=28,
+            preserve_aspect_ratio=False,
+        )
         self.artwork_image.set_from_pixbuf(
-            GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                filename=f"{configuration.get_property('icons_dir')}/image-off.svg",
-                width=28,
-                height=28,
-                preserve_aspect_ratio=False,
-            )
+            self.artwork_pixbuf
         )
 
         if data != "":
@@ -138,13 +141,14 @@ class MusicTicker(Box):
                 return
 
             if path.exists(file_path):
+                self.artwork_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    filename=file_path,
+                    width=28,
+                    height=28,
+                    preserve_aspect_ratio=False,
+                )
                 self.artwork_image.set_from_pixbuf(
-                    GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                        filename=file_path,
-                        width=28,
-                        height=28,
-                        preserve_aspect_ratio=False,
-                    )
+                    self.artwork_pixbuf
                 )
             else:
                 GLib.Thread.new(
@@ -152,6 +156,10 @@ class MusicTicker(Box):
                     self.wait_for_artwork,
                     file_path,
                 )
+
+        if not self.artwork_rotating:
+            self.rotate_artwork()
+            self.artwork_rotating = True
 
     def metadata_get(self, metadata, key, default):
         if key in metadata.keys():
@@ -176,10 +184,26 @@ class MusicTicker(Box):
         self.hide_music_ticker()
 
     def hide_music_ticker(self):
-        def hide_thread(ticker, ticket):
+        def hide_thread(ticker: Self, ticket):
             sleep(configuration.get_property("music_ticker_timeout"))
 
             if ticker.ticket == ticket:
                 self.do_hide()
 
         GLib.Thread.new("hide-music-ticker", hide_thread, self, self.ticket)
+
+    def rotate_artwork(self):
+        angle = 0.0
+        angle_delta = configuration.get_property("music_ticker_artwork_rotation_speed") * 360.0 / 24.0
+
+        def rotate():
+            nonlocal angle
+            angle += angle_delta
+
+            self.artwork_image.set_style(f"-gtk-icon-transform: rotate({angle}deg);")
+
+            return True
+
+        GLib.timeout_add(1000 / 24, rotate)
+
+        return True
