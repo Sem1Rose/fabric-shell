@@ -128,8 +128,11 @@ if __name__ == "__main__":
     css_monitor.connect("changed", lambda *_: apply_styles())
 
     config_monitor = monitor_file(config_file)
-    # config_monitor = monitor_file(get_relative_path("default_config.toml"))
     config_monitor.connect("changed", lambda *_: configuration.load_config())
+
+    if (wm := configuration.window_manager) not in ["hyprland", "niri"]:
+        logger.error(f"Unsupported Window manager: {wm}, exiting...")
+        app.quit()
 
     # sdbus.set_default_bus(sdbus.sd_bus_open_system())
     # system_bus = sd_bus_open_system()  # We need system bus

@@ -31,7 +31,7 @@ class OSDWindow(Window):
             anchor="top right",
             exclusivity="none",
             layer="overlay",
-            style="background-color: transparent;",
+            # style="background-color: transparent;",
             visible=False,
             *args,
             **kwargs,

@@ -12,9 +12,10 @@ class CornersWindow(Window):
         super().__init__(
             name="corners_window",
             anchor="top right bottom left",
-            exclusivity="normal",
-            layer="overlay",
+            exclusivity="none",
+            layer="top",
             style="background-color: transparent;",
+            margin=f"{configuration.get_property('pill_height', 'css_settings')} 0px 0px 0px",
             pass_through=True,
             visible=False,
             *args,
@@ -66,14 +67,14 @@ class CornersWindow(Window):
             )
         )
 
-        self.service = get_workspace_properties_service()
-        self.service.connect(
-            "on-fullscreen",
-            lambda _, state: self.hide() if state > 0 else self.unhide(),
-        )
+        # self.service = get_workspace_properties_service()
+        # self.service.connect(
+        #     "on-fullscreen",
+        #     lambda _, state: self.hide() if state > 0 else self.unhide(),
+        # )
 
-        if self.service.fullscreen_state > 0:
-            self.hide()
+        # if self.service.fullscreen_state > 0:
+        #     self.hide()
 
         self.add(self.main_container)
         self.show_all()

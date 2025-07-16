@@ -50,6 +50,8 @@ class ClientsService(Service):
     def get_app_identifiers(self, app: Glace.Client) -> list[str]:
         identifiers = []
 
+        if app.get_app_id() == "kitty-dropterm":
+            return []
         if app.get_app_id() == "kitty":
             identifiers.append(
                 "".join(char for char in app.get_title().split()[0].lower() if char.isalnum()).strip()

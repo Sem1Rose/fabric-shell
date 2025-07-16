@@ -10,7 +10,8 @@ from widgets.bar.screen_recorder import ScreenRecorder
 
 from widgets.buttons import WorkspaceMarkupButton
 from widgets.corner import Corner
-from widgets.keyboard_layout import KeyboardLayout
+from widgets.keyboard_layout import KeyboardLayout, NiriKeyboardLayout
+from widgets.helpers.niri.widgets import Workspaces as NiriWorkspaces
 
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
@@ -18,23 +19,6 @@ from fabric.hyprland.widgets import Workspaces
 from fabric.utils.helpers import FormattedString, idle_add
 
 from loguru import logger
-
-
-def default_workspace_button_factory(id):
-    return (
-        WorkspaceMarkupButton(
-            id=id,
-            name="workspace_button",
-            style_classes="outsider",
-            child=Box(
-                name="workspace_icon",
-                v_expand=False,
-                v_align="center",
-            ),
-        )
-        if id > 0
-        else None
-    )
 
 
 class BarWindow(Window):
@@ -102,40 +86,35 @@ class BarWindow(Window):
         BarWindow.instances.append(self)
 
 
-# class BarWindowLeft(Window):
-class BarWindowLeft(Box):
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            name="bar_window_left",
-            orientation="h",
-            # anchor="left top",
-            # layer="top",
-            # exclusivity="normal",
-            # visible=False,
-            *args,
-            **kwargs,
-        )
+def read_widgets(main_container, side):
+    added_widgets = []
+    widgets = configuration.get_property("bar_widgets")[side]
+    widgets = widgets[::-1] if side == "right" else widgets
+    for widget in widgets:
+        if widget in added_widgets:
+            logger.warning(f"Duplicate widget found in the {side} bar: {widget}")
+            continue
 
-        self.main_container = Box(
-            name="bar_start_container",
-            h_align="start",
-            children=[
-                # self.workspaces_widget,
-                # self.wallpaper_widget,
-                # self.keyboard_layout_widget,
-                # self.screen_recorder_widget,
-            ],
-        )
+        match widget:
+            case "workspaces":
+                def default_workspace_button_factory(id):
+                    return (
+                        WorkspaceMarkupButton(
+                            id=id,
+                            name="workspace_button",
+                            style_classes="outsider",
+                            child=Box(
+                                name="workspace_icon",
+                                v_expand=False,
+                                v_align="center",
+                            ),
+                        )
+                        if id > 0
+                        else None
+                    )
 
-        widgets = []
-        for widget in configuration.get_property("bar_widgets")["left"]:
-            if widget in widgets:
-                logger.warning(f"Duplicate widget found in the left bar: {widget}")
-                continue
-
-            match widget:
-                case "workspaces":
-                    self.main_container.add(
+                if configuration.window_manager == "hyprland":
+                    main_container.add(
                         Workspaces(
                             name="workspaces_widget",
                             style_classes="bar_widget",
@@ -162,14 +141,42 @@ class BarWindowLeft(Box):
                             buttons_factory=default_workspace_button_factory,
                         )
                     )
-
-                case "wallpaper":
-                    self.main_container.add(
-                        Box(name="wallpaper_widget", style_classes="bar_widget")
+                elif configuration.window_manager == "niri":
+                    main_container.add(
+                        NiriWorkspaces(
+                            name="workspaces_widget",
+                            style_classes="bar_widget",
+                            empty_scroll=True,
+                            invert_scroll=True,
+                            static_workspace_buttons=True,
+                            buttons=[
+                                WorkspaceMarkupButton(
+                                    id=i + 1,
+                                    name="workspace_button",
+                                    child=Box(
+                                        name="workspace_icon",
+                                        v_expand=False,
+                                        v_align="center",
+                                    ),
+                                )
+                                for i in range(
+                                    int(
+                                        configuration.get_property(
+                                            "workspaces_widget_num_workspaces"
+                                        )
+                                    )
+                                )
+                            ],
+                            buttons_factory=default_workspace_button_factory,
+                        )
                     )
-
-                case "key_layout":
-                    self.main_container.add(
+            case "wallpaper":
+                main_container.add(
+                    Box(name="wallpaper_widget", style_classes="bar_widget")
+                )
+            case "key_layout":
+                if configuration.window_manager == "hyprland":
+                    main_container.add(
                         KeyboardLayout(
                             name="keyboard_layout_widget",
                             keyboard=name
@@ -184,33 +191,69 @@ class BarWindowLeft(Box):
                             vexpand=True,
                         )
                     )
+                elif configuration.window_manager == "niri":
+                    main_container.add(
+                        NiriKeyboardLayout(
+                            name="keyboard_layout_widget",
+                            language_formatter=lambda x: x[:2].upper(),
+                            vexpand=True,
+                        )
+                    )
 
-                case "recorder":
-                    self.main_container.add(ScreenRecorder())
+            case "recorder":
+                main_container.add(ScreenRecorder())
 
-                case "tray":
-                    self.main_container.add(Tray(dir="right"))
+            case "tray":
+                main_container.add(Tray(dir="right" if side == "left" else "left"))
 
-                case "battery":
-                    self.main_container.add(BatteryWidget())
+            case "battery":
+                main_container.add(BatteryWidget())
 
-                case "res_monitor":
-                    self.main_container.add(ResourceMonitor())
+            case "res_monitor":
+                main_container.add(ResourceMonitor())
 
-                case "net_monitor":
-                    self.main_container.add(NetworkUsage())
+            case "net_monitor":
+                main_container.add(NetworkUsage())
 
-                case "net_monitor_wifi":
-                    self.main_container.add(NetworkUsage(type="wifi"))
+            case "net_monitor_wifi":
+                main_container.add(NetworkUsage(type="wifi"))
 
-                case "net_monitor_eth":
-                    self.main_container.add(NetworkUsage(type="ethernet"))
+            case "net_monitor_eth":
+                main_container.add(NetworkUsage(type="ethernet"))
 
-                case _:
-                    logger.warning(f"Unknown widget found in the left bar: {widget}")
-                    continue
+            case _:
+                logger.warning(f"Unknown widget found in the {side} bar: {widget}")
+                continue
 
-            widgets.append(widget)
+        added_widgets.append(widget)
+
+
+# class BarWindowLeft(Window):
+class BarWindowLeft(Box):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            name="bar_window_left",
+            orientation="h",
+            # anchor="left top",
+            # layer="top",
+            # exclusivity="normal",
+            # visible=False,
+            *args,
+            **kwargs,
+        )
+
+        self.main_container = Box(
+            name="bar_start_container",
+            h_align="start",
+            children=[
+                # self.workspaces_widget,
+                # self.wallpaper_widget,
+                # self.keyboard_layout_widget,
+                # self.screen_recorder_widget,
+            ],
+        )
+
+        read_widgets(self.main_container, "left")
 
         self.add(self.main_container)
         self.add(
@@ -255,95 +298,7 @@ class BarWindowRight(Box):
             ],
         )
 
-        widgets = []
-        for widget in configuration.get_property("bar_widgets")["right"][::-1]:
-            if widget in widgets:
-                logger.warning(f"Duplicate widget found in the left bar: {widget}")
-                continue
-
-            match widget:
-                case "workspaces":
-                    self.main_container.add(
-                        Workspaces(
-                            name="workspaces_widget",
-                            style_classes="bar_widget",
-                            empty_scroll=True,
-                            invert_scroll=True,
-                            buttons=[
-                                WorkspaceMarkupButton(
-                                    id=i + 1,
-                                    name="workspace_button",
-                                    child=Box(
-                                        name="workspace_icon",
-                                        v_expand=False,
-                                        v_align="center",
-                                    ),
-                                )
-                                for i in range(
-                                    int(
-                                        configuration.get_property(
-                                            "workspaces_widget_num_workspaces"
-                                        )
-                                    )
-                                )
-                            ],
-                            buttons_factory=default_workspace_button_factory,
-                        )
-                    )
-
-                case "wallpaper":
-                    self.main_container.add(
-                        Box(name="wallpaper_widget", style_classes="bar_widget")
-                    )
-
-                case "key_layout":
-                    self.main_container.add(
-                        KeyboardLayout(
-                            name="keyboard_layout_widget",
-                            style_classes="bar_widget",
-                            keyboard=name
-                            if (
-                                name := configuration.get_property(
-                                    "switchxkblayout_keyboard_name"
-                                )
-                            )
-                            else ".*",
-                            formatter=FormattedString("{language}"),
-                            language_formatter=lambda x: x[:2].upper(),
-                            vexpand=True,
-                        )
-                    )
-
-                case "recorder":
-                    self.main_container.add(
-                        ScreenRecorder(
-                            style_classes="bar_widget",
-                        )
-                    )
-
-                case "tray":
-                    self.main_container.add(Tray())
-
-                case "battery":
-                    self.main_container.add(BatteryWidget())
-
-                case "res_monitor":
-                    self.main_container.add(ResourceMonitor())
-
-                case "net_monitor":
-                    self.main_container.add(NetworkUsage())
-
-                case "net_monitor_wifi":
-                    self.main_container.add(NetworkUsage(type="wifi"))
-
-                case "net_monitor_eth":
-                    self.main_container.add(NetworkUsage(type="ethernet"))
-
-                case _:
-                    logger.warning(f"Unknown widget found in the left bar: {widget}")
-                    continue
-
-            widgets.append(widget)
+        read_widgets(self.main_container, "right")
 
         self.add(
             Box(

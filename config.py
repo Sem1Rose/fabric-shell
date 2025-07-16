@@ -65,6 +65,8 @@ class Config:
 
         self.load_config()
 
+        self.window_manager = self.get_property("window_manager")
+
     def load_config(self):
         if os.path.exists(config_file):
             logger.info("Loading config.toml ...")

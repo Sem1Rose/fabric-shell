@@ -23,6 +23,7 @@ class VolumeSlider(Box):
         **kwargs,
     ):
         super().__init__(
+            name="thick_slider_container",
             orientation=orientation,
             h_expand=True,
             v_expand=True,
@@ -160,7 +161,7 @@ class VolumeSlider(Box):
             )
 
         self.slider.connect(
-            "on_interacted",
+            "on-interacted",
             lambda _, v: self.change_volume(v),
         )
         self.connect_slider()

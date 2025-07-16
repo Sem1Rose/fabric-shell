@@ -2,6 +2,8 @@
 app_name = "fabric-shell"
 debug = false
 
+window_manager = "hyprland"
+
 styles_dir = "styles"
 icons_dir = "icons"
 artwork_cache_dir = "user_cache_dir-artworks"
@@ -239,12 +241,12 @@ wallpaper_file = "\"\""
 
 power_menu_action_size = "100px"
 
-osd_padding = "8px"
+osd_padding = "10px"
 osd_height = "300px"
 osd_pos_vertical = "170px"
 
 thick_slider_length = "250px"
-thick_slider_thickness = "52px"
+thick_slider_thickness = "48px"
 thick_slider_padding = "4px"
 thick_slider_toggle_spacing = "12px"
 

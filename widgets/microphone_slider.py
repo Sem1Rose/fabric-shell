@@ -18,6 +18,7 @@ class MicrophoneSlider(Box):
         **kwargs,
     ):
         super().__init__(
+            name="thick_slider_container",
             orientation=orientation,
             h_expand=True,
             v_expand=True,

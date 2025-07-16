@@ -29,7 +29,7 @@ class PillWindow(Window):
         super().__init__(
             name="pill_window",
             anchor="top",
-            exclusivity="normal",
+            exclusivity="none",
             layer="overlay",
             style="background-color: transparent;",
             margin=f"-{configuration.get_property('pill_height', 'css_settings')} 0px 0px 0px",
@@ -133,10 +133,10 @@ class PillWindow(Window):
             lambda _, event_key: self.handle_arrow_keys(event_key),
         )
 
-        get_workspace_properties_service().connect(
-            "on-fullscreen",
-            lambda _, state: self.unreveal_pill() if state == 2 else self.reveal_pill()
-        )
+        # get_workspace_properties_service().connect(
+        #     "on-fullscreen",
+        #     lambda _, state: self.unreveal_pill() if state == 2 else self.reveal_pill()
+        # )
 
         self.revealer_hidden = False
         self.pill_revealer = Revealer(

@@ -3,6 +3,8 @@ import re
 from loguru import logger
 from collections.abc import Callable
 from config import configuration
+from widgets.helpers.niri.widgets import Language as NiriLanguage
+from widgets.helpers.niri.service import NiriEvent
 
 from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.hyprland.widgets import Language
@@ -37,7 +39,7 @@ class KeyboardLayout(Language):
 
         if re.match(self.keyboard, keyboard) and (matched := True):
             self.set_label(
-                self.language_formatter(self.formatter.format(language=language))
+                self.language_formatter(language=language)
             )
 
         return logger.debug(
@@ -63,7 +65,7 @@ class KeyboardLayout(Language):
                 continue
 
             self.set_label(
-                self.language_formatter(self.formatter.format(language=language))
+                self.language_formatter(language=language)
             )
             logger.debug(
                 f"[Language] found language: {language} for keyboard {kb_name}"
@@ -79,6 +81,72 @@ class KeyboardLayout(Language):
                 f"[Language] Set language: {language} for keyboard: {self.keyboard}"
             )
         )
+
+    def cursor_enter(self):
+        if not self.is_sensitive():
+            return
+
+        window = self.get_window()
+        if window:
+            window.set_cursor(Gdk.Cursor(Gdk.CursorType.HAND2))
+
+    def cursor_leave(self):
+        if not self.is_sensitive():
+            return
+
+        window = self.get_window()
+        if window:
+            window.set_cursor(None)
+
+class NiriKeyboardLayout(NiriLanguage):
+    def __init__(
+        self, language_formatter: Callable[[str], str] = lambda x: x, *args, **kwargs
+    ):
+        self.language_formatter = language_formatter
+        super().__init__(style_classes="bar_widget", *args, **kwargs)
+
+        self.connect("enter-notify-event", lambda *_: self.cursor_enter())
+        self.connect("leave-notify-event", lambda *_: self.cursor_leave())
+        self.connect(
+            "button-release-event",
+            lambda *_: self.connection.send_command(
+                {
+                    "Action": {
+                        "SwitchLayout": {
+                            "layout": "Next",
+                        },
+                    },
+                }
+            ),
+        )
+
+    def on_layout_changed(self, _, event: NiriEvent):
+        data = event.data["keyboard_layouts"]
+        names = data["names"]
+        current_idx = data["current_idx"]
+        current_layout = names[current_idx]
+
+        logger.debug(current_layout)
+        self.set_label(self.language_formatter(current_layout))
+
+    def on_layout_switched(self, _, event: NiriEvent):
+        current_idx = event.data.get("idx", None)
+
+        if current_idx is None:
+            return self.do_initialize()
+
+        return self.set_label(self.language_formatter(self._keyboard_layouts[current_idx]))
+
+    def do_initialize(self):
+        keyboard_layouts = self.parse_niri_response(self.connection.send_command("KeyboardLayouts").reply)["KeyboardLayouts"]
+
+        names = keyboard_layouts["names"]
+        current_idx = keyboard_layouts["current_idx"]
+
+        self._keyboard_layouts = names
+
+        current_layout = names[current_idx]
+        return self.set_label(self.language_formatter(current_layout))
 
     def cursor_enter(self):
         if not self.is_sensitive():
