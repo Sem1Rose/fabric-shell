@@ -113,7 +113,9 @@ def read_widgets(main_container, side):
                         else None
                     )
 
-                if configuration.window_manager == "hyprland":
+                if configuration.window_manager == "agnostic":
+                    pass
+                elif configuration.window_manager == "hyprland":
                     main_container.add(
                         Workspaces(
                             name="workspaces_widget",
@@ -175,7 +177,9 @@ def read_widgets(main_container, side):
                     Box(name="wallpaper_widget", style_classes="bar_widget")
                 )
             case "key_layout":
-                if configuration.window_manager == "hyprland":
+                if configuration.window_manager == "agnostic":
+                    pass
+                elif configuration.window_manager == "hyprland":
                     main_container.add(
                         KeyboardLayout(
                             name="keyboard_layout_widget",

@@ -88,25 +88,99 @@ class CalendarMonth(Box):
 
 
 class Calendar(Box):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, orientation = "v", **kwargs) -> None:
         super().__init__(
-            name="calendar_widget", orientation="v", h_expand=True, **kwargs
+            name="calendar_widget", orientation=orientation, h_expand=True, **kwargs
         )
+
+        self.orientation = orientation
+        self.add_style_class("horizontal" if orientation == "h" else "vertical")
 
         calendar.setfirstweekday(calendar.SATURDAY)
         self.calendar = calendar.Calendar(5)
         self.selected_date = date.today()
 
-        self.year_label = Label(
-            name="calendar_year_label",
-            label=self.selected_date.strftime("%Y"),
-            h_align="start",
-        )
-        self.date_label = Label(
-            name="calendar_date_label",
-            label=self.selected_date.strftime("%a, %b %d"),
-            h_align="start",
-        )
+
+        if orientation == "v":
+            self.year_label = Label(
+                name="calendar_year_label",
+                label=self.selected_date.strftime("%Y"),
+                h_align="start",
+            )
+
+            self.date_label = Label(
+                name="calendar_date_label",
+                label=self.selected_date.strftime("%a, %b %d"),
+                h_align="start",
+            )
+
+            self.corners_container = Box(
+                name="calendar_corners_container",
+                children=[
+                    Box(
+                        name="calendar_corner_container",
+                        children=Corner(
+                            name="calendar_corner",
+                            orientation="top-left",
+                            h_expand=True,
+                            v_expand=True,
+                        ),
+                    ),
+                    Box(h_expand=True),
+                    Box(
+                        name="calendar_corner_container",
+                        children=Corner(
+                            name="calendar_corner",
+                            orientation="top-right",
+                            h_expand=True,
+                            v_expand=True,
+                        ),
+                    ),
+                ],
+            )
+        else:
+            self.year_label = Label(
+                name="calendar_year_label",
+                label=self.selected_date.strftime("%Y"),
+                h_align="start",
+            )
+
+            self.day_label = Label(
+                name="calendar_day_label",
+                label=self.selected_date.strftime("%a"),
+                h_align="start",
+            )
+            self.date_label = Label(
+                name="calendar_date_label",
+                label=self.selected_date.strftime("%b %d"),
+                h_align="start",
+            )
+
+            self.corners_container = Box(
+                name="calendar_corners_container",
+                orientation="v",
+                children=[
+                    Box(
+                        name="calendar_corner_container",
+                        children=Corner(
+                            name="calendar_corner",
+                            orientation="top-right",
+                            h_expand=True,
+                            v_expand=True,
+                        ),
+                    ),
+                    Box(v_expand=True),
+                    Box(
+                        name="calendar_corner_container",
+                        children=Corner(
+                            name="calendar_corner",
+                            orientation="bottom-right",
+                            h_expand=True,
+                            v_expand=True,
+                        ),
+                    ),
+                ],
+            )
 
         self.dec_month_button = MarkupButton(
             name="calendar_navigation_buttons",
@@ -127,31 +201,6 @@ class Calendar(Box):
         )
         self.inc_month_button.connect(
             "button-release-event", lambda *_: self.inc_month()
-        )
-
-        self.corners_container = Box(
-            name="calendar_corners_container",
-            children=[
-                Box(
-                    name="calendar_corner_container",
-                    children=Corner(
-                        name="calendar_corner",
-                        orientation="top-left",
-                        h_expand=True,
-                        v_expand=True,
-                    ),
-                ),
-                Box(h_expand=True),
-                Box(
-                    name="calendar_corner_container",
-                    children=Corner(
-                        name="calendar_corner",
-                        orientation="top-right",
-                        h_expand=True,
-                        v_expand=True,
-                    ),
-                ),
-            ],
         )
 
         self.day_labels_contianer = Box(
@@ -190,34 +239,67 @@ class Calendar(Box):
         )
         self.calendar_months_stack.set_visible_child(self.calendar_months[1])
 
-        self.padded_container = Box(
-            name="calendar_padded_container",
-            orientation="v",
-            children=[
-                self.year_label,
-                self.date_label,
-            ],
-        )
-        self.calendar_container = Box(
-            name="calendar_unpadded_container",
-            orientation="v",
-            children=[
-                self.corners_container,
-                Box(
-                    h_expand=True,
-                    children=[
-                        self.dec_month_button,
-                        self.month_label,
-                        self.inc_month_button,
-                    ],
-                ),
-                self.day_labels_contianer,
-                self.calendar_months_stack,
-            ],
-        )
+        if orientation == "v":
+            self.padded_container = Box(
+                name="calendar_padded_container",
+                orientation="v",
+                children=[
+                    self.year_label,
+                    self.date_label,
+                ],
+            )
+            self.calendar_container = Box(
+                name="calendar_unpadded_container",
+                orientation="v",
+                children=[
+                    # self.corners_container,
+                    Box(
+                        h_expand=True,
+                        children=[
+                            self.dec_month_button,
+                            self.month_label,
+                            self.inc_month_button,
+                        ],
+                    ),
+                    self.day_labels_contianer,
+                    self.calendar_months_stack,
+                ],
+            )
 
-        self.add(self.padded_container)
-        self.add(self.calendar_container)
+            self.add(self.padded_container)
+            self.add(self.calendar_container)
+        else:
+            self.calendar_container = Box(
+                name="calendar_unpadded_container",
+                orientation="v",
+                children=[
+                    Box(
+                        h_expand=True,
+                        children=[
+                            self.dec_month_button,
+                            self.month_label,
+                            self.inc_month_button,
+                        ],
+                    ),
+                    self.day_labels_contianer,
+                    self.calendar_months_stack,
+                ],
+            )
+            self.padded_container = Box(
+                name="calendar_padded_container",
+                h_expand=True,
+                orientation="v",
+                children=[
+                    self.year_label,
+                    self.date_label,
+                    self.day_label,
+                ],
+            )
+
+            self.add(self.padded_container)
+            self.add(self.calendar_container)
+            # self.add(self.corners_container)
+
 
     def handle_day_clicked(self, day: CalendarDay):
         if (
@@ -321,8 +403,13 @@ class Calendar(Box):
 
     def update_labels(self):
         self.year_label.set_label(self.selected_date.strftime("%Y"))
-        self.date_label.set_label(self.selected_date.strftime("%a, %b %d"))
         self.month_label.set_label(self.selected_date.strftime("%B"))
+
+        if self.orientation == "v":
+            self.date_label.set_label(self.selected_date.strftime("%a, %b %d"))
+        else:
+            self.day_label.set_label(self.selected_date.strftime("%a"))
+            self.date_label.set_label(self.selected_date.strftime("%b %d"))
 
     def add_style(self, style):
         self.add_style_class(style)

@@ -46,7 +46,11 @@ class MicrophoneSlider(Box):
         self.toggle = ToggleButton(style_classes="thick_toggle", auto_toggle=False)
 
         self.slider.connect(
-            "on_interacted",
+            "on-interacted",
+            lambda _, v: self.change_mic_volume(v),
+        )
+        self.slider.connect(
+            "interacting-value",
             lambda _, v: self.change_mic_volume(v),
         )
         self.connect_slider()

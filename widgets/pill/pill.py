@@ -44,10 +44,10 @@ class Pill(EventBox):
         if self._num_large_widgets < 0:
             self._num_large_widgets = 0
 
-        if self._num_large_widgets == 0:
-            self.main_container.remove_style_class("large_widget")
-        else:
+        if self._num_large_widgets > 0:
             self.main_container.add_style_class("large_widget")
+        else:
+            self.main_container.remove_style_class("large_widget")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -84,26 +84,25 @@ class Pill(EventBox):
         )
         self.main_container = Box(name="pill_box", children=[self.stack])
 
-        match list(self.dashboard.widgets.keys())[-1]:
-            case "calendar":
-                self.dashboard.calendar_revealer.connect(
-                    "on-revealed",
-                    lambda *_: self.inc_num_large_widgets(),
-                )
-                self.dashboard.calendar_revealer.connect(
-                    "on-unrevealed",
-                    lambda *_: self.dec_num_large_widgets(),
-                )
-            case "media-player":
-                self.dashboard.media_player.connect(
-                    "on-show-hide",
-                    lambda _, v: self.inc_num_large_widgets()
-                    if v
-                    else self.dec_num_large_widgets(),
-                )
+        for key in list(self.dashboard.widgets.keys())[1::]:
+            match key:
+                case "calendar":
+                    self.dashboard.calendar_revealer.connect(
+                        "notify::child-revealed",
+                        lambda revealer, *_: self.inc_num_large_widgets()
+                        if revealer.child_revealed
+                        else self.dec_num_large_widgets(),
+                    )
+                case "media-player":
+                    self.dashboard.media_player.connect(
+                        "on-show-hide",
+                        lambda _, v: self.inc_num_large_widgets()
+                        if v
+                        else self.dec_num_large_widgets(),
+                    )
 
-                if self.dashboard.media_player.can_reveal:
-                    self.inc_num_large_widgets()
+                    if self.dashboard.media_player.can_reveal:
+                        self.inc_num_large_widgets()
 
         # if self.dashboard.media_player:
         #     self.dashboard.media_player.connect(

@@ -72,7 +72,11 @@ class BrightnessSlider(Box):
             self.service.connect("brightness_changed", lambda _, v: self.update(v))
 
             self.slider.connect(
-                "on_interacted",
+                "on-interacted",
+                lambda _, v: self.service.set_brightness(v),
+            )
+            self.slider.connect(
+                "interacting-value",
                 lambda _, v: self.service.set_brightness(v),
             )
 

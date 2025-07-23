@@ -34,7 +34,7 @@ class NotificationWidget(Revealer):
     ):
         super().__init__(**kwargs)
 
-        self.main_container = Box(orientation="v", style_classes="notification")
+        self.main_container = Box(orientation="v", h_expand=True, style_classes="notification")
 
         self.autohide = autohide
 

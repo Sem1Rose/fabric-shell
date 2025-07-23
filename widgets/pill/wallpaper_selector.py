@@ -206,6 +206,11 @@ class WallpaperSelector(Applet, Box):
 
         self.format_view()
 
+        thumbnail_dir = os.path.join(configuration.get_property("wallpapers_dir"), "thumbnails")
+        logger.debug(thumbnail_dir)
+        if not os.path.isdir(thumbnail_dir):
+            os.makedirs(thumbnail_dir, exist_ok=True)
+
     # def on_hover(self, id, hover):
     #     self.corner_parents[id].add_style_class(
     #         "hovered"
@@ -283,7 +288,10 @@ class WallpaperSelector(Applet, Box):
         random.shuffle(self.wallpaper_paths)
 
         for i in range(5):
-            if len(self.wallpaper_paths) > self.selected_index + i - 2 >= 0:
+            if self.selected_index + i >= 5:
+                break
+
+            if len(self.wallpaper_paths) > self.selected_index - 2 + i >= 0:
                 thumbnail, path = self.wallpaper_paths[self.selected_index + i - 2]
 
                 self.Images[self.selected_index + i].set_style(
@@ -448,7 +456,7 @@ class WallpaperSelector(Applet, Box):
             configuration.get_property("wallpapers_dir"), "thumbnails", image
         )
         file_path = os.path.join(configuration.get_property("wallpapers_dir"), image)
-        if os.path.exists(thumbnail_path):
+        if os.path.isfile(thumbnail_path):
             idle_add(self.append_wallpaper, thumbnail_path, file_path)
         else:
             try:

@@ -62,7 +62,9 @@ class ClientsService(Service):
         return identifiers
 
     def normalize_app_id(self, app_id: str) -> str:
-        if "." in app_id:
+        if " " in app_id:
+            return app_id.split()[0]
+        elif "." in app_id:
             return app_id.split(".")[1]
 
         return app_id

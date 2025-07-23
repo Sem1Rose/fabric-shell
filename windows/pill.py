@@ -69,21 +69,29 @@ class PillWindow(Window):
         self.right_button.set_focus_on_click(False)
 
         self.main_container = Box(name="pill_center_box")
-        self.main_container.add(
-            Box(children=[self.left_button, create_spacings()], orientation="v")
-        )
-        self.main_container.add(
+        # self.main_container.pack_start(
+        #     False,
+        #     False,
+        #     0,
+        # )
+        self.main_container.set_center_widget(
             Box(
                 children=[
+                    Box(
+                        children=[self.left_button, create_spacings()], orientation="v"
+                    ),
                     self.pill,
-                    create_spacings(),
-                ],
-                orientation="v",
+                    Box(
+                        children=[self.right_button, create_spacings()], orientation="v"
+                    ),
+                ]
             )
         )
-        self.main_container.add(
-            Box(children=[self.right_button, create_spacings()], orientation="v")
-        )
+        # self.main_container.pack_end(
+        #     False,
+        #     False,
+        #     0,
+        # )
         # self.center_box = CenterBox(name="pill_center_box", orientation="h")
         # self.center_box.center_container.set_orientation(Gtk.Orientation.VERTICAL)
         # self.center_box.center_children = [
@@ -133,10 +141,11 @@ class PillWindow(Window):
             lambda _, event_key: self.handle_arrow_keys(event_key),
         )
 
-        # get_workspace_properties_service().connect(
-        #     "on-fullscreen",
-        #     lambda _, state: self.unreveal_pill() if state == 2 else self.reveal_pill()
-        # )
+        if configuration.window_manager == "hyprland":
+            get_workspace_properties_service().connect(
+                "on-fullscreen",
+                lambda _, state: self.unreveal_pill() if state == 2 else self.reveal_pill()
+            )
 
         self.revealer_hidden = False
         self.pill_revealer = Revealer(
@@ -146,10 +155,21 @@ class PillWindow(Window):
             transition_duration=300,
         )
 
-        self.add(Box(orientation="v", children=[self.pill_revealer, self.notifications_container]))
+        self.add(
+            Box(
+                orientation="v",
+                children=[self.pill_revealer, self.notifications_container],
+            )
+        )
         self.show_all()
 
         PillWindow.instances.append(self)
+
+    def toggle_pill_reveal(self):
+        if self.revealer_hidden:
+            self.reveal_pill()
+        else:
+            self.unreveal_pill()
 
     def unreveal_pill(self):
         # logger.error("unrevealing pill")

@@ -130,7 +130,7 @@ if __name__ == "__main__":
     config_monitor = monitor_file(config_file)
     config_monitor.connect("changed", lambda *_: configuration.load_config())
 
-    if (wm := configuration.window_manager) not in ["hyprland", "niri"]:
+    if (wm := configuration.window_manager) not in ["hyprland", "niri", "agnostic"]:
         logger.error(f"Unsupported Window manager: {wm}, exiting...")
         app.quit()
 

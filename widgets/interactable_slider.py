@@ -1,3 +1,5 @@
+from math import floor
+from venv import logger
 from widgets.smooth_scale import SmoothScale
 
 from fabric.core.service import Signal
@@ -12,6 +14,9 @@ class Slider(Scale):
     @Signal
     def on_polled(self, value: float): ...
 
+    @Signal
+    def interacting_value(self, value: float): ...
+
     def __init__(
         self,
         poll_command="",
@@ -24,6 +29,7 @@ class Slider(Scale):
     ):
         super().__init__(*args, **kwargs)
 
+        self.previous_value = 0
         self.interacting = False
         if poll:
             self.build(
@@ -40,16 +46,24 @@ class Slider(Scale):
         self.connect("button-press-event", lambda *_: self.begin_interact())
         self.connect("button-release-event", lambda *_: self.end_interact())
 
+    def on_value_changed(self, _):
+        value = floor(self.value * 25)
+        if value != self.previous_value:
+            self.interacting_value(self.value)
+            self.previous_value = value
+
     def begin_interact(self):
         self.interacting = True
+        self.connect("value-changed", self.on_value_changed)
 
     def end_interact(self):
         self.interacting = False
+        self.disconnect_by_func(self.on_value_changed)
         self.on_interacted(self.value)
 
     def change_value(self, value):
-        if not self.interacting and value is not None:
-            # self.animate_value(value)
-            self.set_value(value)
+        if self.interacting or value is None:
+            return
 
+        self.set_value(value)
         self.on_polled(value)

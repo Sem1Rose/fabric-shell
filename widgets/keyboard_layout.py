@@ -39,7 +39,7 @@ class KeyboardLayout(Language):
 
         if re.match(self.keyboard, keyboard) and (matched := True):
             self.set_label(
-                self.language_formatter(language=language)
+                self.language_formatter(language)
             )
 
         return logger.debug(
@@ -65,7 +65,7 @@ class KeyboardLayout(Language):
                 continue
 
             self.set_label(
-                self.language_formatter(language=language)
+                self.language_formatter(language)
             )
             logger.debug(
                 f"[Language] found language: {language} for keyboard {kb_name}"

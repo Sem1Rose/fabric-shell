@@ -31,6 +31,8 @@ class VolumeSlider(Box):
             **kwargs,
         )
 
+        self.current_value = 0;
+
         self.device_selection_added = (
             add_device_selection_popup and orientation == "horizontal"
         )
@@ -162,6 +164,10 @@ class VolumeSlider(Box):
 
         self.slider.connect(
             "on-interacted",
+            lambda _, v: self.change_volume(v),
+        )
+        self.slider.connect(
+            "interacting-value",
             lambda _, v: self.change_volume(v),
         )
         self.connect_slider()

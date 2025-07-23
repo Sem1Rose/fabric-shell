@@ -8,8 +8,8 @@ from widgets.pill.music_ticker import MusicTicker
 from widgets.media_player import MediaPlayer
 from widgets.quick_settings import QuickSettings
 from widgets.calendar import Calendar
-from widgets.revealer import Revealer
 
+from fabric.widgets.revealer import Revealer
 from fabric.widgets.stack import Stack
 from fabric.widgets.box import Box
 
@@ -121,7 +121,7 @@ class Dashboard(Applet, Box):
                         self.widgets[widget] = self.media_player
                         self.add(self.media_player)
                     case "calendar":
-                        self.calendar_widget = Calendar()
+                        self.calendar_widget = Calendar(orientation="h")
                         self.calendar_revealer = Revealer(
                             name="calendar_revealer",
                             child=self.calendar_widget,
@@ -155,7 +155,7 @@ class Dashboard(Applet, Box):
         self.expanded = True
 
         for revealer in self.revealers:
-            revealer.reveal()
+            revealer.child_revealed = True
         # self.quick_settings_revealer.reveal()
         # self.calendar_revealer.reveal()
 
@@ -178,7 +178,7 @@ class Dashboard(Applet, Box):
         self.expanded = False
 
         for revealer in self.revealers:
-            revealer.unreveal()
+            revealer.child_revealed = False
         # self.calendar_revealer.unreveal()
         # self.quick_settings_revealer.unreveal()
 
@@ -208,7 +208,7 @@ class Dashboard(Applet, Box):
         self.expanded = False
 
         for revealer in self.revealers:
-            revealer.unreveal()
+            revealer.child_revealed = False
 
         if self.media_player:
             self.media_player.unreveal()

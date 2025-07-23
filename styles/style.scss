@@ -24,7 +24,7 @@
             }
 
             #corner {
-                background-color: colors.$background;
+                background-color: colors.$shadow;
             }
         }
     }
@@ -53,7 +53,7 @@ $power_menu_small_radius: 48px;
     transition: all 0.3s ease-out;
     // margin-top: 10px;
 
-    background-color: colors.$background;
+    background-color: colors.$shadow;
     border-radius: $pill_window_radius;
     min-width: 100px;
     // min-height: calc($pill_window_radius * 2);
@@ -196,14 +196,12 @@ $power_menu_small_radius: 48px;
     transition: all 0.2s ease-out, min-width 0.3s ease-in;
 
     min-width: 0px;
-    padding: 0px;
     margin: 0px;
     // padding: settings.$pill_padding;
 
     &.hidden {
         transition: all 0s linear;
         // transition: opacity 5s ease-out;
-        padding: 0px;
         margin: -20px;
 
         .quick_glance_widget {
@@ -246,6 +244,22 @@ $power_menu_small_radius: 48px;
         transition: all 0.5s $transition_function;
 
         min-width: calc(settings.$pill_expanded_width - 2 * settings.$pill_expanded_padding);
+
+        #pill_quick_glance {
+            // margin: calc(-1 * settings.$pill_expanded_padding);
+            // padding: settings.$pill_expanded_padding;
+
+            .quick_glance_widget {
+                padding: 0px;
+
+                #date,
+                #time,
+                #day {
+                    background-color: colors.$on_secondary;
+                    color: colors.$secondary;
+                }
+            }
+        }
     }
 }
 
@@ -619,7 +633,7 @@ $power_menu_small_radius: 48px;
 .floating_buttons {
     transition: all 0.2s ease-out, color 0.1s linear;
 
-    background-color: colors.$background;
+    background-color: colors.$shadow;
     border-radius: 50%;
     min-width: ($pill_window_radius * 2);
     min-height: ($pill_window_radius * 2);
@@ -729,25 +743,33 @@ $thick_slider_small_border_radius: 4px;
     .thick_slider {
         contents {
             trough {
-                background-color: colors.$surface_container;
+                background-color: colors.$surface_dim;
                 border-radius: $thick_slider_border_radius;
+
+                &:disabled {
+                    background-color: colors.$surface_container_lowest;
+
+                    slider {
+                        background-color: colors.$surface_container_highest;
+                    }
+
+                    highlight {
+                        background-color: colors.$surface_container_highest;
+                    }
+                }
 
                 slider {
                     // transition: all 0.1s ease-out;
 
                     border-radius: 100px;
                     background-color: colors.$primary;
-                    box-shadow: 0px 0px 0px $thick_slider_handle_margin colors.$background;
+                    box-shadow: 0px 0px 0px $thick_slider_handle_margin colors.$shadow;
                 }
 
                 highlight {
                     transition: background-color 0.2s ease-out;
 
                     background-color: colors.$primary;
-
-                    &:disabled {
-                        background-color: colors.$surface_container_highest;
-                    }
                 }
             }
         }
@@ -781,7 +803,7 @@ $thick_slider_small_border_radius: 4px;
 
         &:disabled {
             color: colors.$surface_variant;
-            background-color: colors.$surface_container;
+            background-color: colors.$surface_container_lowest;
         }
 
         label {
@@ -802,7 +824,7 @@ $thick_slider_small_border_radius: 4px;
         // transition: margin 0.5s ease-in-out;
         transition: all 0.3s ease-out, margin 0.1s cubic-bezier(0, 1, 0, 1);
 
-        margin: settings.$pill_expanded_padding 0px calc(settings.$pill_expanded_padding / -4) 0px;
+        margin: calc(settings.$pill_expanded_padding / 2) 0px calc(settings.$pill_expanded_padding / -4) 0px;
 
         &.empty {
             margin: 0px;
@@ -826,9 +848,9 @@ $thick_slider_small_border_radius: 4px;
             transition: all 0.2s ease-out;
 
             border-radius: calc(settings.$qs_row_height / 2);
-            background-color: colors.$surface_container_low;
+            background-color: colors.$surface_dim;
             // color: colors.$on_surface;
-            color: colors.$primary;
+            color: colors.$secondary;
             padding: $qs-toggle-padding;
             margin: 0px calc(settings.$pill_expanded_padding / 3);
 
@@ -903,14 +925,14 @@ $thick_slider_small_border_radius: 4px;
             transition: all 0.2s ease-out;
 
             padding: 1px;
-            background-color: colors.$surface_bright;
-            color: colors.$primary;
+            background-color: colors.$surface_container_high;
+            color: colors.$secondary;
             border-radius: $pill_expanded_ui_radius;
             min-width: 20px;
             min-height: 20px;
 
             &:disabled {
-                background-color: colors.$surface_container_high;
+                background-color: colors.$surface_container_low;
                 color: colors.$surface_variant;
             }
         }
@@ -918,7 +940,7 @@ $thick_slider_small_border_radius: 4px;
         #qs_speakers_microphones_container {
             transition: all 0.2s ease-in-out;
 
-            background-color: colors.$surface_container_low;
+            background-color: colors.$surface_dim;
             margin-top: calc(settings.$pill_expanded_padding / 2);
 
             border-radius: $pill_large_ui_radius;
@@ -928,12 +950,12 @@ $thick_slider_small_border_radius: 4px;
 
             #qs_microphones_container,
             #qs_speakers_container {
-                background-color: colors.$surface_container_lowest;
-                min-height: calc($pill_large_ui_radius - calc(settings.$pill_expanded_padding / 2));
+                background-color: colors.$shadow;
+                min-height: calc($pill_large_ui_radius - (settings.$pill_expanded_padding / 2));
 
-                padding: calc(settings.$pill_expanded_padding * $p * 3 / 4) calc(settings.$pill_expanded_padding * $p);
+                padding: calc(settings.$pill_expanded_padding / 2);
 
-                border-radius: calc($pill_large_ui_radius - calc(settings.$pill_expanded_padding / 2));
+                border-radius: calc($pill_large_ui_radius - (settings.$pill_expanded_padding / 2));
             }
 
             .tab_button {
@@ -985,9 +1007,18 @@ $thick_slider_small_border_radius: 4px;
                 background-color: colors.$surface_container_low;
                 padding: 0px settings.$pill_padding;
 
-                border-radius: $radius;
+                border-radius: calc($pill_large_ui_radius - settings.$pill_expanded_padding);
                 min-height: 50px;
                 margin: calc(settings.$pill_expanded_padding / 4) 0px;
+
+                &:first-child {
+                    margin-top: 0px;
+                }
+
+                &:last-child {
+                    margin-bottom: 0px;
+                }
+
                 // border-radius: $radius;
                 // min-height: calc($radius * 2.5);
                 // margin: calc($pill_expanded_ui_radius / 4) 0px;
@@ -1017,13 +1048,13 @@ $thick_slider_small_border_radius: 4px;
                     font-size: 22px;
                     font-weight: normal;
 
-                    margin: 0.6rem 0px;
-                    min-height: 2rem;
+                    margin: settings.$pill_padding 0px;
                     margin-right: calc(settings.$pill_padding);
+                    min-height: 2rem;
+                    min-width: 2rem;
 
                     background-color: colors.$surface_container_lowest;
-                    min-width: 2rem;
-                    border-radius: calc($radius - settings.$pill_padding);
+                    border-radius: calc($pill_large_ui_radius - settings.$pill_expanded_padding - settings.$pill_padding);
                 }
             }
         }
@@ -1042,7 +1073,7 @@ $thick_slider_small_border_radius: 4px;
 
 #calendar_widget {
     transition: margin 0.02s cubic-bezier(1, 0, 1, 0);
-    margin: 0px -100px;
+    margin: 0px -50px;
 
     &.revealed {
         transition: margin 0.2s ease-out;
@@ -1050,65 +1081,129 @@ $thick_slider_small_border_radius: 4px;
 
         #calendar_padded_container {
             padding: settings.$pill_expanded_padding;
-            padding-bottom: 0px;
         }
 
         #calendar_unpadded_container {
             padding: settings.$pill_expanded_padding;
-            padding-top: 0px;
+        }
+
+        &.vertical {
+            #calendar_padded_container {
+                padding-bottom: 0px;
+            }
+        }
+    }
+
+    $radius: calc($pill_large_ui_radius - settings.$pill_expanded_padding);
+    $ui_radius: calc($pill_large_ui_radius - settings.$pill_padding);
+
+    &.vertical {
+        #calendar_padded_container {
+            border-radius: $pill_large_ui_radius $pill_large_ui_radius 0px 0px;
+
+            min-height: 110px;
+
+            #calendar_date_label {
+                margin-bottom: calc(settings.$pill_expanded_padding / 1.5);
+            }
+        }
+
+        #calendar_unpadded_container {
+            border-radius: $pill_large_ui_radius;
+
+            margin-top: -1 * $pill_large_ui_radius;
+            // border-radius: 0px 0px $pill_large_ui_radius $pill_large_ui_radius;
+        }
+
+        #calendar_corners_container {
+            margin: 0 calc(settings.$pill_expanded_padding * -1);
+            margin-bottom: calc($pill_large_ui_radius * -1 + settings.$pill_expanded_padding);
+        }
+    }
+
+    &.horizontal {
+        #calendar_padded_container {
+            // border-radius: 0px $pill_large_ui_radius $pill_large_ui_radius 0px;
+            border-radius: $pill_large_ui_radius 0px 0px $pill_large_ui_radius;
+        }
+
+        #calendar_unpadded_container {
+            // border-radius: $pill_large_ui_radius $pill_large_ui_radius $pill_large_ui_radius $pill_large_ui_radius;
+            border-radius: $pill_large_ui_radius $pill_large_ui_radius $pill_large_ui_radius $pill_large_ui_radius;
+
+            margin-left: -1 * $pill_large_ui_radius;
+        }
+
+        #calendar_corners_container {
+            // margin: 0px calc(settings.$pill_expanded_padding * -1);
+            // margin-left: calc($corner_radius * -1 + settings.$pill_expanded_padding);
+            margin-left: -1 * $pill_large_ui_radius;
         }
     }
 
     #calendar_padded_container {
-        border-radius: $pill_large_ui_radius $pill_large_ui_radius 0px 0px;
+        transition: all 0.2s ease-out;
+
         background-color: colors.$on_primary;
 
         #calendar_year_label {
             font-weight: lighter;
             font-size: 16px;
             margin-bottom: 6px;
-            margin-left: 6px;
             color: colors.$on_secondary_container;
+            margin-left: 18px;
         }
 
         #calendar_date_label {
+            margin-left: -3px;
+            margin-bottom: 6px;
             font-weight: bold;
-            font-size: 24;
-            margin-bottom: calc(settings.$pill_expanded_padding / 1.5);
+            font-size: 23;
             color: colors.$on_primary_container;
+        }
+
+        #calendar_day_label {
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 18;
+            color: colors.$on_primary_container;
+            margin-left: 18px;
         }
     }
 
-    $corner_radius: calc($pill_expanded_ui_radius * 2);
-    $ui_radius: calc($corner_radius - settings.$pill_expanded_padding);
 
-    #calendar_unpadded_container {
-        border-radius: 0px 0px $pill_large_ui_radius $pill_large_ui_radius;
-        background-color: colors.$surface_container_low;
+    #calendar_corners_container {
+        #calendar_corner_container {
+            min-height: $pill_large_ui_radius;
+            min-width: $pill_large_ui_radius;
 
-        #calendar_corners_container {
-            margin: 0 calc(settings.$pill_expanded_padding * -1);
-            margin-bottom: calc($corner_radius * -1 + settings.$pill_expanded_padding);
-
-            #calendar_corner_container {
-                min-height: $corner_radius;
-                min-width: $corner_radius;
-
-                #calendar_corner {
-                    background-color: colors.$on_primary;
-                }
+            #calendar_corner {
+                background-color: colors.$on_primary;
             }
         }
+    }
+
+    #calendar_unpadded_container {
+        transition: all 0.2s ease-out;
+
+        background-color: colors.$surface_container_low;
 
         #calendar_navigation_buttons {
-            min-height: 24px;
-            min-width: 32px;
+            min-height: $radius + 10px;
+            min-width: $radius * 2;
             background-color: colors.$primary_container;
-            border-radius: $ui_radius;
             color: colors.$on_primary_container;
 
+            &:first-child {
+                border-radius: $radius 6px 6px 6px;
+            }
+
+            &:last-child {
+                border-radius: 6px $radius 6px 6px;
+            }
+
             label {
-                font-size: 18px;
+                font-size: 20px;
             }
         }
 
@@ -1124,42 +1219,34 @@ $thick_slider_small_border_radius: 4px;
             margin-bottom: 4px;
 
             label {
-
-                // font-weight: lighter;
-                &:first-child {
-                    margin-left: 4px;
-                }
-
-                &:last-child {
-                    margin-right: 4px;
-                }
-
-                font-size: 16;
+                font-size: 13;
                 color: colors.$on_secondary_container;
             }
         }
 
+
         #calendar_month {
             #calendar_week {
-                margin: 3px 0px;
-
-                &:first-child {
-                    margin-top: 2px;
-                }
+                margin-bottom: 6px;
 
                 &:last-child {
-                    margin-bottom: 2px;
+                    margin-bottom: 0px;
                 }
 
                 #calendar_day {
-                    border-radius: 7px;
-                    min-width: 48px;
-                    min-height: 30px;
-                    margin: 0px 3px;
+                    margin-right: 11px;
+
+                    &:last-child {
+                        margin-right: 0px;
+                    }
 
                     label {
-                        font-size: 16px;
+                        font-size: 13px;
                         font-weight: lighter;
+
+                        border-radius: 100px;
+                        min-height: 2rem;
+                        min-width: 2rem;
                     }
 
                     &.outsider {
@@ -1168,15 +1255,23 @@ $thick_slider_small_border_radius: 4px;
 
                     &.today {
                         color: colors.$primary;
-                        margin: -2px 1px;
-                        border: 2px solid colors.$primary;
                         font-weight: bolder;
+
+                        label {
+                            min-height: 1.8rem;
+                            min-width: 1.8rem;
+                            margin: -2px;
+                            border: 2px solid colors.$primary;
+                        }
                     }
 
                     &.active {
                         color: colors.$on_primary;
-                        background-color: colors.$primary;
                         font-weight: bolder;
+
+                        label {
+                            background-color: colors.$primary;
+                        }
                     }
                 }
             }
@@ -1187,9 +1282,12 @@ $thick_slider_small_border_radius: 4px;
 #media_player_widget {
     transition: all 0.3s ease-in;
 
-    background-color: colors.$surface_container_low;
+    background-color: colors.$surface_dim;
     border-radius: $pill_large_ui_radius;
     margin: 0px -50px;
+
+    background-position: center;
+    background-size: cover;
 
     &.empty {
         margin: 0px -50px;
@@ -1241,21 +1339,21 @@ $thick_slider_small_border_radius: 4px;
 
             &:hover {
                 border-radius: 40%;
-                box-shadow: 0px 0px 10px 0px colors.$primary_container;
+                box-shadow: 0px 0px 15px 0px colors.$primary_container;
 
                 &.toggled {
                     border-radius: 33%;
-                    box-shadow: 0px 0px 10px -2px colors.$inverse_primary;
+                    box-shadow: 0px 0px 15px -6px colors.$primary;
                 }
             }
 
             &.toggled {
-                background-color: color.scale(colors.$inverse_primary, $lightness: -20%, $saturation: 0%);
+                background-color: color.scale(colors.$primary, $lightness: 0%);
                 border-radius: 25%;
                 // box-shadow: 0px 0px 12px -5px colors.$on_primary_container;
 
                 label {
-                    color: colors.$on_background;
+                    color: colors.$on_primary;
                 }
             }
         }
@@ -1276,7 +1374,7 @@ $thick_slider_small_border_radius: 4px;
             }
 
             &:hover {
-                // background-color: colors.$surface_container;
+                background-color: colors.$surface_container;
             }
 
             &:disabled {
@@ -1289,7 +1387,7 @@ $thick_slider_small_border_radius: 4px;
         #media_shuffle,
         #media_loop {
             transition: all 0.1s ease-out;
-            background-color: colors.$surface_container_lowest;
+            background-color: colors.$shadow;
             min-width: 1.75rem;
             min-height: 1.75rem;
             // padding: 6px;
@@ -1301,7 +1399,7 @@ $thick_slider_small_border_radius: 4px;
                 // font-family: settings.$icon_font_family;
                 font-size: 18px;
                 font-weight: normal;
-                color: colors.$surface_container_highest;
+                color: colors.$surface_bright;
             }
 
             &:hover {
@@ -1325,6 +1423,14 @@ $thick_slider_small_border_radius: 4px;
                     color: colors.$secondary;
                 }
             }
+
+            &:disabled {
+                background-color: colors.$surface_container_lowest;
+
+                label {
+                    color: colors.$surface_container_high;
+                }
+            }
         }
 
         #media_title_label {
@@ -1342,13 +1448,23 @@ $thick_slider_small_border_radius: 4px;
         #media_progress {
             margin: 0px calc(settings.$pill_padding / 2);
 
+            &:disabled {
+                slider {
+                    background-color: colors.$surface_bright;
+                }
+
+                highlight {
+                    background-color: colors.$surface_bright;
+                }
+            }
+
             contents {
                 trough {
                     // background-color: color.change(colors.$source, $lightness: 13%, $saturation: 20%);
                     // background-color: rgba(colors.$background, 1.0);
-                    background-color: colors.$surface_container_lowest;
+                    background-color: colors.$shadow;
                     border-radius: 100px;
-                    margin-left: settings.$media_player_slider_padding_left;
+                    padding-left: settings.$media_player_slider_padding_left;
                     min-height: 10px;
 
                     slider {
@@ -1372,7 +1488,7 @@ $thick_slider_small_border_radius: 4px;
                         margin-left: -(settings.$media_player_slider_padding_left);
                         border-radius: 100px 50px 50px 100px;
 
-                        // box-shadow: 0px 0px 8px -2px colors.$primary;
+                        box-shadow: 0px 0px 10px -2px colors.$primary;
 
                         // animation-name: progress_ambience;
                         // animation-duration: 10s;
@@ -1505,15 +1621,17 @@ $thick_slider_small_border_radius: 4px;
     // background-color: red;
 }
 
+$dock_item_padding: 5px;
+$dock_height: calc(32px + $dock_item_padding * 2 + settings.$dock_padding * 2);
 #dock {
     transition: margin 0.2s ease-out;
 
     margin-bottom: -66px;
     margin-top: 4px;
 
-    background-color: colors.$background;
+    background-color: colors.$shadow;
     border-radius: settings.$dock_rounding;
-    min-height: calc(5px * 2 + 32px + settings.$dock_padding * 2);
+    min-height: $dock_height;
     padding: 0px settings.$dock_padding;
 
     &.shown {
@@ -1523,15 +1641,43 @@ $thick_slider_small_border_radius: 4px;
         margin-bottom: 4px;
     }
 
+    $dock_item_size: calc($dock_height - 2 * settings.$dock_padding);
+
+    #dock_action_button {
+        transition: all 0.15s ease-out;
+
+        margin: settings.$dock_padding 0px;
+        min-width: $dock_item_size;
+
+        border-radius: calc(settings.$dock_rounding - settings.$dock_padding);
+        color: colors.$inverse_primary;
+        background-color: colors.$on_secondary;
+
+        label {
+            font-size: 32px;
+            font-weight: normal;
+        }
+
+        &:hover {
+            color: colors.$primary;
+            background-color: colors.$primary_container;
+        }
+
+        &:active {
+            color: colors.$primary_container;
+            background-color: colors.$primary;
+        }
+    }
+
     #dock_container,
     #dock_pinned_container {
         #dock_item {
             transition: margin 0.2s ease-out;
-            padding: 0px 0px;
+            padding: 0px;
             margin: 24px -24px -24px -24px;
 
             #dock_item_icon {
-                transition: all 0.1s ease-out;
+                // transition: all 0.1s ease-out;
 
                 opacity: 0;
             }
@@ -1539,12 +1685,7 @@ $thick_slider_small_border_radius: 4px;
             &.shown {
                 transition: margin 0.2s ease-out;
 
-                margin: 0px 0px;
-                padding-left: 5px;
-
-                &:first-child {
-                    padding-left: 0px;
-                }
+                margin: 0px;
 
                 &:hover {
                     #dock_item_main_container {
@@ -1624,12 +1765,14 @@ $thick_slider_small_border_radius: 4px;
                 }
 
                 #dock_item_icon {
-                    transition: all 0.15s ease-out;
+                    // transition: all 0.15s ease-out;
 
                     background-color: colors.$surface_container_highest;
                     border-radius: calc(settings.$dock_rounding - settings.$dock_padding);
                     opacity: 0.7;
-                    padding: 5px;
+
+                    min-width: $dock_item_size;
+                    min-height: $dock_item_size;
                 }
 
                 #dock_item_indicator {
@@ -1646,24 +1789,29 @@ $thick_slider_small_border_radius: 4px;
         }
     }
 
-    #dock_pinned_container {
+    #dock_container {
         #dock_item {
-            transition: margin 0.2s ease-out;
-            padding: 0px 0px;
-            margin: 24px -24px -24px -24px;
-
             &.shown {
-                transition: margin 0.2s ease-out;
-
-                margin: 0px 0px;
-                padding-left: 10px;
+                padding-left: 5px;
 
                 &:first-child {
                     padding-left: 0px;
                 }
+            }
+        }
+    }
 
-                &:last-child {
-                    padding-right: 0px;
+    #dock_pinned_container {
+        #dock_item {
+            transition: margin 0.2s ease-out;
+
+            &.shown {
+                transition: margin 0.2s ease-out;
+
+                padding-left: 10px;
+
+                &:first-child {
+                    padding-left: 0px;
                 }
 
                 #dock_item_icon {
@@ -1674,7 +1822,7 @@ $thick_slider_small_border_radius: 4px;
         }
     }
 
-    #dock_pinned_separator {
+    .dock_separator {
         transition: all 0.1s ease-out;
 
         min-width: 3px;
@@ -2133,7 +2281,7 @@ $notification_special_item_radius: calc($notification_special_radius - $notifica
     margin-left: 100px;
     margin-right: -100px;
 
-    background-color: colors.$background;
+    background-color: colors.$shadow;
     padding-top: calc(settings.$osd_padding / 2);
     padding-bottom: calc(settings.$osd_padding * 1.3);
     // border-radius: calc($thick_slider_border_radius + settings.$osd_padding * 2) calc($thick_slider_border_radius + settings.$osd_padding * 2) calc(settings.$thick_slider_thickness + settings.$osd_padding) calc(settings.$thick_slider_thickness + settings.$osd_padding);
@@ -2244,7 +2392,7 @@ $notification_special_item_radius: calc($notification_special_radius - $notifica
         min-height: $size;
 
         #corner {
-            background-color: colors.$background;
+            background-color: colors.$shadow;
         }
     }
 }
@@ -2271,7 +2419,7 @@ $notification_special_item_radius: calc($notification_special_radius - $notifica
 
 #bar_start_container,
 #bar_end_container {
-    background-color: colors.$background;
+    background-color: colors.$shadow;
     color: colors.$on_primary_container;
     // min-height: (settings.$bar_height - settings.$bar_padding * 2);
 }

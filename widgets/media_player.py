@@ -74,7 +74,7 @@ class MediaPlayer(Revealer):
             tab.add_style_class("empty")
 
             tab.connect("clicked", lambda tab: self.handle_tab_press(tab))
-        for tab in [0, self.max_num_tabs - 1]:
+        for tab in range(self.max_num_tabs):
             self.tabs[tab].add_style_class("hidden")
 
         self.add(self.main_container)
@@ -111,7 +111,7 @@ class MediaPlayer(Revealer):
             self.main_container.add_style_class("empty")
 
     def add_player(self, player):
-        name = player.props.player_name
+        name: str = player.props.player_name
 
         if name not in configuration.get_property("media_player_allowed_players"):
             return
@@ -121,6 +121,9 @@ class MediaPlayer(Revealer):
 
         if len(self.player_controllers) == 0:
             self.media_controls_stack.children = []
+
+            # media_controls.connect("artwork-changed", self.update_background)
+            # self.update_background(media_controls)
 
         self.media_controls_stack.add(media_controls)
         self.player_controllers[name] = (player, media_controls)
@@ -154,6 +157,8 @@ class MediaPlayer(Revealer):
 
         if len(self.player_controllers) > 0:
             if index == self.selected_player:
+                # media_controls.disconnect_by_func(self.update_background)
+
                 new_index = (
                     index
                     if index + 1 <= len(self.player_controllers)
@@ -227,6 +232,7 @@ class MediaPlayer(Revealer):
 
     def cycle(self, forward=True):
         mid = math.floor(self.max_num_tabs / 2.0)
+        # list(self.player_controllers.values())[self.selected_player][1].disconnect_by_func(self.update_background)
         if forward:
             self.selected_player += 1
             self.tab_holder.reorder_child(self.tabs[0], self.max_num_tabs - 1)
@@ -282,6 +288,17 @@ class MediaPlayer(Revealer):
         self.media_controls_stack.set_visible_child(
             list(self.player_controllers.values())[self.selected_player][1]
         )
+        # list(self.player_controllers.values())[self.selected_player][1].connect("artwork-changed", self.update_background)
+        # self.update_background(
+        #     list(self.player_controllers.values())[self.selected_player][1]
+        # )
+
+    def update_background(self, media_controls):
+        path = media_controls.artwork_path
+        logger.error(path)
+        self.main_container.set_style(
+            f'background-image: url("{path}");'
+        )
 
     def try_reveal(self):
         if self.can_reveal:
@@ -298,6 +315,9 @@ class MediaPlayer(Revealer):
 
 
 class MediaControls(Box):
+    @Signal
+    def artwork_changed(self): ...
+
     def __init__(self, player_controller, *args, **kwargs):
         super().__init__(orientation="v", *args, **kwargs)
         self.add_style_class("media_controls")
@@ -305,6 +325,7 @@ class MediaControls(Box):
         self.player_controller = player_controller
         self.playing = False
         self.length = 0
+        self.artwork_path = f"{configuration.get_property('icons_dir')}/image-off.svg"
 
         self.media_previous = MarkupButton(
             name="media_previous",
@@ -526,6 +547,8 @@ class MediaControls(Box):
                     preserve_aspect_ratio=True,
                 ),
             )
+            self.artwork_path = file_path
+            self.artwork_changed()
         else:
             logger.error("Failed to fetch artwork: {}", file_path)
 
@@ -538,6 +561,8 @@ class MediaControls(Box):
                 preserve_aspect_ratio=True,
             )
         )
+        self.artwork_path = f"{configuration.get_property('icons_dir')}/image-off.svg"
+        self.artwork_changed()
 
         if data != "":
             if data.startswith("file://"):
@@ -557,6 +582,8 @@ class MediaControls(Box):
                         preserve_aspect_ratio=True,
                     )
                 )
+                self.artwork_path = file_path
+                self.artwork_changed()
                 logger.debug(f"Applying cached artwork {file_path}")
             else:
                 GLib.Thread.new(
@@ -661,7 +688,7 @@ class MediaControls(Box):
             f"{artist if (artist := self.player_controller.get_artist()) else 'Unknown'} 🞄 {album if (album := self.player_controller.get_album()) else 'Unknown'}"
         )
         self.artist_album_label.set_tooltip_text(
-            f"{', '.join(artists) if (artists := self.metadata_get(metadata, 'xesam:artist', None)) else artist if (artist := self.player_controller.get_artist()) else 'Unknown'} 🞄 {album if (album := self.player_controller.get_album()) else 'Unknown'}"
+            f"{artist if (artist := self.player_controller.get_artist()) else 'Unknown'} 🞄 {album if (album := self.player_controller.get_album()) else 'Unknown'}"
         )
 
         self.update_artwork(self.metadata_get(metadata, "mpris:artUrl", ""))

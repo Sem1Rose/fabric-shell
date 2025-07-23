@@ -13,7 +13,8 @@ from fabric.widgets.wayland import WaylandWindow as Window
 
 from fabric.utils import DesktopApp, exec_shell_command_async, idle_add
 
-from widgets.buttons import Button
+from windows.pill import PillWindow
+from widgets.buttons import Button, MarkupButton
 from widgets.helpers.clients import get_clients_service, Client
 from widgets.helpers.workspace_properties import get_workspace_properties_service
 
@@ -46,10 +47,20 @@ class DockWindow(Window):
         self.pinned_items: dict[str, PinnedDockItem] = {}
         self.loaded_pinned_desktop_apps: list[DesktopApp] = []
 
+        self.add_action_button = configuration.get_property("dock_add_action_button")
+        if self.add_action_button:
+            self.action_button = MarkupButton(name="dock_action_button", markup=configuration.get_property("dock_action_button_icon"), on_button_release_event=lambda _, event: self.on_action_button_clicked(event))
+            self.action_button_separator = Box(
+                v_align="center",
+                style_classes=["hidden", "dock_separator"],
+            )
+
+            self.action_button.connect("enter-notify-event", lambda *_: self.on_mouse_enter())
+            self.action_button.connect("leave-notify-event", lambda *_: self.on_mouse_leave())
         self.main_container_empty = True
         self.main_container = Box(name="dock_container")
         self.pinned_separator = Box(
-            name="dock_pinned_separator", v_align="center", style_classes="hidden"
+            v_align="center", style_classes=["hidden", "dock_separator"]
         )
         self.pinned_container_empty = True
         self.pinned_container = Box(name="dock_pinned_container")
@@ -57,6 +68,14 @@ class DockWindow(Window):
         self.dock = Box(
             name="dock",
             children=[
+                self.action_button,
+                self.action_button_separator,
+                self.pinned_container,
+                self.pinned_separator,
+                self.main_container,
+            ]
+            if self.add_action_button
+            else [
                 self.pinned_container,
                 self.pinned_separator,
                 self.main_container,
@@ -86,6 +105,29 @@ class DockWindow(Window):
 
         self.connect("enter-notify-event", lambda *_: self.on_mouse_enter())
         self.connect("leave-notify-event", lambda *_: self.on_mouse_leave())
+
+    def on_action_button_clicked(self, event):
+        if event.button not in [1, 3]:
+            return
+
+        button = "left" if event.button == 1 else "right"
+        match action := configuration.get_property(f"dock_action_button_{button}_click_action"):
+            case "launcher":
+                PillWindow.instances[0].change_applet("launcher")
+            case "dashboard":
+                PillWindow.instances[0].change_applet("dashboard")
+            case "wallpaper":
+                PillWindow.instances[0].change_applet("wallpaper")
+            case "powermenu":
+                PillWindow.instances[0].change_applet("powermenu")
+            case "command":
+                command = configuration.get_property(f"dock_action_button_{button}_click_command").strip()
+                if command != "":
+                    exec_shell_command_async(command)
+            case "none":
+                pass
+            case _:
+                logger.error(f"Unknown action button {button}-click action: {action}")
 
     def load_pinned_items(self):
         try:
@@ -144,6 +186,9 @@ class DockWindow(Window):
         else:
             self.pinned_separator.remove_style_class("hidden")
 
+        if self.add_action_button:
+            self.action_button_separator.remove_style_class("hidden")
+
         with open("dock_pinned_items", "w") as file:
             # logger.error(list(self.pinned_items.keys()))
             file.write(json.dumps(list(self.pinned_items.keys())))
@@ -186,7 +231,10 @@ class DockWindow(Window):
             self.pinned_container_empty = True
 
             if self.main_container_empty:
-                self.dock.remove_style_class("shown")
+                if self.add_action_button:
+                    self.action_button_separator.add_style_class("hidden")
+                else:
+                    self.dock.remove_style_class("shown")
 
             self.pinned_separator.add_style_class("hidden")
 
@@ -224,6 +272,8 @@ class DockWindow(Window):
         else:
             self.pinned_separator.remove_style_class("hidden")
 
+        self.action_button_separator.remove_style_class("hidden")
+
     def on_client_removed(self, service, client):
         if not self.dock_items.__contains__(client):
             logger.error(
@@ -245,7 +295,10 @@ class DockWindow(Window):
             self.main_container_empty = True
 
             if self.pinned_container_empty:
-                self.dock.remove_style_class("shown")
+                if self.add_action_button:
+                    self.action_button_separator.add_style_class("hidden")
+                else:
+                    self.dock.remove_style_class("shown")
 
             self.pinned_separator.add_style_class("hidden")
 

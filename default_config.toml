@@ -2,7 +2,7 @@
 app_name = "fabric-shell"
 debug = false
 
-window_manager = "hyprland"
+window_manager = "agnostic" # hyprland | niri | agnostic
 
 styles_dir = "styles"
 icons_dir = "icons"
@@ -208,9 +208,15 @@ dashboard_widgets = ["calendar", "media-player"]
 dashboard_qs = { "tiles" = [ [ "bluetooth", "wifi"] ], "sliders" = [ "volume-d", "brightness" ] }
 
 dock_icon_size = 32
-dock_visibility_rule = "hide when obstructed" # always visible - auto hide - hide when obstructed
+dock_visibility_rule = "always visible" # always visible - auto hide - hide when obstructed
 dock_flash_on_app_added = true
 dock_hide_delay = 0.3
+dock_add_action_button = true
+dock_action_button_icon = "&#x10013;"
+dock_action_button_left_click_action = "launcher" # launcher | wallpaper | powermenu | command | none
+dock_action_button_left_click_command = ""
+dock_action_button_right_click_action = "none" # launcher | wallpaper | powermenu | command | none
+dock_action_button_right_click_command = ""
 
 [css_settings]
 text_font_family = "Lexend"
@@ -249,6 +255,8 @@ thick_slider_length = "250px"
 thick_slider_thickness = "48px"
 thick_slider_padding = "4px"
 thick_slider_toggle_spacing = "12px"
+thick_slider_handle_width = "5px"
+thick_slider_handle_height = "32px"
 
 wallpaper_selector_wallpaper_height = "75px"
 wallpaper_selector_wallpaper_border_radius = "36px"
@@ -256,4 +264,4 @@ wallpaper_selector_wallpaper_border_radius = "36px"
 notification_image_size = "100px"
 
 dock_padding = "9px"
-dock_rounding = "18px"
+dock_rounding = "22px"
